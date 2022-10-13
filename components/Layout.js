@@ -30,7 +30,7 @@ export default function Layout({ title, children }) {
         </header>
         <main className="container m-auto mt-4 px-4">{children}</main>
         <footer className='flex justify-center items-center shadow-inner'>
-            <p>Copyright @ 2022 herbgrinders.com</p>
+            <p>Copyright © 2022 herbgrinders.com</p>
         </footer>
       </div>
     </>

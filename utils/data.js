@@ -11,6 +11,7 @@ const data = {
       numReviews: 8,
       countInStock: 200,
       tags: '4-piece',
+      id: 1,
       description:
         'Need a hit of creativity? Light up and let your creative juices flow with the Van Gogh CleanCut Grinder.',
     },
@@ -25,6 +26,7 @@ const data = {
       numReviews: 5,
       countInStock: 100,
       tags: 'grinder-card',
+      id: 2,
       description:
         'Take your grind to go and spark up with player 2. Our grinder cards are made with surgical-grade steel to effortlessly grate through herb. Plus, the nonstick coating prevents a sticky mess.',
     },
@@ -37,8 +39,9 @@ const data = {
       brand: 'V Syndicate',
       rating: 4.9,
       numReviews: 18,
-      countInStock: 20,
+      countInStock: 10,
       tags: '4-piece',
+      id: 3,
       description:
         'Need a hit of creativity? Light up and let your creative juices flow with the Van Gogh CleanCut Grinder.',
     },
@@ -53,6 +56,7 @@ const data = {
         numReviews: 8,
         countInStock: 200,
         tags: '4-piece',
+        id: 4,
         description:
           'Need a hit of creativity? Light up and let your creative juices flow with the Van Gogh CleanCut Grinder.',
       },
@@ -67,6 +71,7 @@ const data = {
         numReviews: 5,
         countInStock: 100,
         tags: 'grinder-card',
+        id: 5,
         description:
           'Take your grind to go and spark up with player 2. Our grinder cards are made with surgical-grade steel to effortlessly grate through herb. Plus, the nonstick coating prevents a sticky mess.',
       },
@@ -81,6 +86,7 @@ const data = {
         numReviews: 18,
         countInStock: 20,
         tags: '4-piece',
+        id: 6,
         description:
           'Need a hit of creativity? Light up and let your creative juices flow with the Van Gogh CleanCut Grinder.',
       },

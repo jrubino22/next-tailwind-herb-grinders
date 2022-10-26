@@ -40,3 +40,9 @@ a {
 .main-prod-image {
   border: 1px solid gray
 }
+
+input,
+select,
+textarea {
+  @apply rounded border p-2 outline-none ring-indigo-300 focus:ring;
+}

@@ -1,1 +1,1 @@
-Left off: 1:13:00 https://www.youtube.com/watch?v=_IBlyR5mRzA
+Left off: 1:47:00 https://www.youtube.com/watch?v=_IBlyR5mRzA

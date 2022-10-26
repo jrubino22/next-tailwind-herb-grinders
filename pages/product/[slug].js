@@ -17,16 +17,16 @@ export default function ProductScreen() {
     return <div>Product Not Found</div>;
   }
   const addToCartHandler = () => {
-    const existItem = state.cart.cartItems.find((x) => x.id === product.id);
+    const existItem = state.cart.cartItems.find((x) => x.slug === product.slug);
     const quantity = existItem ? existItem.quantity + 1 : 1;
 
     if (product.countInStock < quantity) {
-      alert('Sorry. Product is out of stock')
-      return
+      alert('Sorry. Product is out of stock');
+      return;
     }
 
     dispatch({ type: 'CART_ADD_ITEM', payload: { ...product, quantity } });
-    router.push('/cart')
+    router.push('/cart');
   };
   return (
     <Layout title={product.name}>

@@ -47,7 +47,7 @@ const data = {
     },
     {
         name: 'Smoky Night 4-Piece CleanCut Grinder',
-        slug: 'smoky-night-4-piece-cleancut-grinder',
+        slug: 'smoky-night-4-piece-cleancut-grinder-2',
         category: '4-piece Grinders',
         image: '/images/smoky-night-4-piece-cleancut.png',
         price: 29.99,
@@ -62,7 +62,7 @@ const data = {
       },
       {
         name: 'Game Head Grinder Card',
-        slug: 'game-head-grinder-card',
+        slug: 'game-head-grinder-card-2',
         category: 'Grinder Cards',
         image: '/images/game-head-card.jpg',
         price: 9.99,
@@ -77,7 +77,7 @@ const data = {
       },
       {
         name: '420 Rasta 4-Piece SharpShred Grinder',
-        slug: '420-rasta-4-piece-sharpshred-grinder',
+        slug: '420-rasta-4-piece-sharpshred-grinder-2',
         category: '4-piece Grinders',
         image: '/images/420-rasta-4-piece-sharpshred.png',
         price: 19.99,

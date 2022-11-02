@@ -20,7 +20,6 @@ export default function ShippingScreen() {
   const router = useRouter();
 
   useEffect(() => {
-
     setValue('fullName', shippingAddress.fullName);
     setValue('address', shippingAddress.address);
     setValue('city', shippingAddress.city);
@@ -63,7 +62,7 @@ export default function ShippingScreen() {
             className="w-full"
             id="fullName"
             autoFocus
-            {...register('FullName', {
+            {...register('fullName', {
               required: 'Please enter full name',
             })}
           />

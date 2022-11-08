@@ -1,13 +1,68 @@
+import axios from 'axios';
+import Cookies from 'js-cookie';
+import Image from 'next/image';
 import Link from 'next/link';
-import React, { useContext } from 'react';
+import { useRouter } from 'next/router';
+import React, { useContext, useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 import CheckoutWizard from '../components/CheckoutWizard';
 import Layout from '../components/Layout';
+import { getError } from '../utils/errors';
 import { Store } from '../utils/Store';
 
-export default function placeorder() {
+export default function PlaceOrderScreen() {
   const { state, dispatch } = useContext(Store);
   const { cart } = state;
   const { cartItems, shippingAddress, paymentMethod } = cart;
+
+  const round2 = (num) => Math.round(num * 100 + Number.EPSILON) / 100;
+
+  const itemsPrice = round2(
+    cartItems.reduce((a, c) => a + c.quantity * c.price, 0)
+  );
+
+  const shippingPrice = itemsPrice > 200 ? 0 : 15;
+  const taxPrice = round2(itemsPrice * 0.15);
+  const totalPrice = round2(itemsPrice + shippingPrice + taxPrice);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!paymentMethod) {
+      router.push('/payment');
+    }
+  }, [paymentMethod, router]);
+
+  const [loading, setLoading] = useState(false);
+
+  const placeOrderHandler = async () => {
+    try {
+      setLoading(true);
+      const { data } = await axios.post('/api/orders', {
+        orderItems: cartItems,
+        shippingAddress,
+        paymentMethod,
+        itemsPrice,
+        shippingPrice,
+        taxPrice,
+        totalPrice,
+      });
+      setLoading(false);
+      dispatch({ type: 'CART_CLEAR_ITEMS' });
+      Cookies.set(
+        'cart',
+        JSON.stringify({
+          ...cart,
+          cartItems: [],
+        })
+      );
+
+      router.push(`/order/${data._id}`);
+    } catch (err) {
+      setLoading(false);
+      toast.error(getError(err));
+    }
+  };
 
   return (
     <Layout title="Place Order">
@@ -50,11 +105,74 @@ export default function placeorder() {
                   </tr>
                 </thead>
                 <tbody>
-                    {cartItems.map((item) => (
-                        <tr key={item._id}
-                    ))}
+                  {cartItems.map((item) => (
+                    <tr key={item._id} className="border-b">
+                      <td>
+                        <Link href={`/product/${item.slug}`}>
+                          <a className="flex items-center">
+                            <Image
+                              src={item.image}
+                              alt={item.name}
+                              width={50}
+                              height={50}
+                            ></Image>
+                            &nbsp;
+                            {item.name}
+                          </a>
+                        </Link>
+                      </td>
+                      <td className="p-5 text-right">{item.quantity}</td>
+                      <td className="p-5 text-right">${item.price}</td>
+                      <td className="p-5 text-right">
+                        ${item.quantity * item.price}
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
+              <div>
+                <Link href="/cart">Edit</Link>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div className="card p-5">
+              <h2 className="mb-2 text-lg">Order Summary</h2>
+              <ul>
+                <li>
+                  <div className="mb-2 flex justify-between">
+                    <div>Items</div>
+                    <div>${itemsPrice}</div>
+                  </div>
+                </li>
+                <li>
+                  <div className="mb-2 flex justify-between">
+                    <div>Tax</div>
+                    <div>${taxPrice}</div>
+                  </div>
+                </li>
+                <li>
+                  <div className="mb-2 flex justify-between">
+                    <div>Shipping</div>
+                    <div>${shippingPrice}</div>
+                  </div>
+                </li>
+                <li>
+                  <div className="mb-2 flex justify-between">
+                    <div>Total</div>
+                    <div>${totalPrice}</div>
+                  </div>
+                </li>
+                <li>
+                  <button
+                    disabled={loading}
+                    onClick={placeOrderHandler}
+                    className="primary-button w-full"
+                  >
+                    {loading ? 'Loading...' : 'Place Order'}
+                  </button>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
@@ -62,3 +180,5 @@ export default function placeorder() {
     </Layout>
   );
 }
+
+PlaceOrderScreen.auth = true;

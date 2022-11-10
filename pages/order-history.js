@@ -40,7 +40,7 @@ function OrderHistoryScreen() {
   }, []);
   return (
     <Layout title="Profile">
-      <h1>Order History</h1>
+      <h1 className="mb-4 text-xl">Order History</h1>
       {loading ? (
         <div>Loading...</div>
       ) : error ? (
@@ -72,13 +72,13 @@ function OrderHistoryScreen() {
                   <td className="p-5">
                     {order.isDelivered
                       ? `${order.deliveredAt.substring(0, 10)}`
-                      : 'not paid'}
-                  </td>   
+                      : 'not delivered'}
+                  </td>
                   <td className="p-5">
                     <Link href={`/order/${order._id}`} passHref>
-                        <a>Details</a>
+                      <a>Details</a>
                     </Link>
-                  </td>               
+                  </td>
                 </tr>
               ))}
             </tbody>

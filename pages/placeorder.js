@@ -37,13 +37,6 @@ export default function PlaceOrderScreen() {
 
   const placeOrderHandler = async () => {
     try {
-      console.log({orderItems: cartItems,
-        shippingAddress,
-        paymentMethod,
-        itemsPrice,
-        shippingPrice,
-        taxPrice,
-        totalPrice,})
       setLoading(true);
       const { data } = await axios.post('/api/orders', {
         orderItems: cartItems,

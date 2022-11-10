@@ -20,11 +20,10 @@ export default function Layout({ title, children }) {
   }, [cart.cartItems]);
 
   const logoutClickHandler = () => {
-
     Cookies.remove('cart');
-    dispatch({ type: 'CART_RESET' })
-    signOut({ callbackUrl: '/login' })
-  }
+    dispatch({ type: 'CART_RESET' });
+    signOut({ callbackUrl: '/login' });
+  };
 
   return (
     <>

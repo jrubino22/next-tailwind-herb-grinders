@@ -77,13 +77,13 @@ export default function Layout({ title, children }) {
                       </DropdownLink>
                     </Menu.Item>
                     <Menu.Item>
-                      <a
+                      <Link
                         className="dropdown-link"
                         href="/order-history"
                         onClick={logoutClickHandler}
                       >
                         Logout
-                      </a>
+                      </Link>
                     </Menu.Item>
                   </Menu.Items>
                 </Menu>

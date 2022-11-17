@@ -16,7 +16,7 @@ export default function Layout({ title, children }) {
   const { cart } = state;
   const [cartItemsCount, setCartItemsCount] = useState(0);
   useEffect(() => {
-    console.log(cart.cartItems)
+    console.log(cart.cartItems);
     setCartItemsCount(cart.cartItems.reduce((a, c) => a + c.quantity, 0));
   }, [cart.cartItems]);
 
@@ -76,6 +76,16 @@ export default function Layout({ title, children }) {
                         Order History
                       </DropdownLink>
                     </Menu.Item>
+                    {session.user.isAdmin && (
+                        <Menu.Item>
+                          <DropdownLink
+                            className="dropdown-link"
+                            href="/admin/dashboard"
+                          >
+                            Admin Dashboard
+                          </DropdownLink>
+                        </Menu.Item>
+                      )}
                     <Menu.Item>
                       <DropdownLink
                         className="dropdown-link"

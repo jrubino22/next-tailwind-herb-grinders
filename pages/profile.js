@@ -18,6 +18,7 @@ export default function ProfileScreen() {
   } = useForm();
 
   useEffect(() => {
+    console.log(session.user)
     setValue('name', session.user.name);
     setValue('email', session.user.email);
     setValue('tel', session.user.phoneNum);

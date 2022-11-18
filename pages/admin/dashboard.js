@@ -1,15 +1,15 @@
 import axios from 'axios';
 import Link from 'next/link';
-import { Bar } from 'react-chartjs-2';
-import {
-  Chart as ChartJs,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js';
+// import { Bar } from 'react-chartjs-2';
+// import {
+//   Chart as ChartJs,
+//   CategoryScale,
+//   LinearScale,
+//   BarElement,
+//   Title,
+//   Tooltip,
+//   Legend,
+// } from 'chart.js';
 
 import React, { useEffect, useReducer } from 'react';
 import Layout from '../../components/Layout';
@@ -48,16 +48,16 @@ function AdminDashboardScreen() {
     fetchData();
   }, []);
 
-  const data = {
-    labels: summary.salesData.map((x) => x._id),
-    datasets: [
-      {
-        label: 'Sales',
-        backgroundColor: 'rgba(162, 222, 208, 1)',
-        data: summary.salesData.map((x) => x.totalSales),
-      },
-    ],
-  };
+//   const data = {
+//     labels: summary.salesData.map((x) => x._id),
+//     datasets: [
+//       {
+//         label: 'Sales',
+//         backgroundColor: 'rgba(162, 222, 208, 1)',
+//         data: summary.salesData.map((x) => x.totalSales),
+//       },
+//     ],
+//   };
 
   return (
     <Layout title="Admin Dashboard">

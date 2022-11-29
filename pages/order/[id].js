@@ -1,8 +1,10 @@
 import axios from 'axios';
+import { SessionContext, useSession } from 'next-auth/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useReducer } from 'react';
+import { toast } from 'react-toastify';
 import Layout from '../../components/Layout';
 import { getError } from '../../utils/errors';
 
@@ -20,14 +22,17 @@ function reducer(state, action) {
 }
 
 function OrderScreen() {
+  const { data: session } = useSession();
+
   const { query } = useRouter();
   const orderId = query.id;
 
-  const [{ loading, error, order }, dispatch] = useReducer(reducer, {
-    loading: true,
-    order: {},
-    error: '',
-  });
+  const [{ loading, error, order, loadingDeliver, successDeliver }, dispatch] =
+    useReducer(reducer, {
+      loading: true,
+      order: {},
+      error: '',
+    });
   useEffect(() => {
     const fetchOrder = async () => {
       try {
@@ -38,10 +43,13 @@ function OrderScreen() {
         dispatch({ type: 'FETCH_FAIL', payload: getError(err) });
       }
     };
-    if (!order._id || (order._id && order._id !== orderId)) {
+    if (!order._id || successDeliver || (order._id && order._id !== orderId)) {
       fetchOrder();
+      if (successDeliver) {
+        dispatch({ type: 'DELIVER_RESET' });
+      }
     }
-  }, [order, orderId]);
+  }, [order, orderId, successDeliver]);
   const {
     shippingAddress,
     paymentMethod,
@@ -55,6 +63,18 @@ function OrderScreen() {
     isDelivered,
     deliveredAt,
   } = order;
+
+  async function deliverOrderHandler() {
+    try {
+      dispatch({ type: 'DELIVER_REQUEST' });
+      const { data } = await axios.put(`/api/orders/${order._id}/deliver`, {});
+      dispatch({ type: 'DELIVER_SUCCESS', payload: data });
+      toast.success('Order has been delivered');
+    } catch (err) {
+      dispatch({ type: 'DELIVER_FAIL', payload: getError(err) });
+      toast.error(getError(err));
+    }
+  }
 
   return (
     <Layout title={`Order ${orderId}`}>
@@ -119,7 +139,9 @@ function OrderScreen() {
                       </td>
                       <td className=" p-5 text-right">{item.quantity}</td>
                       <td className=" p-5 text-right">${item.price}</td>
-                      <td className=" p-5 text-right">${item.quantity * item.price}</td>
+                      <td className=" p-5 text-right">
+                        ${item.quantity * item.price}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -128,33 +150,44 @@ function OrderScreen() {
           </div>
           <div>
             <div className="card p-5">
-                <h2 className="mb-2 text-lg">Order Summary</h2>
-                <ul>
-                    <li>
-                        <div className="mb-2 flex justify-between">
-                            <div>Items</div>
-                            <div>${itemsPrice}</div>
-                        </div>
-                    </li>
-                    <li>
-                        <div className="mb-2 flex justify-between">
-                            <div>Tax</div>
-                            <div>${taxPrice}</div>
-                        </div>
-                    </li>
-                    <li>
-                        <div className="mb-2 flex justify-between">
-                            <div>Shipping</div>
-                            <div>${shippingPrice}</div>
-                        </div>
-                    </li>
-                    <li>
-                        <div className="mb-2 flex justify-between">
-                            <div>Tax</div>
-                            <div>${totalPrice}</div>
-                        </div>
-                    </li>
-                </ul>
+              <h2 className="mb-2 text-lg">Order Summary</h2>
+              <ul>
+                <li>
+                  <div className="mb-2 flex justify-between">
+                    <div>Items</div>
+                    <div>${itemsPrice}</div>
+                  </div>
+                </li>
+                <li>
+                  <div className="mb-2 flex justify-between">
+                    <div>Tax</div>
+                    <div>${taxPrice}</div>
+                  </div>
+                </li>
+                <li>
+                  <div className="mb-2 flex justify-between">
+                    <div>Shipping</div>
+                    <div>${shippingPrice}</div>
+                  </div>
+                </li>
+                <li>
+                  <div className="mb-2 flex justify-between">
+                    <div>Tax</div>
+                    <div>${totalPrice}</div>
+                  </div>
+                </li>
+                {session.user.isAdmin && order.isPaid && !order.isDelivered && (
+                  <li>
+                    {loadingDeliver && <div>Loading...</div>}
+                    <button
+                      className="primary-button w-full"
+                      onClick={deliverOrderHandler}
+                    >
+                      Order Delivered
+                    </button>
+                  </li>
+                )}
+              </ul>
             </div>
           </div>
         </div>

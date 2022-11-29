@@ -1,6 +1,6 @@
 import axios from 'axios';
 import Link from 'next/link';
-import { Bar } from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2'
 import {
   Chart as ChartJs,
   CategoryScale,
@@ -77,6 +77,10 @@ function AdminDashboardScreen() {
     ],
   };
 
+  const round2 = (num) => Math.round(num * 100 + Number.EPSILON) / 100;
+
+  const roundedPrice = round2(summary.ordersPrice)
+
   return (
     <Layout title="Admin Dashboard">
       <div className="grid md:grid-cols-4 md:gap-5">
@@ -108,7 +112,7 @@ function AdminDashboardScreen() {
             <div>
               <div className="grid grid-cols-1 md:grid-cols-4">
                 <div className="card m-5 p-5">
-                  <p className="text-3xl">${summary.ordersPrice}</p>
+                  <p className="text-3xl">${roundedPrice}</p>
                   <p>Sales</p>
                   <Link href="/admin/orders">View sales</Link>
                 </div>

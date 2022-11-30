@@ -8,6 +8,9 @@ import dynamic from 'next/dynamic';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
+const round2 = (num) => Math.round(num * 100 + Number.EPSILON) / 100;
+
+
 function CartScreen() {
   const router = useRouter();
   const { state, dispatch } = useContext(Store);
@@ -106,7 +109,7 @@ function CartScreen() {
               <li>
                 <div className="pb-3">
                   Subtotal ({cartItems.reduce((a, c) => a + c.quantity, 0)}) : $
-                  {cartItems.reduce((a, c) => a + c.quantity * c.price, 0)}
+                  {round2(cartItems.reduce((a, c) => a + c.quantity * c.price, 0))}
                 </div>
               </li>
               <li>

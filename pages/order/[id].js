@@ -16,6 +16,19 @@ function reducer(state, action) {
       return { ...state, loading: false, order: action.payload, error: '' };
     case 'FETCH_FAIL':
       return { ...state, loading: false, error: action.payload };
+    case 'DELIVER_REQUEST':
+      return { ...state, loadingDeliver: true };
+    case 'DELIVER_SUCCESS':
+      return { ...state, loadingDeliver: false, successDeliver: true };
+    case 'DELIVER_FAIL':
+      return { ...state, loadingDeliver: false };
+    case 'DELIVER_RESET':
+      return {
+        ...state,
+        loadingDeliver: false,
+        successDeliver: false,
+      };
+
     default:
       state;
   }
@@ -67,9 +80,10 @@ function OrderScreen() {
   async function deliverOrderHandler() {
     try {
       dispatch({ type: 'DELIVER_REQUEST' });
-      const { data } = await axios.put(`/api/orders/${order._id}/deliver`, {});
+      const { data } = await axios.put(`/api/admin/orders/${order._id}/deliver`, {});
       dispatch({ type: 'DELIVER_SUCCESS', payload: data });
       toast.success('Order has been delivered');
+      console.log("order", data)
     } catch (err) {
       dispatch({ type: 'DELIVER_FAIL', payload: getError(err) });
       toast.error(getError(err));

@@ -1,1 +1,1 @@
-Left off: vid31 4:30
+Left off: vid31 8:02

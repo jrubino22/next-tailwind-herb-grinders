@@ -1,6 +1,6 @@
 import { getSession } from 'next-auth/react';
-import Order from '../../../models/Order';
-import db from '../../../utils/db';
+import Order from '../../../../models/Order';
+import db from '../../../../utils/db';
 
 const handler = async (req, res) => {
   const session = await getSession({ req });
@@ -14,7 +14,7 @@ const handler = async (req, res) => {
 
     res.send(orders);
   } else {
-    return res.status(400).send({ message: 'Method not allowed' })
+    return res.status(400).send({ message: 'Method not allowed' });
   }
 };
 

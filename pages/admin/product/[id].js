@@ -216,8 +216,9 @@ export default function AdminProductEditScreen() {
               </div>
               <div className="mb-4">
                 <label htmlFor="description">description</label>
-                <input
+                <textarea
                   type="text"
+                  height="150px"
                   className="w-full"
                   id="description"
                   autoFocus

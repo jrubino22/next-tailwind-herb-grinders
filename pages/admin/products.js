@@ -1,6 +1,10 @@
 import axios from 'axios';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import React, { useEffect, useReducer } from 'react';
+import { toast } from 'react-toastify';
+
+
 import Layout from '../../components/Layout';
 import { getError } from '../../utils/errors';
 
@@ -12,17 +16,42 @@ function reducer(state, action) {
       return { ...state, loading: false, products: action.payload, error: '' };
     case 'FETCH_FAIL':
       return { ...state, loading: false, error: action.payload };
+    case 'CREATE_REQUEST':
+      return { ...state, loadingCreate: true };
+    case 'CREATE_SUCCESS':
+      return { ...state, loadingCreate: false };
+    case 'CREATE_FAIL' :
+      return { ...state, loadingCreate: false };
     default:
       state;
   }
 }
 
 export default function AdminProductsScreen() {
-  const [{ loading, error, products }, dispatch] = useReducer(reducer, {
+
+  const router = useRouter();
+
+  const [{ loading, error, products, loadingCreate, loadingDelete }, dispatch] = useReducer(reducer, {
     loading: true,
     products: [],
     error: '',
   });
+
+  const createHandler = async () => {
+    if (!window.confirm('Create new product?')) {
+        return;
+    }
+    try {
+      dispatch({ type: 'CREATE_REQUEST' })
+      const { data } = await axios.post(`/api/admin/products`);
+      dispatch({ type: 'CREATE_SUCCESS' });
+      toast.success('Product created successfully');
+      router.push(`/admin/product/${data.product._id}`);
+    }catch(err){
+      dispatch({ type: 'CREATE_FAIL' });
+      toast.error(getError(err))
+    }
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -61,7 +90,17 @@ export default function AdminProductsScreen() {
           </ul>
         </div>
         <div className="overflow-x-auto md:col-span-3">
+        <div className="justify-between">
             <h1 className="mb-4 text-xl">Products</h1>
+            {loadingDelete && <div>Deleting item...</div>}
+            <button 
+              disabled={loadingCreate}
+              onClick={createHandler}
+              className="primary-button"
+              >
+                {loadingCreate ? 'Loading' : 'Create'}
+              </button>
+        </div>      
             {loading ? (
                 <div>Loading...</div>
             ) : error ? (

@@ -36,8 +36,9 @@ const putHandler = async (req, res) => {
     product.brand = req.body.brand;
     product.countInStock = req.body.countInStock;
     product.description = req.body.description;
-    await product.save
+    await product.save()
     await db.disconnect();
+    console.log("made it", req.body.name)
     res.send({ message: 'Product updated successfully' });
   } else {
     await db.disconnect();

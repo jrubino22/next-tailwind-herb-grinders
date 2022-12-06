@@ -1,3 +1,4 @@
+
 import axios from 'axios';
 import { useContext } from 'react';
 import { toast } from 'react-toastify';
@@ -8,8 +9,10 @@ import db from '../utils/db';
 import { Store } from '../utils/Store';
 import { Carousel } from 'react-responsive-carousel'
 import 'react-responsive-carousel/lib/styles/carousel.min.css'
+import Banner from '../models/Banner';
+import Link from 'next/link';
 
-export default function Home({ products }) {
+export default function Home({ products, banners }) {
   const { state, dispatch } = useContext(Store);
   const { cart } = state;
 
@@ -30,9 +33,16 @@ export default function Home({ products }) {
 
   return (
     <Layout title="HerbGrinders">
-      <Carousel showThumbs={false} autoPlay>
-        
+      <Carousel showThumbs={false} autoPlay dynamicHeight>
+        {banners.map((banner) => (
+          <div key={banner._id}>
+            <Link href={banner.link}>
+            <img src={banner.image} alt={banner.alt}/>
+            </Link>
+          </div>
+        ))}
       </Carousel>
+      <h2 className="h2 my-4 font-bold text-xl ml-5">New Grinders</h2>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-4">
         {products.map((product) => (
           <ProductItem
@@ -49,9 +59,11 @@ export default function Home({ products }) {
 export async function getServerSideProps() {
   await db.connect();
   const products = await Product.find().lean();
+  const banners = await Banner.find().lean();
   return {
     props: {
       products: products.map(db.convertDocToObj),
+      banners: banners.map(db.convertDocToObj),
     },
   };
 }

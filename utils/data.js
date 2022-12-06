@@ -1,6 +1,26 @@
-import bcrypt from 'bcryptjs'
+import bcrypt from 'bcryptjs';
 
 const data = {
+  banners: [
+    {
+      label: 'First Banner',
+      image:
+        'https://res.cloudinary.com/ddsp9kgde/image/upload/v1670366818/Blackfridaybanner1_1_bi5pyf.png',
+      alt: 'black friday grinders',
+      link: 'https://google.com',
+      order: 1,
+      live: 'true',
+    },
+    {
+      label: 'Second Banner',
+      image:
+        'https://res.cloudinary.com/ddsp9kgde/image/upload/v1670366812/VSyndicate_BannerUpdate_1_1_zf2rzd.jpg',
+      alt: 'grinders cheap',
+      link: 'https://vsyndicate.com',
+      order: 2,
+      live: 'true',
+    },
+  ],
   users: [
     {
       name: 'Joey Rubino',

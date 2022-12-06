@@ -6,6 +6,8 @@ import ProductItem from '../components/ProductItem';
 import Product from '../models/Product';
 import db from '../utils/db';
 import { Store } from '../utils/Store';
+import { Carousel } from 'react-responsive-carousel'
+import 'react-responsive-carousel/lib/styles/carousel.min.css'
 
 export default function Home({ products }) {
   const { state, dispatch } = useContext(Store);
@@ -28,6 +30,9 @@ export default function Home({ products }) {
 
   return (
     <Layout title="HerbGrinders">
+      <Carousel showThumbs={false} autoPlay>
+        
+      </Carousel>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-4">
         {products.map((product) => (
           <ProductItem

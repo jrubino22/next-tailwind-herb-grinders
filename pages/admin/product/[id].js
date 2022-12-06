@@ -93,10 +93,7 @@ export default function AdminProductEditScreen() {
       formData.append('file', file);
       formData.append('signature', signature);
       formData.append('timestamp', timestamp);
-      formData.append(
-        'api_key',
-        process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY
-      );
+      formData.append('api_key', process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY);
       const { data } = await axios.post(url, formData);
 
       dispatch({ type: 'UPLOAD_SUCCESS' });

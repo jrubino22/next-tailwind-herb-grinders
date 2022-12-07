@@ -46,15 +46,15 @@ export default function AdminMediaScreen() {
   });
 
   const createHandler = async () => {
-    if (!window.confirm('Create new banner?')) {
+    if (!window.confirm('Add new banner?')) {
       return;
     }
     try {
       dispatch({ type: 'CREATE_REQUEST' });
-      const { data } = await axios.post(`/api/admin/products`);
+      const { data } = await axios.post(`/api/admin/media`);
       dispatch({ type: 'CREATE_SUCCESS' });
-      toast.success('Product created successfully');
-      router.push(`/admin/product/${data.product._id}`);
+      toast.success('Banner created successfully');
+      router.push(`/admin/media/${data.banner._id}`);
     } catch (err) {
       dispatch({ type: 'CREATE_FAIL' });
       toast.error(getError(err));
@@ -79,15 +79,15 @@ export default function AdminMediaScreen() {
     }
   }, [successDelete]);
 
-  const deleteHandler = async (productId) => {
+  const deleteHandler = async (mediaId) => {
     if (!window.confirm('Are you sure?')) {
       return;
     }
     try {
       dispatch({ type: 'DELETE_REQUEST' });
-      await axios.delete(`/api/admin/products/${productId}`);
+      await axios.delete(`/api/admin/media/${mediaId}`);
       dispatch({ type: 'DELETE_SUCCESS' });
-      toast.success('Product deleted successfully');
+      toast.success('Banner deleted successfully');
     } catch (err) {
       dispatch({ type: 'DELETE_FAIL' });
       toast.error(getError(err));
@@ -143,6 +143,7 @@ export default function AdminMediaScreen() {
                     <th className="px-5 text-left">Label</th>
                     <th className="px-5 text-left">Image</th>
                     <th className="px-5 text-left">Live</th>
+                    <th className="px-5 text-left">Order</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -152,6 +153,7 @@ export default function AdminMediaScreen() {
                       <td className="p-5">{media.label}</td>
                       <td className="p-5">{media.image.substring(62, 200)}</td>
                       <td className="p-5">{media.live ? 'Yes' : 'No'}</td>
+                      {media.live ? <td className="p-5">{media.order}</td> : <td></td>}
                       <td className="p-5">
                         <Link href={`/admin/media/${media._id}`}>
                           <a type="button" className="default-button">

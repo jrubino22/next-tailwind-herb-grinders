@@ -84,6 +84,9 @@ function AdminUsersScreen() {
                 <a className="font-bold">Users</a>
               </Link>
             </li>
+            <li>
+              <Link href="/admin/media">Media</Link>
+            </li>
           </ul>
         </div>
         <div className="overflow-x-auto md:col-span-3">

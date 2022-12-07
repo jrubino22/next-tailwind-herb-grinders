@@ -10,7 +10,6 @@ import { Store } from '../utils/Store';
 import { Carousel } from 'react-responsive-carousel'
 import 'react-responsive-carousel/lib/styles/carousel.min.css'
 import Banner from '../models/Banner';
-import Link from 'next/link';
 
 export default function Home({ products, banners }) {
   const { state, dispatch } = useContext(Store);
@@ -31,15 +30,21 @@ export default function Home({ products, banners }) {
     toast.success('Product added to the cart');
   };
 
+  const liveBanners = banners.filter(function(banner) {
+    return banner.live 
+  })
+
+  const sortedBanners = liveBanners.sort((a, b) => (a.order > b.order) ? 1 : -1)
+
   return (
     <Layout title="HerbGrinders">
       <Carousel showThumbs={false} autoPlay dynamicHeight>
-        {banners.map((banner) => (
-          <div key={banner._id}>
-            <Link href={banner.link}>
-            <img src={banner.image} alt={banner.alt}/>
-            </Link>
-          </div>
+        {sortedBanners.map((banner) => (
+          <a href={banner.link} key={banner._id}>
+            <div>           
+              <img src={banner.image} alt={banner.alt}/>           
+            </div>
+          </a>
         ))}
       </Carousel>
       <h2 className="h2 my-4 font-bold text-xl ml-5">New Grinders</h2>

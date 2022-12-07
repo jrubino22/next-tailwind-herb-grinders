@@ -10,32 +10,28 @@ const handler = async (req, res) => {
   //const { user } = session;
   if (req.method === 'GET') {
     return getHandler(req, res);
-//   } else if (req.method === 'POST') {
-//     return postHandler(req, res);
+  } else if (req.method === 'POST') {
+    return postHandler(req, res);
   } else {
     return res.status(400).send({ message: 'Method not allowed' });
   }
 };
 
-// const postHandler = async (req, res) => {
-//   await db.connect();
-//   const newProduct = new Banner({
-//     name: 'sample name',
-//     slug: 'sample-name-' + Math.random(),
-//     image: 'none',
-//     price: 0,
-//     category: 'sample category',
-//     brand: 'sample brand',
-//     countInStock: 0,
-//     description: 'sample description',
-//     rating: 0,
-//     numReviews: 0,
-//   });
+const postHandler = async (req, res) => {
+  await db.connect();
+  const newBanner = new Banner({
+    label: ' ',
+    image: 'none',
+    alt: ' ',
+    link: ' ',
+    order: ' ',
+    live: false,
+  });
 
-//   const product = await newProduct.save();
-//   await db.disconnect();
-//   res.send({ message: 'Product created successfully', product });
-// };
+  const banner = await newBanner.save();
+  await db.disconnect();
+  res.send({ message: 'Banner created successfully', banner });
+};
 
 const getHandler = async (req, res) => {
   await db.connect();

@@ -1,6 +1,5 @@
 import Banner from '../../models/Banner';
-import Product from '../../models/Product';
-import User from '../../models/user';
+
 import data from '../../utils/data';
 import db from '../../utils/db';
 

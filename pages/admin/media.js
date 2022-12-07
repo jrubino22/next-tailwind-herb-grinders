@@ -11,7 +11,7 @@ function reducer(state, action) {
     case 'FETCH_REQUEST':
       return { ...state, loading: true, error: '' };
     case 'FETCH_SUCCESS':
-      return { ...state, loading: false, products: action.payload, error: '' };
+      return { ...state, loading: false, media: action.payload, error: '' };
     case 'FETCH_FAIL':
       return { ...state, loading: false, error: action.payload };
     case 'CREATE_REQUEST':
@@ -33,20 +33,20 @@ function reducer(state, action) {
   }
 }
 
-export default function AdminProductsScreen() {
+export default function AdminMediaScreen() {
   const router = useRouter();
 
   const [
-    { loading, error, products, loadingCreate, successDelete, loadingDelete },
+    { loading, error, media, loadingCreate, successDelete, loadingDelete },
     dispatch,
   ] = useReducer(reducer, {
     loading: true,
-    products: [],
+    media: [],
     error: '',
   });
 
   const createHandler = async () => {
-    if (!window.confirm('Create new product?')) {
+    if (!window.confirm('Create new banner?')) {
       return;
     }
     try {
@@ -65,7 +65,7 @@ export default function AdminProductsScreen() {
     const fetchData = async () => {
       try {
         dispatch({ type: 'FETCH_REQUEST' });
-        const { data } = await axios.get(`/api/admin/products`);
+        const { data } = await axios.get(`/api/admin/media`);
         dispatch({ type: 'FETCH_SUCCESS', payload: data });
       } catch (err) {
         dispatch({ type: 'FETCH_FAIL', payload: getError(err) });
@@ -106,18 +106,21 @@ export default function AdminProductsScreen() {
               <Link href="/admin/orders">Orders</Link>
             </li>
             <li>
-              <Link href="/admin/products">
-                <a className="font-bold">Products</a>
-              </Link>
+              <Link href="/admin/products">Products</Link>
             </li>
             <li>
               <Link href="/admin/users">Users</Link>
+            </li>
+            <li>
+              <Link href="/admin/media">
+                <a className="font-bold">Media</a>
+              </Link>
             </li>
           </ul>
         </div>
         <div className="overflow-x-auto md:col-span-3">
           <div className="justify-between">
-            <h1 className="mb-4 text-xl">Products</h1>
+            <h1 className="mb-4 text-xl">Media</h1>
             {loadingDelete && <div>Deleting item...</div>}
             <button
               disabled={loadingCreate}
@@ -137,32 +140,27 @@ export default function AdminProductsScreen() {
                 <thead className="border-b">
                   <tr>
                     <th className="px-5 text-left">ID</th>
-                    <th className="px-5 text-left">Name</th>
-                    <th className="px-5 text-left">Price</th>
-                    <th className="px-5 text-left">Category</th>
-                    <th className="px-5 text-left">Count</th>
-                    <th className="px-5 text-left">Rating</th>
-                    <th className="px-5 text-left">Actions</th>
+                    <th className="px-5 text-left">Label</th>
+                    <th className="px-5 text-left">Image</th>
+                    <th className="px-5 text-left">Live</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {products.map((product) => (
-                    <tr key={product._id} className="border-b">
-                      <td className="p-5">{product._id.substring(20, 24)}</td>
-                      <td className="p-5">{product.name}</td>
-                      <td className="p-5">${product.price}</td>
-                      <td className="p-5">{product.category}</td>
-                      <td className="p-5">{product.countInStock}</td>
-                      <td className="p-5">{product.rating}</td>
+                  {media.map((media) => (
+                    <tr key={media._id} className="border-b">
+                      <td className="p-5">{media._id.substring(20, 24)}</td>
+                      <td className="p-5">{media.label}</td>
+                      <td className="p-5">{media.image.substring(62, 200)}</td>
+                      <td className="p-5">{media.live ? 'Yes' : 'No'}</td>
                       <td className="p-5">
-                        <Link href={`/admin/product/${product._id}`}>
+                        <Link href={`/admin/media/${media._id}`}>
                           <a type="button" className="default-button">
                             Edit
                           </a>
                         </Link>
                         &nbsp;
                         <button
-                          onClick={() => deleteHandler(product._id)}
+                          onClick={() => deleteHandler(media._id)}
                           className="default-button"
                           type="button"
                         >
@@ -181,4 +179,4 @@ export default function AdminProductsScreen() {
   );
 }
 
-AdminProductsScreen.auth = { adminOnly: true };
+AdminMediaScreen.auth = { adminOnly: true };

@@ -101,7 +101,7 @@ function AdminDashboardScreen() {
               <Link href="/admin/users">Users</Link>
             </li>
             <li>
-              <Link href="/admin/ui">Edit UI</Link>
+              <Link href="/admin/media">Media</Link>
             </li>
           </ul>
         </div>

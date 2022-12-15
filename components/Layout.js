@@ -8,6 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { signOut, useSession } from 'next-auth/react';
 import DropdownLink from './DropdownLink';
 import Cookies from 'js-cookie';
+import { useRouter } from 'next/router';
 
 export default function Layout({ title, children }) {
   const { status, data: session } = useSession();
@@ -24,6 +25,14 @@ export default function Layout({ title, children }) {
     Cookies.remove('cart');
     dispatch({ type: 'CART_RESET' });
     signOut({ callbackUrl: '/login' });
+  };
+
+  const [query, setQuery] = useState('');
+
+  const router = useRouter();
+  const submitHandler = (e) => {
+    e.preventDefault();
+    router.push(`/search?query=${query}`);
   };
 
   return (
@@ -44,6 +53,37 @@ export default function Layout({ title, children }) {
             <Link href="/">
               <a className="text-lg font-bold">HerbGrinders.com</a>
             </Link>
+            <form
+              onSubmit={submitHandler}
+              className="mx-auto hidden w-full justify-center md:flex"
+            >
+              <input
+                onChange={(e) => setQuery(e.target.value)}
+                type="search"
+                className="rounded-tr-none w-1/2 rounded-br-none p-1 text-sm focus:ring-0"
+                placeholder="Search"
+              />
+              <button
+                className="rounded rounded-tl-none rounded-bl-none bg-amber-300 p-1 text-sm dark:text-black"
+                type="submit"
+                id="button-addon2"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="w-6 h-6"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+                  />
+                </svg>
+              </button>
+            </form>
             <div>
               <Link href="/cart">
                 <a className="p-2">
@@ -77,15 +117,15 @@ export default function Layout({ title, children }) {
                       </DropdownLink>
                     </Menu.Item>
                     {session.user.isAdmin && (
-                        <Menu.Item>
-                          <DropdownLink
-                            className="dropdown-link"
-                            href="/admin/dashboard"
-                          >
-                            Admin Dashboard
-                          </DropdownLink>
-                        </Menu.Item>
-                      )}
+                      <Menu.Item>
+                        <DropdownLink
+                          className="dropdown-link"
+                          href="/admin/dashboard"
+                        >
+                          Admin Dashboard
+                        </DropdownLink>
+                      </Menu.Item>
+                    )}
                     <Menu.Item>
                       <DropdownLink
                         className="dropdown-link"

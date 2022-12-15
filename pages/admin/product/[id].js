@@ -35,6 +35,12 @@ function reducer(state, action) {
       };
     case 'UPLOAD_FAIL':
       return { ...state, loadingUpload: false, errorUpload: action.payload };
+    case 'CREATE_REQUEST':
+      return { ...state, loadingCreate: true };
+    case 'CREATE_SUCCESS':
+      return { ...state, loadingCreate: false };
+    case 'CREATE_FAIL':
+      return { ...state, loadingCreate: false };
     default:
       return state;
   }
@@ -43,11 +49,13 @@ function reducer(state, action) {
 export default function AdminProductEditScreen() {
   const { query } = useRouter();
   const productId = query.id;
-  const [{ loading, error, loadingUpload, loadingUpdate }, dispatch] =
-    useReducer(reducer, {
-      loading: true,
-      error: '',
-    });
+  const [
+    { loading, error, loadingUpload, loadingUpdate, loadingCreate },
+    dispatch,
+  ] = useReducer(reducer, {
+    loading: true,
+    error: '',
+  });
 
   const {
     register,
@@ -55,6 +63,35 @@ export default function AdminProductEditScreen() {
     formState: { errors },
     setValue,
   } = useForm();
+
+  const {
+    register: register2,
+    handleSubmit: handleSubmit2,
+    formState: { errors: errors2 },
+  } = useForm();
+
+  const createHandler = async ({option, variant}) => {
+    if (!window.confirm('Create new variant?')) {
+      return;
+    }
+    try {
+      dispatch({ type: 'CREATE_REQUEST' });
+      const { data } = await axios.post(`/api/admin/subproducts`, {
+        productId,
+        option,
+        variant,
+      });
+      // console.log("data", data)
+      dispatch({ type: 'CREATE_SUCCESS' });
+      toast.success('Product created successfully');
+      console.log("sp", data)
+      router.push(`/admin/subproduct/${data.product._id}`);
+      
+    } catch (err) {
+      dispatch({ type: 'CREATE_FAIL' });
+      toast.error(getError(err));
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -297,6 +334,42 @@ export default function AdminProductEditScreen() {
               </div>
             </form>
           )}
+          <h2 className="mb-4 text-xl">Add Variants</h2>
+          <form className="fx-auto max-w-screen-md" onSubmit={handleSubmit2(createHandler)}>
+            <div className="mb-4">
+              <label htmlFor="option">Option</label>
+              <input
+                type="text"
+                className="w-full"
+                id="option"
+                autoFocus
+                {...register2('option', {
+                  required: 'Please enter option',
+                })}
+              />
+              {errors.option && (
+                <div className="text-red-500">{errors2.option.message}</div>
+              )}
+            </div>
+            <div className="mb-4">
+              <label htmlFor="variant">Variant</label>
+              <input
+                type="text"
+                className="w-full"
+                id="variant"
+                autoFocus
+                {...register2('variant', {
+                  required: 'Please enter variant',
+                })}
+              />
+              {errors.option && (
+                <div className="text-red-500">{errors2.option.message}</div>
+              )}
+            </div>
+            <button disabled={loadingCreate} className="primary-button">
+              {loadingCreate ? 'Loading' : 'Create'}
+            </button>
+          </form>
         </div>
       </div>
     </Layout>

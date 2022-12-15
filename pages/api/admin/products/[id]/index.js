@@ -40,7 +40,6 @@ const putHandler = async (req, res) => {
     product.description = req.body.description;
     await product.save();
     await db.disconnect();
-    console.log('made it', req.body.name);
     res.send({ message: 'Product updated successfully' });
   } else {
     await db.disconnect();

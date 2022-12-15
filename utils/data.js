@@ -1,6 +1,18 @@
 import bcrypt from 'bcryptjs';
 
 const data = {
+  subproducts: [
+    {
+    option: 'size',
+    variant: '55mm',
+    parentId: '6361916359ea0c869ab9e8c7',
+    image: 'none',
+    sku: '1',
+    price: 0,
+    countInStock: 0,
+    weight: 0,
+    }
+  ],
   banners: [
     {
       label: 'First Banner',

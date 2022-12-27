@@ -4,7 +4,7 @@ const SubProductSchema = new mongoose.Schema(
   {
     option: { type: String, required: true },
     variant: { type: String, required: true },
-    parentId: { type: String, required: true },
+    parentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
     sku: { type: String, required: false },
     image: { type: String, required: true },
     price: { type: Number, required: true },
@@ -19,4 +19,5 @@ const SubProductSchema = new mongoose.Schema(
 
 const SubProduct =
   mongoose.models.SubProduct || mongoose.model('SubProduct', SubProductSchema);
+
 export default SubProduct;

@@ -12,8 +12,19 @@ function reducer(state, action) {
     case 'FETCH_REQUEST':
       return { ...state, loading: true, error: '' };
     case 'FETCH_SUCCESS':
-      return { ...state, loading: false, error: '' };
+      return { ...state, loading: false, product: action.payload, error: '' };
     case 'FETCH_FAIL':
+      return { ...state, loading: false, error: action.payload };
+    case 'FETCH_REQUEST2':
+      return { ...state, loading: true, error: '' };
+    case 'FETCH_SUCCESS2':
+      return {
+        ...state,
+        loading: false,
+        subproducts: action.payload,
+        error: '',
+      };
+    case 'FETCH_FAIL2':
       return { ...state, loading: false, error: action.payload };
     case 'UPDATE_REQUEST':
       return { ...state, loadingUpdate: true, errorUpdate: '' };
@@ -50,10 +61,19 @@ export default function AdminProductEditScreen() {
   const { query } = useRouter();
   const productId = query.id;
   const [
-    { loading, error, loadingUpload, loadingUpdate, loadingCreate },
+    {
+      loading,
+      error,
+      loadingUpload,
+      loadingUpdate,
+      product,
+      subproducts,
+      loadingCreate,
+    },
     dispatch,
   ] = useReducer(reducer, {
     loading: true,
+    subproducts: [],
     error: '',
   });
 
@@ -70,7 +90,7 @@ export default function AdminProductEditScreen() {
     formState: { errors: errors2 },
   } = useForm();
 
-  const createHandler = async ({option, variant}) => {
+  const createHandler = async ({ option, variant }) => {
     if (!window.confirm('Create new variant?')) {
       return;
     }
@@ -84,9 +104,8 @@ export default function AdminProductEditScreen() {
       // console.log("data", data)
       dispatch({ type: 'CREATE_SUCCESS' });
       toast.success('Product created successfully');
-      console.log("sp", data)
-      router.push(`/admin/subproduct/${data.product._id}`);
-      
+      console.log('sp', data);
+      router.push(`/admin/subproduct/${data.subproducts._id}`);
     } catch (err) {
       dispatch({ type: 'CREATE_FAIL' });
       toast.error(getError(err));
@@ -98,7 +117,8 @@ export default function AdminProductEditScreen() {
       try {
         dispatch({ type: 'FETCH_REQUEST' });
         const { data } = await axios.get(`/api/admin/products/${productId}`);
-        dispatch({ type: 'FETCH_SUCCESS' });
+        console.log('data.', data);
+        dispatch({ type: 'FETCH_SUCCESS', product: data });
         setValue('name', data.name);
         setValue('slug', data.slug);
         setValue('price', data.price);
@@ -110,10 +130,24 @@ export default function AdminProductEditScreen() {
       } catch (err) {
         dispatch({ type: 'FETCH_FAIL', payload: getError(err) });
       }
+      try {
+        dispatch({ type: 'FETCH_REQUEST2' });
+        const { data } = await axios.get(
+          `/api/admin/subproducts/${productId}`,
+          {
+            params: {
+              productId: productId,
+            },
+          }
+        );
+        dispatch({ type: 'FETCH_SUCCESS2', payload: data });
+        console.log('sp', data);
+      } catch (err) {
+        dispatch({ type: 'FETCH_FAIL2', payload: getError(err) });
+      }
     };
-
     fetchData();
-  }, [productId, setValue]);
+  }, [product, productId, setValue]);
 
   const router = useRouter();
 
@@ -333,9 +367,61 @@ export default function AdminProductEditScreen() {
                 <Link href={`/admin/products`}>Back</Link>
               </div>
             </form>
+          
+          )}
+          {loading ? (
+            <div>Loading...</div>
+          ) : error ? (
+            <div className="alert-error">{error}</div>
+          ) : (
+            <>
+            <h2 className="mb-4 text-xl">Product Variants</h2>
+            <div className="overflow-x-auto">
+              <table className="min-w-full">
+                <thead className="border-b">
+                  <tr>
+                    <th className="px-5 text-left">ID</th>
+                    <th className="px-5 text-left">Option</th>
+                    <th className="px-5 text-left">Variant</th>
+                    <th className="px-5 text-left">Price</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {subproducts.map((subproduct) => (
+                    <tr key={subproduct._id} className="border-b">
+                      <td className="p-5">
+                        {subproduct._id.substring(20, 24)}
+                      </td>
+                      <td className="p-5">{subproduct.option}</td>
+                      <td className="p-5">{subproduct.variant}</td>
+                      <td className="p-5">${subproduct.price}</td>
+                      <td className="p-5">
+                        <Link href={`/admin/subproduct/${subproducts._id}`}>
+                          <a type="button" className="default-button">
+                            Edit
+                          </a>
+                        </Link>
+                        &nbsp;
+                        <button
+                          // onClick={() => deleteHandler(subproducts._id)}
+                          className="default-button"
+                          type="button"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            </>
           )}
           <h2 className="mb-4 text-xl">Add Variants</h2>
-          <form className="fx-auto max-w-screen-md" onSubmit={handleSubmit2(createHandler)}>
+          <form
+            className="fx-auto max-w-screen-md"
+            onSubmit={handleSubmit2(createHandler)}
+          >
             <div className="mb-4">
               <label htmlFor="option">Option</label>
               <input

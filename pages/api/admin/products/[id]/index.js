@@ -1,5 +1,5 @@
-import { getSession } from 'next-auth/react';
 import Product from '../../../../../models/Product';
+import { getSession } from 'next-auth/react';
 import db from '../../../../../utils/db';
 
 const handler = async (req, res) => {
@@ -22,10 +22,18 @@ const handler = async (req, res) => {
 
 const getHandler = async (req, res) => {
   await db.connect();
+
   const product = await Product.findById(req.query.id);
+
   await db.disconnect();
-  res.send(product);
+
+  res.json(product);
 };
+
+// const getHandler2 = async (req, res) => {
+
+// }
+
 const putHandler = async (req, res) => {
   await db.connect();
   const product = await Product.findById(req.query.id);

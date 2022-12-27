@@ -67,7 +67,7 @@ export async function getServerSideProps() {
   const banners = await Banner.find().lean();
   return {
     props: {
-      products: products.map(db.convertDocToObj),
+      products: JSON.parse(JSON.stringify(products.map(db.convertDocToObj))),
       banners: banners.map(db.convertDocToObj),
     },
   };

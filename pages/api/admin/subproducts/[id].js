@@ -53,21 +53,20 @@ const postHandler = async (req, res) => {
 };
 
 const getHandler = async (req, res) => {
-  console.log('pid', req.query.params);
+  console.log('pid', req.query.id);
   await db.connect();
- 
-  const product = await Product.findById(req.query._id);
 
-  // const productVariants = (await product.variants) ? [] : null;
-  // if (product.variants) {
-  //   for (let i = 0; i < product.variants.length; i++) {
-  //     const singleVariant = await SubProduct.findById(product.variants[i]);
-  //     productVariants.push(singleVariant);
-  //   }
-  //   await db.disconnect();
-  //   res.send(productVariants);
-  // }
-  res.send(product)
+  const product = await Product.findById(req.query.id);
+
+  const productVariants = (await product.variants) ? [] : null;
+  if (product.variants) {
+    for (let i = 0; i < product.variants.length; i++) {
+      const singleVariant = await SubProduct.findById(product.variants[i]);
+      productVariants.push(singleVariant);
+    }
+    await db.disconnect();
+    res.send(productVariants);
+  }
 };
 
 export default handler;

@@ -105,7 +105,7 @@ export default function AdminProductEditScreen() {
       dispatch({ type: 'CREATE_SUCCESS' });
       toast.success('Product created successfully');
       console.log('sp', data);
-      router.push(`/admin/subproduct/${data.subproducts._id}`);
+      router.push(`/admin/subproduct/${data.subproduct._id}`);
     } catch (err) {
       dispatch({ type: 'CREATE_FAIL' });
       toast.error(getError(err));
@@ -363,9 +363,6 @@ export default function AdminProductEditScreen() {
                   {loadingUpdate ? 'Loading' : 'Update'}
                 </button>
               </div>
-              <div className="mb-4">
-                <Link href={`/admin/products`}>Back</Link>
-              </div>
             </form>
           
           )}
@@ -374,6 +371,7 @@ export default function AdminProductEditScreen() {
           ) : error ? (
             <div className="alert-error">{error}</div>
           ) : (
+           subproducts && (
             <>
             <h2 className="mb-4 text-xl">Product Variants</h2>
             <div className="overflow-x-auto">
@@ -396,7 +394,7 @@ export default function AdminProductEditScreen() {
                       <td className="p-5">{subproduct.variant}</td>
                       <td className="p-5">${subproduct.price}</td>
                       <td className="p-5">
-                        <Link href={`/admin/subproduct/${subproducts._id}`}>
+                        <Link href={`/admin/subproduct/${subproduct._id}`}>
                           <a type="button" className="default-button">
                             Edit
                           </a>
@@ -415,9 +413,10 @@ export default function AdminProductEditScreen() {
                 </tbody>
               </table>
             </div>
+
             </>
-          )}
-          <h2 className="mb-4 text-xl">Add Variants</h2>
+          ))}
+          <h2 className="mb-4 mt-4 text-xl">Create Variant</h2>
           <form
             className="fx-auto max-w-screen-md"
             onSubmit={handleSubmit2(createHandler)}
@@ -452,9 +451,12 @@ export default function AdminProductEditScreen() {
                 <div className="text-red-500">{errors2.option.message}</div>
               )}
             </div>
-            <button disabled={loadingCreate} className="primary-button">
+            <button disabled={loadingCreate} className="primary-button mb-4">
               {loadingCreate ? 'Loading' : 'Create'}
             </button>
+            <div className="mb-4">
+                <Link href={`/admin/products`}>Back</Link>
+            </div>
           </form>
         </div>
       </div>

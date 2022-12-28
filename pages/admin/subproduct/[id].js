@@ -62,21 +62,21 @@ export default function AdminMediaEditScreen() {
         dispatch({ type: 'FETCH_REQUEST' });
         const { data } = await axios.get(`/api/admin/subproduct/${subproductId}`);
         dispatch({ type: 'FETCH_SUCCESS' });
-        setValue('label', data.label);
+        setValue('option', data.option);
+        setValue('variant', data.variant);
+        setValue('sku', data.sku);
+        setValue('price', data.price);
         setValue('image', data.image);
-        setValue('alt', data.alt);
-        setValue('link', data.link);
-        setValue('order', data.order);
-        setValue('live', data.live);
+        setValue('countInStock', data.countInStock);
+        setValue('weight', data.weight);
       } catch (err) {
         dispatch({ type: 'FETCH_FAIL', payload: getError(err) });
       }
     };
-
     fetchData();
   }, [subproductId, setValue]);
 
-  const router = useRouter();
+  // const router = useRouter();
 
   const uploadHandler = async (e, imageField = 'image') => {
     const url = `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/upload`;
@@ -103,20 +103,20 @@ export default function AdminMediaEditScreen() {
     }
   };
 
-  const submitHandler = async ({ label, image, alt, link, order, live }) => {
+  const submitHandler = async ({ option, variant, sku, image, price, countInStock, weight }) => {
     try {
       dispatch({ type: 'UPDATE_REQUEST' });
-      await axios.put(`/api/admin/media/${subproductId}`, {
-        label,
+      await axios.put(`/api/admin/subproduct/${subproductId}`, {
+        option,
+        variant,
+        sku,
         image,
-        alt,
-        link,
-        order,
-        live,
+        price,
+        countInStock,
+        weight,
       });
       dispatch({ type: 'UPDATE_SUCCESS' });
-      toast.success('Media updated successfully');
-      router.push('/admin/media');
+      toast.success('Variant updated successfully');
     } catch (err) {
       dispatch({ type: 'UPDATE_FAIL', payload: getError(err) });
       toast.error(getError(err));
@@ -124,7 +124,7 @@ export default function AdminMediaEditScreen() {
   };
 
   return (
-    <Layout title={`Edit Media: ${subproductId}`}>
+    <Layout title={`Edit Variant: ${subproductId}`}>
       <div className="grid md:grid-cols-4 md:gap-5">
         <div>
           <ul>
@@ -135,14 +135,14 @@ export default function AdminMediaEditScreen() {
               <Link href="/admin/orders">Orders</Link>
             </li>
             <li>
-              <Link href="/admin/products">Products</Link>
+              <Link href="/admin/products"><a className="font-bold">Products</a></Link>
             </li>
             <li>
               <Link href="/admin/users">Users</Link>
             </li>
             <li>
               <Link href="/admin/media">
-                <a className="font-bold">Media</a>
+                Media
               </Link>
             </li>
           </ul>
@@ -157,22 +157,67 @@ export default function AdminMediaEditScreen() {
               className="fx-auto max-w-screen-md"
               onSubmit={handleSubmit(submitHandler)}
             >
-              <h1 className="mb-4 text-xl">{`Edit Media: ${mediaId}`}</h1>
+              <h1 className="mb-4 text-xl">{`Edit Variant: ${subproductId}`}</h1>
               <div className="mb-4">
-                <label htmlFor="label">Label</label>
+                <label htmlFor="option">Option</label>
                 <input
                   type="text"
                   className="w-full"
-                  id="label"
+                  id="option"
                   autoFocus
-                  {...register('label', {
-                    required: 'Please enter label',
+                  {...register('option', {
+                    required: 'Please enter option',
                   })}
                 />
-                {errors.label && (
-                  <div className="text-red-500">{errors.label.message}</div>
+                {errors.option && (
+                  <div className="text-red-500">{errors.option.message}</div>
                 )}
               </div>{' '}
+              <div className="mb-4">
+                <label htmlFor="variant">Variant</label>
+                <input
+                  type="text"
+                  className="w-full"
+                  id="variant"
+                  autoFocus
+                  {...register('variant', {
+                    required: 'Please enter variant',
+                  })}
+                />
+                {errors.variant && (
+                  <div className="text-red-500">{errors.variant.message}</div>
+                )}
+              </div>
+              <div className="mb-4">
+                <label htmlFor="price">Price</label>
+                <input
+                  type="text"
+                  className="w-full"
+                  id="price"
+                  autoFocus
+                  {...register('price', {
+                    required: 'Please enter price',
+                  })}
+                />
+                {errors.price && (
+                  <div className="text-red-500">{errors.price.message}</div>
+                )}
+              </div>
+              <div className="mb-4">
+                <label htmlFor="sku">SKU</label>
+                <input
+                  type="text"
+                  className="w-full"
+                  id="sku"
+                  autoFocus
+                  {...register('sku', {
+                    required: 'Please enter sku',
+                  })}
+                />
+                {errors.sku && (
+                  <div className="text-red-500">{errors.sku.message}</div>
+                )}
+              </div>
               <div className="mb-4">
                 <label htmlFor="image">Image</label>
                 <input
@@ -199,69 +244,39 @@ export default function AdminMediaEditScreen() {
                 {loadingUpload && <div>Uploading...</div>}
               </div>
               <div className="mb-4">
-                <label htmlFor="alt">Alt Text</label>
+                <label htmlFor="countInStock">Count In Stock</label>
                 <input
                   type="text"
                   className="w-full"
-                  id="alt"
+                  id="countInStock"
                   autoFocus
-                  {...register('alt', {
-                    required: 'Please enter alt text',
+                  {...register('countInStock', {
+                    required: 'Please enter countInStock',
                   })}
                 />
-                {errors.alt && (
-                  <div className="text-red-500">{errors.alt.message}</div>
+                {errors.countInStock && (
+                  <div className="text-red-500">{errors.countInStock.message}</div>
                 )}
               </div>{' '}
-
               <div className="mb-4">
-                <label htmlFor="link">Link</label>
+                <label htmlFor="weight">Weight</label>
                 <input
                   type="text"
                   className="w-full"
-                  id="link"
-                  autoFocus    
-                  {...register('link')}            
-                />
-                {errors.link && (
-                  <div className="text-red-500">{errors.link.message}</div>
-                )}
-              </div>
-              <div className="mb-4">
-                <label htmlFor="order">Order Shown</label>
-                <input
-                  type="text"
-                  className="w-1/6 ml-2"
-                  id="order"
-                  
-                  {...register('order')}  
-                />
-                {errors.order && (
-                  <div className="text-red-500">{errors.order.message}</div>
-                )}
-              </div>
-              <div className="mb-4">
-                <label htmlFor="live">Live?</label>
-                <input
-                  type="checkbox"
-                  className="w-1/4"
-                  id="live"
+                  id="weight"
                   autoFocus
-                  {...register('live')} 
+                  {...register('weight', {
+                    required: 'Please enter weight',
+                  })}
                 />
-                {errors.live && (
-                  <div className="text-red-500">
-                    {errors.live.message}
-                  </div>
+                {errors.weight && (
+                  <div className="text-red-500">{errors.weight.message}</div>
                 )}
               </div>
               <div className="mb-4">
                 <button disabled={loadingUpdate} className="primary-button">
                   {loadingUpdate ? 'Loading' : 'Update'}
                 </button>
-              </div>
-              <div className="mb-4">
-                <Link href={`/admin/media`}>Back</Link>
               </div>
             </form>
           )}

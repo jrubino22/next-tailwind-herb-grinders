@@ -6,11 +6,14 @@ import React, { useContext } from 'react';
 import { toast } from 'react-toastify';
 import Layout from '../../components/Layout';
 import Product from '../../models/Product';
+import SubProduct from '../../models/SubProduct';
 import db from '../../utils/db';
 import { Store } from '../../utils/Store';
 
+
 export default function ProductScreen(props) {
   const { product } = props;
+  const { subproduct } = props;
   const { state, dispatch } = useContext(Store);
   const router = useRouter();
   if (!product) {
@@ -19,6 +22,9 @@ export default function ProductScreen(props) {
         <div>Product Not Found</div>
       </Layout>
     );
+  }
+  if (!subproduct) {
+    console.log(product)
   }
   const addToCartHandler = async () => {
     const existItem = state.cart.cartItems.find((x) => x.slug === product.slug);
@@ -45,6 +51,7 @@ export default function ProductScreen(props) {
             width={640}
             height={640}
             layout="responsive"
+            priority
           ></Image>
         </div>
         <div>
@@ -91,10 +98,21 @@ export async function getServerSideProps(context) {
 
   await db.connect();
   const product = await Product.findOne({ slug }).lean();
+
+  const productVariants = await product.variants ? [] : null;
+  if (product.variants) {
+    for (let i = 0; i < product.variants.length; i++) {
+      const singleVariant = await SubProduct.findById(product.variants[i]);
+      productVariants.push(singleVariant);
+    }
+    
+  }
+ 
   await db.disconnect();
   return {
     props: {
-      product: product ? db.convertDocToObj(product) : null,
+      product: product ? JSON.parse(JSON.stringify(db.convertDocToObj(product))) : null,
+      subproduct: JSON.parse(JSON.stringify(productVariants))
     },
   };
 }

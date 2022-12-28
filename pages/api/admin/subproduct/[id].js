@@ -1,6 +1,6 @@
-import SubProduct from '../../../../../models/SubProduct';
+import SubProduct from '../../../../models/SubProduct';
 import { getSession } from 'next-auth/react';
-import db from '../../../../../utils/db';
+import db from '../../../../utils/db';
 
 const handler = async (req, res) => {
   const session = await getSession({ req });
@@ -11,10 +11,10 @@ const handler = async (req, res) => {
   const { user } = session;
   if (req.method === 'GET') {
     return getHandler(req, res, user);
-//   } else if (req.method === 'PUT') {
-//     return putHandler(req, res, user);
-//   } else if (req.method === 'DELETE') {
-//     return deleteHandler(req, res, user);
+  } else if (req.method === 'PUT') {
+    return putHandler(req, res, user);
+    //   } else if (req.method === 'DELETE') {
+    //     return deleteHandler(req, res, user);
   } else {
     return res.status(400).send({ message: 'Method not allowed' });
   }
@@ -28,6 +28,26 @@ const getHandler = async (req, res) => {
   await db.disconnect();
 
   res.json(subproduct);
+};
+
+const putHandler = async (req, res) => {
+  await db.connect();
+  const subproduct = await SubProduct.findById(req.query.id);
+  if (subproduct) {
+    subproduct.option = req.body.option;
+    subproduct.variant = req.body.variant;
+    subproduct.sku = req.body.sku;
+    subproduct.image = req.body.image;
+    subproduct.price = req.body.price;
+    subproduct.countInStock = req.body.countInStock;
+    subproduct.weight = req.body.weight;
+    await subproduct.save();
+    await db.disconnect();
+    res.send({ message: 'variant updated successfully' });
+  } else {
+    await db.disconnect();
+    res.status(404).send({ message: 'variant not found' });
+  }
 };
 
 export default handler;

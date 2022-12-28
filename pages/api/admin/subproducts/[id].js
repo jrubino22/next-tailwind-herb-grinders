@@ -58,7 +58,7 @@ const getHandler = async (req, res) => {
 
   const product = await Product.findById(req.query.id);
 
-  const productVariants = (await product.variants) ? [] : null;
+  const productVariants = (await product.variants.length) > 0 ? [] : null;
   if (product.variants) {
     for (let i = 0; i < product.variants.length; i++) {
       const singleVariant = await SubProduct.findById(product.variants[i]);

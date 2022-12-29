@@ -48,6 +48,26 @@ a {
   border: 1px solid gray;
 }
 
+.variant-info {
+  @apply bg-amber-300;
+  
+}
+
+.variant-price {
+  font-size: 1.2rem;
+  color: blue
+}
+
+.variant-image {
+  border: 1px solid gray;
+}
+
+.selected-variant-image {
+  border: 2px solid blue;
+
+}
+
+
 input,
 select,
 textarea {

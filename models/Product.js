@@ -7,7 +7,13 @@ const ProductSchema = new mongoose.Schema(
     slug: { type: String, required: true, unique: true },
     category: { type: String, required: false },
     subcategory: { type: String, required: false },
-    image: { type: String, required: true },
+    images: [
+      {
+        url: { type: String, required: true },
+        isDefault: { type: Boolean, required: true, default: false },
+        altText: { type: String },
+      },
+    ],
     price: { type: Number, required: true, default: false },
     brand: { type: String, required: false },
     sku: { type: String, required: false },

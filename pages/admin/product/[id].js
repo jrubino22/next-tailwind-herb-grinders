@@ -2,7 +2,7 @@ import axios from 'axios';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useEffect, useReducer } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import Layout from '../../../components/Layout';
 import { getError } from '../../../utils/errors';
@@ -12,7 +12,14 @@ function reducer(state, action) {
     case 'FETCH_REQUEST':
       return { ...state, loading: true, error: '' };
     case 'FETCH_SUCCESS':
-      return { ...state, loading: false, product: action.payload, error: '' };
+      console.log('fetchsuccess', action);
+      return {
+        ...state,
+        loading: false,
+        product: action.payload,
+        error: '',
+        images: action.product.images,
+      };
     case 'FETCH_FAIL':
       return { ...state, loading: false, error: action.payload };
     case 'FETCH_REQUEST2':
@@ -46,6 +53,21 @@ function reducer(state, action) {
       };
     case 'UPLOAD_FAIL':
       return { ...state, loadingUpload: false, errorUpload: action.payload };
+    case 'SET_DEFAULT_IMAGE':
+      return {
+        ...state,
+        product: {
+          ...state.product,
+          images: action.image,
+        },
+      };
+    case 'ADD_IMAGE':
+      console.log('action.image:', action.image);
+      console.log('reducer', state);
+      return {
+        ...state,
+        images: [...(state.images || []), action.image],
+      };
     case 'CREATE_REQUEST':
       return { ...state, loadingCreate: true };
     case 'CREATE_SUCCESS':
@@ -69,20 +91,28 @@ export default function AdminProductEditScreen() {
       product,
       subproducts,
       loadingCreate,
+      images,
     },
     dispatch,
   ] = useReducer(reducer, {
     loading: true,
     subproducts: [],
     error: '',
+    images: [],
   });
 
   const {
+    control,
     register,
     handleSubmit,
     formState: { errors },
     setValue,
   } = useForm();
+
+  const { fields, remove } = useFieldArray({
+    control,
+    name: 'images',
+  });
 
   const {
     register: register2,
@@ -117,16 +147,21 @@ export default function AdminProductEditScreen() {
       try {
         dispatch({ type: 'FETCH_REQUEST' });
         const { data } = await axios.get(`/api/admin/products/${productId}`);
-        console.log('data.', data);
+        console.log('fetchdata', data);
         dispatch({ type: 'FETCH_SUCCESS', product: data });
         setValue('name', data.name);
         setValue('slug', data.slug);
         setValue('price', data.price);
-        setValue('image', data.image);
         setValue('category', data.category);
         setValue('brand', data.brand);
         setValue('countInStock', data.countInStock);
         setValue('description', data.description);
+        const imageFields = data.images.map((image) => ({
+          url: image.url,
+          isDefault: image.isDefault,
+          altText: image.altText,
+        }));
+        setValue('images', imageFields);
       } catch (err) {
         dispatch({ type: 'FETCH_FAIL', payload: getError(err) });
       }
@@ -152,6 +187,7 @@ export default function AdminProductEditScreen() {
   const router = useRouter();
 
   const uploadHandler = async (e, imageField = 'image') => {
+    console.log('uploadhandler0', e);
     const url = `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/upload`;
     try {
       dispatch({ type: 'UPLOAD_REQUEST' });
@@ -168,6 +204,16 @@ export default function AdminProductEditScreen() {
       const { data } = await axios.post(url, formData);
 
       dispatch({ type: 'UPLOAD_SUCCESS' });
+
+      const newImage = {
+        url: data.secure_url,
+        isDefault: false,
+        altText: '',
+      };
+
+      console.log('newImage:', newImage);
+      dispatch({ type: 'ADD_IMAGE', image: newImage });
+
       setValue(imageField, data.secure_url);
       toast.success('File uploaded successfully');
     } catch (err) {
@@ -181,7 +227,7 @@ export default function AdminProductEditScreen() {
     slug,
     price,
     category,
-    image,
+    images,
     brand,
     countInStock,
     description,
@@ -193,7 +239,7 @@ export default function AdminProductEditScreen() {
         slug,
         price,
         category,
-        image,
+        images,
         brand,
         countInStock,
         description,
@@ -209,7 +255,7 @@ export default function AdminProductEditScreen() {
 
   return (
     <Layout title={`Edit Product ${productId}`}>
-      <div className="grid md:grid-cols-4 md:gap-5">
+      <div className="grid md:grid-cols-6 md:gap-5 max-w-screen-xl mx-auto">
         <div>
           <ul>
             <li>
@@ -269,31 +315,6 @@ export default function AdminProductEditScreen() {
                   <div className="text-red-500">{errors.price.message}</div>
                 )}
               </div>{' '}
-              <div className="mb-4">
-                <label htmlFor="image">Image</label>
-                <input
-                  type="text"
-                  className="w-full"
-                  id="image"
-                  autoFocus
-                  {...register('image', {
-                    required: 'Please enter image',
-                  })}
-                />
-                {errors.image && (
-                  <div className="text-red-500">{errors.image.message}</div>
-                )}
-              </div>
-              <div className="mb-4">
-                <label htmlFor="imageFile">Upload image</label>
-                <input
-                  type="file"
-                  className="w-full"
-                  id="imageFile"
-                  onChange={uploadHandler}
-                />
-                {loadingUpload && <div>Uploading...</div>}
-              </div>
               <div className="mb-4">
                 <label htmlFor="category">Category</label>
                 <input
@@ -358,64 +379,166 @@ export default function AdminProductEditScreen() {
                   </div>
                 )}
               </div>
+              <div className="rounded-lg bg-blue-100 p-4 mb-5">
+                {images.map((image, i) => (
+                  <div key={i} className="mb-4 p-4 bg-white rounded-lg">
+                    <div className="mb-2">
+                      <label
+                        htmlFor={`images[${i}].url`}
+                        className="block font-medium"
+                      >
+                        Image {i + 1}
+                      </label>
+                      <input
+                        type="text"
+                        className="w-full border border-gray-300 rounded-lg p-2"
+                        id={`images[${i}].url`}
+                        autoFocus
+                        {...register(`images.${i}.url`)}
+                        value={image.url}
+                        onChange={(e) => {
+                          setValue(`images.${i}.url`, e.target.value);
+                        }}
+                      />
+                    </div>
+                    <div className="mb-2">
+                      {image.url && (
+                        <div className="flex items-center justify-center bg-gray-100 p-4 rounded-lg">
+                          <img
+                            src={image.url}
+                            alt={image.altText || 'product image'}
+                            className="max-w-full max-h-48"
+                          />
+                        </div>
+                      )}
+                    </div>
+                    <div className="mb-2">
+                      <label
+                        htmlFor={`images[${i}].isDefault`}
+                        className="block font-medium"
+                      >
+                        Is Default
+                      </label>
+                      <input
+                        type="checkbox"
+                        className="w-full"
+                        id={`images[${i}].isDefault`}
+                        {...register(`images.${i}.isDefault`)}
+                        defaultChecked={image.isDefault}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            images.forEach((i) => {
+                              if (i !== image) {
+                                i.isDefault = false;
+                              }
+                            });
+                          }
+                          image.isDefault = e.target.checked;
+                          dispatch({ type: 'SET_DEFAULT_IMAGE', image: image });
+                        }}
+                      />
+                    </div>
+                    <div className="mb-2">
+                      <label
+                        htmlFor={`images[${i}].altText`}
+                        className="block font-medium"
+                      >
+                        Alt Text
+                      </label>
+                      <input
+                        type="text"
+                        className="w-full border border-gray-300 rounded-lg p-2"
+                        id={`images[${i}].altText`}
+                        {...register(`images.${i}.altText`)}
+                        defaultValue={image.altText}
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => remove(i)}
+                      className="bg-red-500 text-white py-2 px-4 rounded-lg"
+                    >
+                      Remove Image
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const fileInput = document.createElement('input');
+                    fileInput.type = 'file';
+                    fileInput.accept = 'image/*';
+                    fileInput.addEventListener('change', (e) =>
+                      uploadHandler(e, `images[${fields.length}].url`)
+                    );
+                    document.body.appendChild(fileInput);
+                    fileInput.click();
+                  }}
+                  disabled={loadingUpload}
+                  className="bg-green-500 text-white py-2 px-4 rounded-lg mt-4 mb-5"
+                >
+                  {loadingUpload ? 'Uploading...' : 'Add Image'}
+                </button>
+              </div>
               <div className="mb-4">
                 <button disabled={loadingUpdate} className="primary-button">
-                  {loadingUpdate ? 'Loading' : 'Update'}
+                  {loadingUpdate ? 'Loading' : 'Save Changes'}
                 </button>
               </div>
             </form>
-          
           )}
-          {loading ? (
+        </div>
+        <div className="md:col-span-2 border-l-2 border-gray-400 pl-4">
+          {/* {loading ? (
             <div>Loading...</div>
           ) : error ? (
             <div className="alert-error">{error}</div>
-          ) : (
-           subproducts && (
+          ) : ( */}
+          {subproducts && (
             <>
-            <h2 className="mb-4 text-xl">Product Variants</h2>
-            <div className="overflow-x-auto">
-              <table className="min-w-full">
-                <thead className="border-b">
-                  <tr>
-                    <th className="px-5 text-left">ID</th>
-                    <th className="px-5 text-left">Option</th>
-                    <th className="px-5 text-left">Variant</th>
-                    <th className="px-5 text-left">Price</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {subproducts.map((subproduct) => (
-                    <tr key={subproduct._id} className="border-b">
-                      <td className="p-5">
-                        {subproduct._id.substring(20, 24)}
-                      </td>
-                      <td className="p-5">{subproduct.option}</td>
-                      <td className="p-5">{subproduct.variant}</td>
-                      <td className="p-5">${subproduct.price}</td>
-                      <td className="p-5">
-                        <Link href={`/admin/subproduct/${subproduct._id}`}>
-                          <a type="button" className="default-button">
-                            Edit
-                          </a>
-                        </Link>
-                        &nbsp;
-                        <button
-                          // onClick={() => deleteHandler(subproducts._id)}
-                          className="default-button"
-                          type="button"
-                        >
-                          Delete
-                        </button>
-                      </td>
+              <h2 className="mb-4 text-xl">Product Variants</h2>
+              <div className="overflow-x-auto">
+                <table className="min-w-full">
+                  <thead className="border-b">
+                    <tr>
+                      <th className="px-5 text-left">ID</th>
+                      <th className="px-5 text-left">Option</th>
+                      <th className="px-5 text-left">Variant</th>
+                      <th className="px-5 text-left">Price</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
+                  </thead>
+                  <tbody>
+                    {subproducts.map((subproduct) => (
+                      <tr key={subproduct._id} className="border-b">
+                        <td className="p-5">
+                          {subproduct._id.substring(20, 24)}
+                        </td>
+                        <td className="p-5">{subproduct.option}</td>
+                        <td className="p-5">{subproduct.variant}</td>
+                        <td className="p-5">${subproduct.price}</td>
+                        <td className="p-5">
+                          <Link href={`/admin/subproduct/${subproduct._id}`}>
+                            <a type="button" className="default-button">
+                              Edit
+                            </a>
+                          </Link>
+                          &nbsp;
+                          <button
+                            // onClick={() => deleteHandler(subproducts._id)}
+                            className="default-button"
+                            type="button"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </>
-          ))}
+          )}
+          {/* )} */}
           <h2 className="mb-4 mt-4 text-xl">Create Variant</h2>
           <form
             className="fx-auto max-w-screen-md"
@@ -455,7 +578,7 @@ export default function AdminProductEditScreen() {
               {loadingCreate ? 'Loading' : 'Create'}
             </button>
             <div className="mb-4">
-                <Link href={`/admin/products`}>Back</Link>
+              <Link href={`/admin/products`}>Back</Link>
             </div>
           </form>
         </div>

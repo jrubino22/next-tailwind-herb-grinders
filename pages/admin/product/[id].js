@@ -1,11 +1,12 @@
 import axios from 'axios';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import React, { useEffect, useReducer } from 'react';
+import React, { useEffect, useReducer} from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import Layout from '../../../components/Layout';
 import { getError } from '../../../utils/errors';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 function reducer(state, action) {
   switch (action.type) {
@@ -53,14 +54,22 @@ function reducer(state, action) {
       };
     case 'UPLOAD_FAIL':
       return { ...state, loadingUpload: false, errorUpload: action.payload };
-    case 'SET_DEFAULT_IMAGE':
+    case 'SET_ALT_TEXT': {
+      const { url, altText } = action.payload;
+      const imagesArray = [...state.images];
+      const imageIndex = imagesArray.findIndex((image) => image.url === url);
+      if (imageIndex !== -1) {
+        imagesArray[imageIndex] = {
+          ...imagesArray[imageIndex],
+          altText,
+        };
+      }
       return {
         ...state,
-        product: {
-          ...state.product,
-          images: action.image,
-        },
+        images: imagesArray,
       };
+    }
+
     case 'ADD_IMAGE':
       console.log('action.image:', action.image);
       console.log('reducer', state);
@@ -68,6 +77,33 @@ function reducer(state, action) {
         ...state,
         images: [...(state.images || []), action.image],
       };
+      case 'REORDER_IMAGES': {
+        const newImages = Array.from(state.images);
+        const [removedImage] = newImages.splice(action.startIndex, 1);
+        newImages.splice(action.endIndex, 0, removedImage);
+      
+        const updatedImages = newImages.map((image, index) => {
+          return { ...image, displayOrder: index + 1 };
+        });
+        console.log('updatedImg', updatedImages)
+        return { ...state, images: updatedImages };
+      }
+    // case 'REMOVE_IMAGE':{
+    //   console.log('removeimg', action.payload)
+    //   return {
+    //     ...state,
+    //     images: state.images.filter(image  => image.url !== action.payload)
+    //   };
+    // }
+    case 'REMOVE_IMAGE': {
+      console.log('removeimg', action.payload)
+      const imagesArray = [...state.images];
+      imagesArray.splice(action.payload, 1);
+      return {
+        ...state,
+        images: imagesArray,
+      };
+    }
     case 'CREATE_REQUEST':
       return { ...state, loadingCreate: true };
     case 'CREATE_SUCCESS':
@@ -78,6 +114,7 @@ function reducer(state, action) {
       return state;
   }
 }
+
 
 export default function AdminProductEditScreen() {
   const { query } = useRouter();
@@ -109,7 +146,7 @@ export default function AdminProductEditScreen() {
     setValue,
   } = useForm();
 
-  const { fields, remove } = useFieldArray({
+  const { fields } = useFieldArray({
     control,
     name: 'images',
   });
@@ -142,6 +179,10 @@ export default function AdminProductEditScreen() {
     }
   };
 
+  const editAltText = (url, altText) => {
+    dispatch({ type: 'SET_ALT_TEXT', payload: {url, altText}})
+  }
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -158,8 +199,8 @@ export default function AdminProductEditScreen() {
         setValue('description', data.description);
         const imageFields = data.images.map((image) => ({
           url: image.url,
-          isDefault: image.isDefault,
           altText: image.altText,
+          displayOrder: image.displayOrder
         }));
         setValue('images', imageFields);
       } catch (err) {
@@ -207,8 +248,8 @@ export default function AdminProductEditScreen() {
 
       const newImage = {
         url: data.secure_url,
-        isDefault: false,
         altText: '',
+        displayOrder: (await images.length) + 1,
       };
 
       console.log('newImage:', newImage);
@@ -222,17 +263,31 @@ export default function AdminProductEditScreen() {
     }
   };
 
+  const removeImage = (i) => {
+    try{
+    dispatch({ type: 'REMOVE_IMAGE', payload: i })
+    console.log("remove img func", images)
+    toast.success('Image Removed')
+    } catch{
+      toast.error('Unable to remove image')
+    }
+  }
+
+  const getTheState = () => {
+    console.log("getTheState", images)
+  }
+
   const submitHandler = async ({
     name,
     slug,
     price,
     category,
-    images,
     brand,
     countInStock,
     description,
   }) => {
     try {
+      console.log("put images2", images[0].altText)
       dispatch({ type: 'UPDATE_REQUEST' });
       await axios.put(`/api/admin/products/${productId}`, {
         name,
@@ -246,7 +301,7 @@ export default function AdminProductEditScreen() {
       });
       dispatch({ type: 'UPDATE_SUCCESS' });
       toast.success('Product updated successfully');
-      router.push('/admin/products');
+      window.location.reload();
     } catch (err) {
       dispatch({ type: 'UPDATE_FAIL', payload: getError(err) });
       toast.error(getError(err));
@@ -271,6 +326,9 @@ export default function AdminProductEditScreen() {
             </li>
             <li>
               <Link href="/admin/users">Users</Link>
+            </li>
+            <li>
+              <button onClick={() => getTheState()}>state</button>
             </li>
           </ul>
         </div>
@@ -380,88 +438,108 @@ export default function AdminProductEditScreen() {
                 )}
               </div>
               <div className="rounded-lg bg-blue-100 p-4 mb-5">
-                {images.map((image, i) => (
-                  <div key={i} className="mb-4 p-4 bg-white rounded-lg">
-                    <div className="mb-2">
-                      <label
-                        htmlFor={`images[${i}].url`}
-                        className="block font-medium"
-                      >
-                        Image {i + 1}
-                      </label>
-                      <input
-                        type="text"
-                        className="w-full border border-gray-300 rounded-lg p-2"
-                        id={`images[${i}].url`}
-                        autoFocus
-                        {...register(`images.${i}.url`)}
-                        value={image.url}
-                        onChange={(e) => {
-                          setValue(`images.${i}.url`, e.target.value);
-                        }}
-                      />
-                    </div>
-                    <div className="mb-2">
-                      {image.url && (
-                        <div className="flex items-center justify-center bg-gray-100 p-4 rounded-lg">
-                          <img
-                            src={image.url}
-                            alt={image.altText || 'product image'}
-                            className="max-w-full max-h-48"
-                          />
-                        </div>
-                      )}
-                    </div>
-                    <div className="mb-2">
-                      <label
-                        htmlFor={`images[${i}].isDefault`}
-                        className="block font-medium"
-                      >
-                        Is Default
-                      </label>
-                      <input
-                        type="checkbox"
-                        className="w-full"
-                        id={`images[${i}].isDefault`}
-                        {...register(`images.${i}.isDefault`)}
-                        defaultChecked={image.isDefault}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            images.forEach((i) => {
-                              if (i !== image) {
-                                i.isDefault = false;
-                              }
-                            });
-                          }
-                          image.isDefault = e.target.checked;
-                          dispatch({ type: 'SET_DEFAULT_IMAGE', image: image });
-                        }}
-                      />
-                    </div>
-                    <div className="mb-2">
-                      <label
-                        htmlFor={`images[${i}].altText`}
-                        className="block font-medium"
-                      >
-                        Alt Text
-                      </label>
-                      <input
-                        type="text"
-                        className="w-full border border-gray-300 rounded-lg p-2"
-                        id={`images[${i}].altText`}
-                        {...register(`images.${i}.altText`)}
-                        defaultValue={image.altText}
-                      />
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => remove(i)}
-                      className="bg-red-500 text-white py-2 px-4 rounded-lg"
-                    >
-                      Remove Image
-                    </button>
-                  </div>
-                ))}
+                <DragDropContext
+                  onDragEnd={(result) => {
+                    if (!result.destination) {
+                      return;
+                    }
+                    const startIndex = result.source.index;
+                    const endIndex = result.destination.index;
+
+                    dispatch({
+                      type: 'REORDER_IMAGES',
+                      startIndex,
+                      endIndex,
+                    });
+                  }}
+                >
+                  <Droppable droppableId="images">
+                    {(provided) => (
+                      <div {...provided.droppableProps} ref={provided.innerRef}>
+                        {images.map((image, i) => (
+                          <Draggable
+                            key={i}
+                            draggableId={`image-${i}`}
+                            index={i}
+                          >
+                            {(provided) => (
+                              <div
+                              key={i}
+                                id={`image-${i}`}
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                className="mb-4 p-4 bg-white rounded-lg"
+                              >
+                                <div className="mb-2">
+                                  <label
+                                    htmlFor={`images[${i}].url`}
+                                    className="block font-medium"
+                                  >
+                                    Image {i + 1}
+                                  </label>
+                                  <input
+                                    type="text"
+                                    className="w-full border border-gray-300 rounded-lg p-2"
+                                    id={`images[${i}].url`}
+                                    autoFocus
+                                    {...register(`images.${i}.url`)}
+                                    value={image.url}
+                                    onChange={(e) => {
+                                      setValue(
+                                        `images.${i}.url`,
+                                        e.target.value
+                                      );
+                                    }}
+                                  />
+                                </div>
+                                <div className="mb-2">
+                                  {image.url && (
+                                    <div className="flex items-center justify-center bg-gray-100 p-4 rounded-lg">
+                                      <img
+                                        src={image.url}
+                                        alt={image.altText || 'product image'}
+                                        className="max-w-full max-h-48"
+                                      />
+                                    </div>
+                                  )}
+                                </div>
+                                {image.displayOrder === 1 &&
+                                <div className="mb-2">
+                                    Default Image
+                                </div>}
+                                <div className="mb-2">
+                                  <label
+                                    htmlFor={`images[${i}].altText`}
+                                    className="block font-medium"
+                                  >
+                                    Alt Text
+                                  </label>
+                                  <input
+                                    type="text"
+                                    className="w-full border border-gray-300 rounded-lg p-2"
+                                    id={`images[${i}].altText`}
+                                    onChange={(e) => editAltText(image.url, e.target.value)}
+                                    
+                                    value={image.altText}
+                                  />
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => removeImage(i)}
+                                  className="bg-red-500 text-white py-2 px-4 rounded-lg"
+                                >
+                                  Remove Image
+                                </button>
+                              </div>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </div>
+                    )}
+                  </Droppable>
+                </DragDropContext>
                 <button
                   type="button"
                   onClick={() => {

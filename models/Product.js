@@ -10,8 +10,8 @@ const ProductSchema = new mongoose.Schema(
     images: [
       {
         url: { type: String, required: true },
-        isDefault: { type: Boolean, required: true, default: false },
         altText: { type: String },
+        displayOrder: { type: Number },
       },
     ],
     price: { type: Number, required: true, default: false },
@@ -29,6 +29,15 @@ const ProductSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+ProductSchema.pre('save', function (next) {
+  if (this.isNew || this.isModified('images')) {
+    this.images.forEach((image, index) => {
+      image.displayOrder = index + 1;
+    });
+  }
+  next();
+});
 
 const Product =
   mongoose.models.Product || mongoose.model('Product', ProductSchema);

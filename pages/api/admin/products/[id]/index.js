@@ -34,6 +34,27 @@ const getHandler = async (req, res) => {
 
 // }
 
+// const putHandler = async (req, res) => {
+//   await db.connect();
+//   const product = await Product.findById(req.query.id);
+//   if (product) {
+//     product.name = req.body.name;
+//     product.slug = req.body.slug;
+//     product.price = req.body.price;
+//     product.category = req.body.category;
+//     product.images = req.body.images;
+//     product.brand = req.body.brand;
+//     product.countInStock = req.body.countInStock;
+//     product.description = req.body.description;
+//     await product.save();
+//     await db.disconnect();
+//     res.send({ message: 'Product updated successfully' });
+//   } else {
+//     await db.disconnect();
+//     res.status(404).send({ message: 'Product not found' });
+//   }
+// };
+
 const putHandler = async (req, res) => {
   await db.connect();
   const product = await Product.findById(req.query.id);
@@ -42,10 +63,26 @@ const putHandler = async (req, res) => {
     product.slug = req.body.slug;
     product.price = req.body.price;
     product.category = req.body.category;
-    product.images = req.body.images;
     product.brand = req.body.brand;
     product.countInStock = req.body.countInStock;
     product.description = req.body.description;
+    product.images = req.body.images;
+
+
+    // Iterate over the images in the database and check if each image exists in the request body
+    for (let i = 0; i < product.images.length; i++) {
+      const dbImage = product.images[i];
+      const reqImage = req.body.images.find((img) => img.url === dbImage.url);
+
+      // If the image does not exist in the request body, remove it from the database
+      if (!reqImage) {
+        await Product.updateOne(
+          { _id: product._id },
+          { $pull: { images: { url: dbImage.url } } }
+        );
+      }
+    }
+
     await product.save();
     await db.disconnect();
     res.send({ message: 'Product updated successfully' });

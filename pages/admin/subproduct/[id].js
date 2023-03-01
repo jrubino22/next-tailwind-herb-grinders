@@ -11,6 +11,8 @@ function reducer(state, action) {
   switch (action.type) {
     case 'FETCH_REQUEST':
       return { ...state, loading: true, error: '' };
+    case 'FETCH_IMAGES_SUCCESS':
+      return { ...state, loadingImages: false, error: '', images: action.payload };
     case 'FETCH_SUCCESS':
       return { ...state, loading: false, error: '' };
     case 'FETCH_FAIL':
@@ -40,7 +42,7 @@ function reducer(state, action) {
   }
 }
 
-export default function AdminMediaEditScreen() {
+export default function AdminSubproductEditScreen() {
   const { query } = useRouter();
   const subproductId = query.id;
   const [{ loading, error, loadingUpload, loadingUpdate }, dispatch] =
@@ -57,7 +59,7 @@ export default function AdminMediaEditScreen() {
   } = useForm();
 
   useEffect(() => {
-    const fetchData = async () => {
+      const fetchSubProduct= async () => {
       try {
         dispatch({ type: 'FETCH_REQUEST' });
         const { data } = await axios.get(`/api/admin/subproduct/${subproductId}`);
@@ -73,8 +75,8 @@ export default function AdminMediaEditScreen() {
         dispatch({ type: 'FETCH_FAIL', payload: getError(err) });
       }
     };
-    fetchData();
-  }, [subproductId, setValue]);
+    fetchSubProduct()
+  }, [parentId, subproductId, setValue]);
 
   // const router = useRouter();
 
@@ -286,4 +288,4 @@ export default function AdminMediaEditScreen() {
   );
 }
 
-AdminMediaEditScreen.auth = { adminOnly: true };
+AdminSubproductEditScreen.auth = { adminOnly: true };

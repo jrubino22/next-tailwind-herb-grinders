@@ -145,3 +145,7 @@ textarea {
   transition: transform 0.2s ease-in-out;
   max-height: 100%;
 }
+
+.view-options-btn {
+  color: black
+}

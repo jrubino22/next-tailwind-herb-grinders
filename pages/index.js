@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import Layout from '../components/Layout';
 import ProductItem from '../components/ProductItem';
 import Product from '../models/Product';
+import SubProduct from '../models/SubProduct';
 import db from '../utils/db';
 import { Store } from '../utils/Store';
 import { Carousel } from 'react-responsive-carousel'
@@ -65,6 +66,21 @@ export async function getServerSideProps() {
   await db.connect();
   const products = await Product.find().lean();
   const banners = await Banner.find().lean();
+
+  for (let i = 0; i < products.length; i++) {
+    if (products[i].variants && products[i].variants.length > 0) {
+      const productVariants = [];
+      for (let j = 0; j < products[i].variants.length; j++) {
+        const singleVariant = await SubProduct.findById(products[i].variants[j]).lean()
+        productVariants.push(singleVariant);
+      }
+      products[i].fullVariants = productVariants;
+    }
+    else{
+      products[i].fullVariants = null;
+    }
+  }
+
   return {
     props: {
       products: JSON.parse(JSON.stringify(products.map(db.convertDocToObj))),

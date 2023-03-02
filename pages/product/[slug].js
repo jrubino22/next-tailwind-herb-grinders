@@ -9,6 +9,9 @@ import Product from '../../models/Product';
 import SubProduct from '../../models/SubProduct';
 import db from '../../utils/db';
 import { Store } from '../../utils/Store';
+import Gallery from '../../components/Gallery';
+
+
 
 export default function ProductScreen(props) {
   const { product } = props;
@@ -22,6 +25,9 @@ export default function ProductScreen(props) {
       </Layout>
     );
   }
+
+
+
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [selectedSubProduct, setSelectedSubProduct] = useState(
     subproducts[0]._id
@@ -68,15 +74,13 @@ export default function ProductScreen(props) {
         <Link href="/">back to products</Link>
       </div>
       <div className="grid md:grid-cols-4 md:gap-5">
-        <div className="md:col-span-2 main-prod-image">
-          <Image
-            src={product.image}
-            alt={product.name}
-            width={640}
-            height={640}
-            layout="responsive"
-            priority
-          ></Image>
+        <div className="md:col-span-2">
+          <Gallery
+            images={product.images}
+            // variant={selectedVariant}
+            // onVariantChange={handleVariantChange}
+          />
+        
         </div>
         <div>
           <ul>
@@ -118,8 +122,8 @@ export default function ProductScreen(props) {
                         />
                         <div className="variant-image peer-checked:shadow-[0_0_0_3px_rgb(252,211,77)]">
                           <Image
-                            alt={subproduct.variant}
-                            src={subproduct.image}
+                            alt={subproduct.image.altText}
+                            src={subproduct.image.url}
                             width={640}
                             height={640}
                             layout="responsive"

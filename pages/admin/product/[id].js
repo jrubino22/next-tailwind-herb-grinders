@@ -20,6 +20,7 @@ function reducer(state, action) {
         product: action.payload,
         error: '',
         images: action.product.images,
+        name: action.product.name
       };
     case 'FETCH_FAIL':
       return { ...state, loading: false, error: action.payload };
@@ -125,10 +126,10 @@ export default function AdminProductEditScreen() {
       error,
       loadingUpload,
       loadingUpdate,
-      product,
       subproducts,
       loadingCreate,
       images,
+      name
     },
     dispatch,
   ] = useReducer(reducer, {
@@ -157,7 +158,7 @@ export default function AdminProductEditScreen() {
     formState: { errors: errors2 },
   } = useForm();
 
-  const createHandler = async ({ option, variant }) => {
+  const createHandler = async ({ variant }) => {
     if (!window.confirm('Create new variant?')) {
       return;
     }
@@ -165,8 +166,10 @@ export default function AdminProductEditScreen() {
       dispatch({ type: 'CREATE_REQUEST' });
       const { data } = await axios.post(`/api/admin/subproducts`, {
         productId,
-        option,
+        parentName: name,
         variant,
+        imageURL: images[0].url,
+        imageAlt: images[0].altText
       });
       // console.log("data", data)
       dispatch({ type: 'CREATE_SUCCESS' });
@@ -223,7 +226,7 @@ export default function AdminProductEditScreen() {
       }
     };
     fetchData();
-  }, [product, productId, setValue]);
+  }, [productId, setValue]);
 
   const router = useRouter();
 
@@ -274,7 +277,7 @@ export default function AdminProductEditScreen() {
   }
 
   const getTheState = () => {
-    console.log("getTheState", images)
+    console.log("getTheState", name)
   }
 
   const submitHandler = async ({
@@ -579,8 +582,6 @@ export default function AdminProductEditScreen() {
                 <table className="min-w-full">
                   <thead className="border-b">
                     <tr>
-                      <th className="px-5 text-left">ID</th>
-                      <th className="px-5 text-left">Option</th>
                       <th className="px-5 text-left">Variant</th>
                       <th className="px-5 text-left">Price</th>
                     </tr>
@@ -588,10 +589,6 @@ export default function AdminProductEditScreen() {
                   <tbody>
                     {subproducts.map((subproduct) => (
                       <tr key={subproduct._id} className="border-b">
-                        <td className="p-5">
-                          {subproduct._id.substring(20, 24)}
-                        </td>
-                        <td className="p-5">{subproduct.option}</td>
                         <td className="p-5">{subproduct.variant}</td>
                         <td className="p-5">${subproduct.price}</td>
                         <td className="p-5">
@@ -623,26 +620,12 @@ export default function AdminProductEditScreen() {
             onSubmit={handleSubmit2(createHandler)}
           >
             <div className="mb-4">
-              <label htmlFor="option">Option</label>
-              <input
-                type="text"
-                className="w-full"
-                id="option"
-                autoFocus
-                {...register2('option', {
-                  required: 'Please enter option',
-                })}
-              />
-              {errors.option && (
-                <div className="text-red-500">{errors2.option.message}</div>
-              )}
-            </div>
-            <div className="mb-4">
-              <label htmlFor="variant">Variant</label>
+              <label htmlFor="variant">Variant Description</label>
               <input
                 type="text"
                 className="w-full"
                 id="variant"
+                placeholder="size and/or color"
                 autoFocus
                 {...register2('variant', {
                   required: 'Please enter variant',

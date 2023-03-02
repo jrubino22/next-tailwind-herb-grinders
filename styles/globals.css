@@ -85,3 +85,59 @@ textarea {
 .alert-success {
   @apply my-3 rounded-lg bg-green-100 p-3 text-green-700;
 }
+
+.variant-img-cont-cont {
+  margin-bottom: 1rem;
+}
+
+.variant-admin-img-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  background-color: lightblue;
+  border-radius: 5px;
+}
+
+.variant-admin-img-wrapper {
+  margin: 0 10px;
+  position: relative;
+}
+
+.variant-admin-img-wrapper input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.variant-admin-img-wrapper label {
+  display: block;
+  position: relative;
+  cursor: pointer;
+}
+
+.variant-admin-img-wrapper label::before {
+  content: "";
+  display: block;
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  width: calc(100% + 10px);
+  height: calc(100% + 10px);
+  border-radius: 5px;
+  border: 2px solid transparent;
+}
+
+.variant-admin-img-wrapper input[type="radio"]:checked + label::before {
+  border-color: blue;
+}
+
+.variant-admin-img-wrapper input[type="radio"]:checked + label img {
+  transform: scale(1.1);
+}
+
+.variant-admin-img {
+  width: 150px;
+  object-fit: contain;
+  transition: transform 0.2s ease-in-out;
+}

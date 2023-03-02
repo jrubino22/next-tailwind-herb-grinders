@@ -23,17 +23,20 @@ const postHandler = async (req, res) => {
   console.log('pid', req.body.productId);
   await db.connect();
 
-  const newProduct = new SubProduct({
-    option: req.body.option,
+  const newSubProduct = new SubProduct({
     variant: req.body.variant,
     parentId: req.body.productId,
-    image: 'none',
+    parentName: req.body.parentName,
+    image: {
+      url: req.body.imageURL,
+      altText: req.body.imageAlt
+    },
     sku: ' ',
     price: 0,
     countInStock: 0,
     weight: 0,
   });
-  const subproduct = await newProduct.save();
+  const subproduct = await newSubProduct.save();
 
   await Product.findOneAndUpdate(
     { _id: subproduct.parentId },

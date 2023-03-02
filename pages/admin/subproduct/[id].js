@@ -2,7 +2,7 @@ import axios from 'axios';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useEffect, useReducer } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, watch } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import Layout from '../../../components/Layout';
 import { getError } from '../../../utils/errors';
@@ -12,7 +12,12 @@ function reducer(state, action) {
     case 'FETCH_REQUEST':
       return { ...state, loading: true, error: '' };
     case 'FETCH_IMAGES_SUCCESS':
-      return { ...state, loadingImages: false, error: '', images: action.payload };
+      return {
+        ...state,
+        loadingImages: false,
+        error: '',
+        images: action.payload,
+      };
     case 'FETCH_SUCCESS':
       return { ...state, loading: false, error: '' };
     case 'FETCH_FAIL':
@@ -22,7 +27,7 @@ function reducer(state, action) {
     case 'UPDATE_SUCCESS':
       return {
         ...state,
-        loadingUdate: false,
+        loadingUpdate: false,
         errorUpdate: '',
       };
     case 'UPDATE_FAIL':
@@ -45,11 +50,14 @@ function reducer(state, action) {
 export default function AdminSubproductEditScreen() {
   const { query } = useRouter();
   const subproductId = query.id;
-  const [{ loading, error, loadingUpload, loadingUpdate }, dispatch] =
-    useReducer(reducer, {
+  const [{ loading, error, loadingUpdate, images }, dispatch] = useReducer(
+    reducer,
+    {
       loading: true,
       error: '',
-    });
+      images: [],
+    }
+  );
 
   const {
     register,
@@ -59,60 +67,56 @@ export default function AdminSubproductEditScreen() {
   } = useForm();
 
   useEffect(() => {
-      const fetchSubProduct= async () => {
+    const fetchSubProduct = async () => {
       try {
         dispatch({ type: 'FETCH_REQUEST' });
-        const { data } = await axios.get(`/api/admin/subproduct/${subproductId}`);
+        const { data } = await axios.get(
+          `/api/admin/subproduct/${subproductId}`
+        );
         dispatch({ type: 'FETCH_SUCCESS' });
         setValue('option', data.option);
         setValue('variant', data.variant);
         setValue('sku', data.sku);
         setValue('price', data.price);
-        setValue('image', data.image);
         setValue('countInStock', data.countInStock);
         setValue('weight', data.weight);
+
+        // Retrieve the parent ID from the subproduct data
+        const parentId = data.parentId;
+
+        // Fetch the parent data using the retrieved parent ID
+        const { data: parentData } = await axios.get(
+          `/api/admin/products/${parentId}`
+        );
+        dispatch({ type: 'FETCH_IMAGES_SUCCESS', payload: parentData.images });
       } catch (err) {
         dispatch({ type: 'FETCH_FAIL', payload: getError(err) });
       }
     };
-    fetchSubProduct()
-  }, [parentId, subproductId, setValue]);
+
+    fetchSubProduct();
+  }, [subproductId, setValue]);
 
   // const router = useRouter();
 
-  const uploadHandler = async (e, imageField = 'image') => {
-    const url = `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/upload`;
-    try {
-      dispatch({ type: 'UPLOAD_REQUEST' });
-      const {
-        data: { signature, timestamp },
-      } = await axios('/api/admin/cloudinary-sign');
-
-      const file = e.target.files[0];
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('signature', signature);
-      formData.append('timestamp', timestamp);
-      formData.append('api_key', process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY);
-      const { data } = await axios.post(url, formData);
-
-      dispatch({ type: 'UPLOAD_SUCCESS' });
-      setValue(imageField, data.secure_url);
-      toast.success('File uploaded successfully');
-    } catch (err) {
-      dispatch({ type: 'UPLOAD_FAIL', payload: getError(err) });
-      toast.error(getError(err));
-    }
-  };
-
-  const submitHandler = async ({ option, variant, sku, image, price, countInStock, weight }) => {
+  const submitHandler = async ({
+    option,
+    variant,
+    sku,
+    price,
+    countInStock,
+    weight,
+  }) => {
     try {
       dispatch({ type: 'UPDATE_REQUEST' });
       await axios.put(`/api/admin/subproduct/${subproductId}`, {
         option,
         variant,
         sku,
-        image,
+        image: {
+          url: watch('image'),
+          altText: images.find((img) => img.url === watch('image')).name,
+        },
         price,
         countInStock,
         weight,
@@ -137,15 +141,15 @@ export default function AdminSubproductEditScreen() {
               <Link href="/admin/orders">Orders</Link>
             </li>
             <li>
-              <Link href="/admin/products"><a className="font-bold">Products</a></Link>
+              <Link href="/admin/products">
+                <a className="font-bold">Products</a>
+              </Link>
             </li>
             <li>
               <Link href="/admin/users">Users</Link>
             </li>
             <li>
-              <Link href="/admin/media">
-                Media
-              </Link>
+              <Link href="/admin/media">Media</Link>
             </li>
           </ul>
         </div>
@@ -221,31 +225,6 @@ export default function AdminSubproductEditScreen() {
                 )}
               </div>
               <div className="mb-4">
-                <label htmlFor="image">Image</label>
-                <input
-                  type="text"
-                  className="w-full"
-                  id="image"
-                  autoFocus
-                  {...register('image', {
-                    required: 'Please enter image',
-                  })}
-                />
-                {errors.image && (
-                  <div className="text-red-500">{errors.image.message}</div>
-                )}
-              </div>
-              <div className="mb-4">
-                <label htmlFor="imageFile">Upload Image</label>
-                <input
-                  type="file"
-                  className="w-full"
-                  id="imageFile"
-                  onChange={uploadHandler}
-                />
-                {loadingUpload && <div>Uploading...</div>}
-              </div>
-              <div className="mb-4">
                 <label htmlFor="countInStock">Count In Stock</label>
                 <input
                   type="text"
@@ -257,7 +236,9 @@ export default function AdminSubproductEditScreen() {
                   })}
                 />
                 {errors.countInStock && (
-                  <div className="text-red-500">{errors.countInStock.message}</div>
+                  <div className="text-red-500">
+                    {errors.countInStock.message}
+                  </div>
                 )}
               </div>{' '}
               <div className="mb-4">
@@ -275,6 +256,29 @@ export default function AdminSubproductEditScreen() {
                   <div className="text-red-500">{errors.weight.message}</div>
                 )}
               </div>
+              <div className="mb-4 variant-img-cont-cont">
+  <label htmlFor="image">Variant Image</label>
+  <div className="variant-admin-img-container">
+    {images.map((image) => (
+      <div key={image._id} className="variant-admin-img-wrapper">
+        <input
+          type="radio"
+          id={image._id}
+          name="image"
+          value={image.url}
+          onChange={() => setValue('image', image.url)}
+        />
+        <label htmlFor={image._id}>
+          <img
+            src={image.url}
+            alt={image.name}
+            className="variant-admin-img"
+          />
+        </label>
+      </div>
+    ))}
+  </div>
+</div>
               <div className="mb-4">
                 <button disabled={loadingUpdate} className="primary-button">
                   {loadingUpdate ? 'Loading' : 'Update'}

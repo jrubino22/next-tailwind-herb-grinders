@@ -37,7 +37,8 @@ const putHandler = async (req, res) => {
     subproduct.option = req.body.option;
     subproduct.variant = req.body.variant;
     subproduct.sku = req.body.sku;
-    subproduct.image = req.body.image;
+    subproduct.image.url = req.body.image.url;
+    subproduct.image.altText = req.body.image.altText;
     subproduct.price = req.body.price;
     subproduct.countInStock = req.body.countInStock;
     subproduct.weight = req.body.weight;

@@ -1,8 +1,8 @@
 import axios from 'axios';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import React, { useEffect, useReducer } from 'react';
-import { useForm, watch } from 'react-hook-form';
+import React, { useEffect, useReducer, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import Layout from '../../../components/Layout';
 import { getError } from '../../../utils/errors';
@@ -11,6 +11,10 @@ function reducer(state, action) {
   switch (action.type) {
     case 'FETCH_REQUEST':
       return { ...state, loading: true, error: '' };
+    case 'FETCH_SUCCESS':
+      return { ...state, loading: false, error: '' };
+    case 'FETCH_FAIL':
+      return { ...state, loading: false, error: action.payload };
     case 'FETCH_IMAGES_SUCCESS':
       return {
         ...state,
@@ -18,10 +22,6 @@ function reducer(state, action) {
         error: '',
         images: action.payload,
       };
-    case 'FETCH_SUCCESS':
-      return { ...state, loading: false, error: '' };
-    case 'FETCH_FAIL':
-      return { ...state, loading: false, error: action.payload };
     case 'UPDATE_REQUEST':
       return { ...state, loadingUpdate: true, errorUpdate: '' };
     case 'UPDATE_SUCCESS':
@@ -56,8 +56,11 @@ export default function AdminSubproductEditScreen() {
       loading: true,
       error: '',
       images: [],
+      loadingImages: true,
     }
   );
+
+  const [selectedImage, setSelectedImage] = useState('');
 
   const {
     register,
@@ -74,7 +77,6 @@ export default function AdminSubproductEditScreen() {
           `/api/admin/subproduct/${subproductId}`
         );
         dispatch({ type: 'FETCH_SUCCESS' });
-        setValue('option', data.option);
         setValue('variant', data.variant);
         setValue('sku', data.sku);
         setValue('price', data.price);
@@ -88,19 +90,29 @@ export default function AdminSubproductEditScreen() {
         const { data: parentData } = await axios.get(
           `/api/admin/products/${parentId}`
         );
-        dispatch({ type: 'FETCH_IMAGES_SUCCESS', payload: parentData.images });
+        if (images.length === 0) {
+          dispatch({ type: 'FETCH_IMAGES_SUCCESS', payload: parentData.images });
+        }
+        console.log('imageurl', data.image.url)
+        console.log('parentImg', images)
+        const preSelectedImage = images.find(
+          (productImage) => productImage.url === data.image.url
+        );
+        console.log('selected', preSelectedImage.url);
+        setSelectedImage(preSelectedImage.url);
       } catch (err) {
         dispatch({ type: 'FETCH_FAIL', payload: getError(err) });
       }
     };
 
     fetchSubProduct();
-  }, [subproductId, setValue]);
+  }, [subproductId, setValue, images]);
 
-  // const router = useRouter();
+  const getTheState = () => {
+    console.log("getTheState", selectedImage)
+  }
 
   const submitHandler = async ({
-    option,
     variant,
     sku,
     price,
@@ -110,12 +122,11 @@ export default function AdminSubproductEditScreen() {
     try {
       dispatch({ type: 'UPDATE_REQUEST' });
       await axios.put(`/api/admin/subproduct/${subproductId}`, {
-        option,
         variant,
         sku,
         image: {
-          url: watch('image'),
-          altText: images.find((img) => img.url === watch('image')).name,
+          url: selectedImage,
+          altText: images.find((img) => img.url === selectedImage).altText,
         },
         price,
         countInStock,
@@ -151,6 +162,9 @@ export default function AdminSubproductEditScreen() {
             <li>
               <Link href="/admin/media">Media</Link>
             </li>
+            <li>
+              <button onClick={() => getTheState()}>state</button>
+            </li>
           </ul>
         </div>
         <div className="md:col-span-3">
@@ -164,21 +178,6 @@ export default function AdminSubproductEditScreen() {
               onSubmit={handleSubmit(submitHandler)}
             >
               <h1 className="mb-4 text-xl">{`Edit Variant: ${subproductId}`}</h1>
-              <div className="mb-4">
-                <label htmlFor="option">Option</label>
-                <input
-                  type="text"
-                  className="w-full"
-                  id="option"
-                  autoFocus
-                  {...register('option', {
-                    required: 'Please enter option',
-                  })}
-                />
-                {errors.option && (
-                  <div className="text-red-500">{errors.option.message}</div>
-                )}
-              </div>{' '}
               <div className="mb-4">
                 <label htmlFor="variant">Variant</label>
                 <input
@@ -257,28 +256,29 @@ export default function AdminSubproductEditScreen() {
                 )}
               </div>
               <div className="mb-4 variant-img-cont-cont">
-  <label htmlFor="image">Variant Image</label>
-  <div className="variant-admin-img-container">
-    {images.map((image) => (
-      <div key={image._id} className="variant-admin-img-wrapper">
-        <input
-          type="radio"
-          id={image._id}
-          name="image"
-          value={image.url}
-          onChange={() => setValue('image', image.url)}
-        />
-        <label htmlFor={image._id}>
-          <img
-            src={image.url}
-            alt={image.name}
-            className="variant-admin-img"
-          />
-        </label>
-      </div>
-    ))}
-  </div>
-</div>
+                <label htmlFor="image">Variant Image</label>
+                <div className="variant-admin-img-container">
+                  {images.map((image) => (
+                    <div key={image._id} className="variant-admin-img-wrapper">
+                      <input
+                        type="radio"
+                        id={image._id}
+                        name="image"
+                        value={image.url}
+                        checked={selectedImage === image.url}
+                        onChange={(e) => setSelectedImage(e.target.value)}
+                      />
+                      <label htmlFor={image._id}>
+                        <img
+                          src={image.url}
+                          alt={image.name}
+                          className="variant-admin-img"
+                        />
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </div>
               <div className="mb-4">
                 <button disabled={loadingUpdate} className="primary-button">
                   {loadingUpdate ? 'Loading' : 'Update'}

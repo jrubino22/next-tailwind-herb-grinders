@@ -18,6 +18,8 @@ function CartScreen() {
     cart: { cartItems },
   } = state;
 
+  console.log('cart', state)
+
   const removeItemHandler = (item) => {
     dispatch({ type: 'CART_REMOVE_ITEM', payload: item });
   };
@@ -56,13 +58,13 @@ function CartScreen() {
                       <Link href={`/product/${item.slug}`}>
                         <a className="flex items-center">
                           <Image
-                            src={item.image}
-                            alt={item.name}
+                            src={item.image ? item.image.url : item.images[0].url}
+                            alt={item.image ? item.image.altText : item.images[0].altText}
                             width={50}
                             height={50}
                           ></Image>
                           &nbsp;
-                          {item.name}
+                          {item.name ? item.name : `${item.parentName} (${item.variant})` }
                         </a>
                       </Link>
                     </td>

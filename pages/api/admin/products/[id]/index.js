@@ -1,4 +1,5 @@
 import Product from '../../../../../models/Product';
+import SubProduct from '../../../../../models/SubProduct';
 import { getSession } from 'next-auth/react';
 import db from '../../../../../utils/db';
 
@@ -59,6 +60,7 @@ const putHandler = async (req, res) => {
   await db.connect();
   const product = await Product.findById(req.query.id);
   if (product) {
+    const originalSlug = product.slug;
     product.name = req.body.name;
     product.slug = req.body.slug;
     product.price = req.body.price;
@@ -83,8 +85,18 @@ const putHandler = async (req, res) => {
       }
     }
 
+    if (req.body.slug !== originalSlug) {
+      await SubProduct.updateMany(
+        { parentId: req.query.id },
+        { $set: { slug: req.body.slug } }
+      );
+    }
+
     await product.save();
     await db.disconnect();
+
+
+
     res.send({ message: 'Product updated successfully' });
   } else {
     await db.disconnect();
@@ -96,6 +108,7 @@ const deleteHandler = async (req, res) => {
   await db.connect();
   const product = await Product.findById(req.query.id);
   if (product) {
+    await SubProduct.deleteMany({ parentId: req.query.id });
     await product.remove();
     await db.disconnect();
     res.send({ message: 'Product deleted successfully' });

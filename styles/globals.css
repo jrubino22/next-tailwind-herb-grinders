@@ -149,3 +149,8 @@ textarea {
 .view-options-btn {
   color: black
 }
+
+.large-img-prod {
+  max-height: 50vh% !important;
+  max-width: auto;
+}

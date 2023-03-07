@@ -27,6 +27,7 @@ const postHandler = async (req, res) => {
     variant: req.body.variant,
     parentId: req.body.productId,
     parentName: req.body.parentName,
+    slug: req.body.slug,
     image: {
       url: req.body.imageURL,
       altText: req.body.imageAlt

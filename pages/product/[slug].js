@@ -30,28 +30,41 @@ export default function ProductScreen(props) {
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [selectedSubProduct, setSelectedSubProduct] = useState(
-    subproducts[0]._id
+    subproducts.length > 0 ? subproducts[0]._id : null
   );
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const [selectedSubProductPrice, setSelectedSubProductPrice] = useState(subproducts[0].price)
 
-  const changeVariant = (id, price) => {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const [selectedSubProductStock, setSelectedSubProductStock] = useState(
+    subproducts.length > 0 ? subproducts[0].countInStock : null
+  );
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const [selectedSubProductPrice, setSelectedSubProductPrice] = useState(subproducts.length > 0 ? subproducts[0].price : null)
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const [selectedSubProductImage, setSelectedSubProductImage] = useState(null);
+
+  const changeVariant = (id, price, image, stock) => {
     setSelectedSubProduct(id)
     setSelectedSubProductPrice(price)
+    setSelectedSubProductImage(image)
+    setSelectedSubProductStock(stock)
   }
 
   const addVariantToCart = async () => {
     const existItem = state.cart.cartItems.find(
-      (x) => x._id === subproducts._id
+      (x) => x._id === selectedSubProduct
     );
     const quantity = existItem ? existItem.quantity + 1 : 1;
-    const { data } = await axios.get(`/api/products/${subproducts._id}`);
+    const { data } = await axios.get(`/api/subproducts/${selectedSubProduct}`);
+
+    console.log("variant cart", data)
 
     if (data.countInStock < quantity) {
       return toast.error('Sorry. Product is out of stock');
     }
 
-    dispatch({ type: 'CART_ADD_ITEM', payload: { ...subproducts, quantity } });
+    dispatch({ type: 'CART_ADD_ITEM', payload: { ...data, quantity } });
     router.push('/cart');
   };
 
@@ -59,6 +72,7 @@ export default function ProductScreen(props) {
     const existItem = state.cart.cartItems.find((x) => x.slug === product.slug);
     const quantity = existItem ? existItem.quantity + 1 : 1;
     const { data } = await axios.get(`/api/products/${product._id}`);
+    
 
     if (data.countInStock < quantity) {
       return toast.error('Sorry. Product is out of stock');
@@ -79,6 +93,7 @@ export default function ProductScreen(props) {
             images={product.images}
             // variant={selectedVariant}
             // onVariantChange={handleVariantChange}
+            selectedSubProductImage={selectedSubProductImage}
           />
         
         </div>
@@ -113,7 +128,7 @@ export default function ProductScreen(props) {
                         <input
                           type="radio"
                           value={subproduct._id}
-                          onChange={() => changeVariant(subproduct._id, subproduct.price)}
+                          onChange={() => changeVariant(subproduct._id, subproduct.price, subproduct.image.url, subproduct.countInStock)}
                           className="variant-select absolute opacity-0 h-0 w-0 peer"
                           name="colors"
                           checked={
@@ -145,17 +160,17 @@ export default function ProductScreen(props) {
           <div className="card p-5">
             <div className="mb-2 flex justify-between">
               <div className="text-lg">Price</div>
-              <div className="text-lg text-blue">${subproducts ? selectedSubProductPrice : product.price}</div>
+              <div className="text-lg text-blue">${subproducts.length > 0 ? selectedSubProductPrice : product.price}</div>
             </div>
             <div className="mb-2 flex justify-between">
               <div>Status</div>
               <div>
-                {product.countInStock > 0 ? 'In stock' : 'Out of stock'}
+                {subproducts.length > 0 ? (selectedSubProductStock > 0 ? 'In stock' : 'Out of stock'):(product.countInStock > 0 ? 'In stock' : 'Out of stock')}
               </div>
             </div>
             <button
               className="primary-button w-full"
-              onClick={subproducts ? addVariantToCart : addToCartHandler}
+              onClick={subproducts.length > 0 ? addVariantToCart : addToCartHandler}
             >
               Add to cart
             </button>

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import React, { useEffect, useReducer} from 'react';
+import React, { useEffect, useReducer } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import Layout from '../../../components/Layout';
@@ -20,7 +20,7 @@ function reducer(state, action) {
         product: action.payload,
         error: '',
         images: action.product.images,
-        name: action.product.name
+        name: action.product.name,
       };
     case 'FETCH_FAIL':
       return { ...state, loading: false, error: action.payload };
@@ -78,17 +78,17 @@ function reducer(state, action) {
         ...state,
         images: [...(state.images || []), action.image],
       };
-      case 'REORDER_IMAGES': {
-        const newImages = Array.from(state.images);
-        const [removedImage] = newImages.splice(action.startIndex, 1);
-        newImages.splice(action.endIndex, 0, removedImage);
-      
-        const updatedImages = newImages.map((image, index) => {
-          return { ...image, displayOrder: index + 1 };
-        });
-        console.log('updatedImg', updatedImages)
-        return { ...state, images: updatedImages };
-      }
+    case 'REORDER_IMAGES': {
+      const newImages = Array.from(state.images);
+      const [removedImage] = newImages.splice(action.startIndex, 1);
+      newImages.splice(action.endIndex, 0, removedImage);
+
+      const updatedImages = newImages.map((image, index) => {
+        return { ...image, displayOrder: index + 1 };
+      });
+      console.log('updatedImg', updatedImages);
+      return { ...state, images: updatedImages };
+    }
     // case 'REMOVE_IMAGE':{
     //   console.log('removeimg', action.payload)
     //   return {
@@ -97,7 +97,7 @@ function reducer(state, action) {
     //   };
     // }
     case 'REMOVE_IMAGE': {
-      console.log('removeimg', action.payload)
+      console.log('removeimg', action.payload);
       const imagesArray = [...state.images];
       imagesArray.splice(action.payload, 1);
       return {
@@ -116,7 +116,6 @@ function reducer(state, action) {
   }
 }
 
-
 export default function AdminProductEditScreen() {
   const { query } = useRouter();
   const productId = query.id;
@@ -129,7 +128,8 @@ export default function AdminProductEditScreen() {
       subproducts,
       loadingCreate,
       images,
-      name
+      name,
+      slug,
     },
     dispatch,
   ] = useReducer(reducer, {
@@ -167,9 +167,10 @@ export default function AdminProductEditScreen() {
       const { data } = await axios.post(`/api/admin/subproducts`, {
         productId,
         parentName: name,
+        slug,
         variant,
         imageURL: images[0].url,
-        imageAlt: images[0].altText
+        imageAlt: images[0].altText,
       });
       // console.log("data", data)
       dispatch({ type: 'CREATE_SUCCESS' });
@@ -183,8 +184,8 @@ export default function AdminProductEditScreen() {
   };
 
   const editAltText = (url, altText) => {
-    dispatch({ type: 'SET_ALT_TEXT', payload: {url, altText}})
-  }
+    dispatch({ type: 'SET_ALT_TEXT', payload: { url, altText } });
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -203,7 +204,7 @@ export default function AdminProductEditScreen() {
         const imageFields = data.images.map((image) => ({
           url: image.url,
           altText: image.altText,
-          displayOrder: image.displayOrder
+          displayOrder: image.displayOrder,
         }));
         setValue('images', imageFields);
       } catch (err) {
@@ -267,18 +268,18 @@ export default function AdminProductEditScreen() {
   };
 
   const removeImage = (i) => {
-    try{
-    dispatch({ type: 'REMOVE_IMAGE', payload: i })
-    console.log("remove img func", images)
-    toast.success('Image Removed')
-    } catch{
-      toast.error('Unable to remove image')
+    try {
+      dispatch({ type: 'REMOVE_IMAGE', payload: i });
+      console.log('remove img func', images);
+      toast.success('Image Removed');
+    } catch {
+      toast.error('Unable to remove image');
     }
-  }
+  };
 
   const getTheState = () => {
-    console.log("getTheState", name)
-  }
+    console.log('getTheState', name);
+  };
 
   const submitHandler = async ({
     name,
@@ -290,7 +291,7 @@ export default function AdminProductEditScreen() {
     description,
   }) => {
     try {
-      console.log("put images2", images[0].altText)
+      console.log('put images2', images[0].altText);
       dispatch({ type: 'UPDATE_REQUEST' });
       await axios.put(`/api/admin/products/${productId}`, {
         name,
@@ -359,6 +360,21 @@ export default function AdminProductEditScreen() {
                 />
                 {errors.name && (
                   <div className="text-red-500">{errors.name.message}</div>
+                )}
+              </div>{' '}
+              <div className="mb-4">
+                <label htmlFor="slug">URL Slug</label>
+                <input
+                  type="text"
+                  className="w-full"
+                  id="slug"
+                  autoFocus
+                  {...register('slug', {
+                    required: 'Please enter slug',
+                  })}
+                />
+                {errors.slug && (
+                  <div className="text-red-500">{errors.slug.message}</div>
                 )}
               </div>{' '}
               <div className="mb-4">
@@ -467,7 +483,7 @@ export default function AdminProductEditScreen() {
                           >
                             {(provided) => (
                               <div
-                              key={i}
+                                key={i}
                                 id={`image-${i}`}
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
@@ -507,10 +523,9 @@ export default function AdminProductEditScreen() {
                                     </div>
                                   )}
                                 </div>
-                                {image.displayOrder === 1 &&
-                                <div className="mb-2">
-                                    Default Image
-                                </div>}
+                                {image.displayOrder === 1 && (
+                                  <div className="mb-2">Default Image</div>
+                                )}
                                 <div className="mb-2">
                                   <label
                                     htmlFor={`images[${i}].altText`}
@@ -522,8 +537,9 @@ export default function AdminProductEditScreen() {
                                     type="text"
                                     className="w-full border border-gray-300 rounded-lg p-2"
                                     id={`images[${i}].altText`}
-                                    onChange={(e) => editAltText(image.url, e.target.value)}
-                                    
+                                    onChange={(e) =>
+                                      editAltText(image.url, e.target.value)
+                                    }
                                     value={image.altText}
                                   />
                                 </div>

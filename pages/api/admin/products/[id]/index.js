@@ -67,7 +67,7 @@ const putHandler = async (req, res) => {
     product.category = req.body.category;
     product.brand = req.body.brand;
     product.countInStock = req.body.countInStock;
-    product.description = req.body.description;
+    product.description = req.body.prettyDescription;
     product.images = req.body.images;
 
 

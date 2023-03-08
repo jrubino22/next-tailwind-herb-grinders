@@ -1,12 +1,14 @@
 import axios from 'axios';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import React, { useEffect, useReducer } from 'react';
+import React, { useEffect, useReducer, useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import Layout from '../../../components/Layout';
 import { getError } from '../../../utils/errors';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import SimpleMDE from 'react-simplemde-editor';
+import 'easymde/dist/easymde.min.css';
 
 function reducer(state, action) {
   switch (action.type) {
@@ -21,6 +23,8 @@ function reducer(state, action) {
         error: '',
         images: action.product.images,
         name: action.product.name,
+        slug: action.product.slug,
+        description: action.product.description
       };
     case 'FETCH_FAIL':
       return { ...state, loading: false, error: action.payload };
@@ -129,7 +133,8 @@ export default function AdminProductEditScreen() {
       loadingCreate,
       images,
       name,
-      slug,
+      slug,     
+      description,
     },
     dispatch,
   ] = useReducer(reducer, {
@@ -138,6 +143,14 @@ export default function AdminProductEditScreen() {
     error: '',
     images: [],
   });
+
+  console.log('desc', description)
+
+  const [prettyDescription, setPrettyDescription] = useState('');
+
+  const handleEditorChange = (value) => {
+    setPrettyDescription(value);
+  }
 
   const {
     control,
@@ -188,6 +201,7 @@ export default function AdminProductEditScreen() {
   };
 
   useEffect(() => {
+    setPrettyDescription(description)
     const fetchData = async () => {
       try {
         dispatch({ type: 'FETCH_REQUEST' });
@@ -200,7 +214,7 @@ export default function AdminProductEditScreen() {
         setValue('category', data.category);
         setValue('brand', data.brand);
         setValue('countInStock', data.countInStock);
-        setValue('description', data.description);
+        // setValue('description', data.description);
         const imageFields = data.images.map((image) => ({
           url: image.url,
           altText: image.altText,
@@ -227,7 +241,7 @@ export default function AdminProductEditScreen() {
       }
     };
     fetchData();
-  }, [productId, setValue]);
+  }, [productId, setValue, description]);
 
   const router = useRouter();
 
@@ -278,7 +292,7 @@ export default function AdminProductEditScreen() {
   };
 
   const getTheState = () => {
-    console.log('getTheState', name);
+    console.log('getTheState', prettyDescription);
   };
 
   const submitHandler = async ({
@@ -288,7 +302,6 @@ export default function AdminProductEditScreen() {
     category,
     brand,
     countInStock,
-    description,
   }) => {
     try {
       console.log('put images2', images[0].altText);
@@ -301,7 +314,7 @@ export default function AdminProductEditScreen() {
         images,
         brand,
         countInStock,
-        description,
+        prettyDescription,
       });
       dispatch({ type: 'UPDATE_SUCCESS' });
       toast.success('Product updated successfully');
@@ -441,7 +454,11 @@ export default function AdminProductEditScreen() {
               </div>
               <div className="mb-4">
                 <label htmlFor="description">description</label>
-                <textarea
+                <SimpleMDE
+                  value={prettyDescription}
+                  onChange={(value) => handleEditorChange(value)}
+                />
+                {/* <textarea
                   type="text"
                   className="w-full"
                   id="description"
@@ -449,7 +466,7 @@ export default function AdminProductEditScreen() {
                   {...register('description', {
                     required: 'Please enter description',
                   })}
-                />
+                /> */}
                 {errors.description && (
                   <div className="text-red-500">
                     {errors.description.message}

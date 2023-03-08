@@ -10,6 +10,7 @@ import SubProduct from '../../models/SubProduct';
 import db from '../../utils/db';
 import { Store } from '../../utils/Store';
 import Gallery from '../../components/Gallery';
+import MarkdownIt from 'markdown-it';
 
 
 
@@ -82,13 +83,17 @@ export default function ProductScreen(props) {
     router.push('/cart');
   };
 
+  const md = new MarkdownIt();
+
+  const html = md.render(product.description);
+
   return (
     <Layout title={product.name}>
       <div className="py-2">
         <Link href="/">back to products</Link>
       </div>
-      <div className="grid md:grid-cols-4 md:gap-5">
-        <div className="md:col-span-2">
+      <div className="grid md:grid-cols-10 md:gap-5">
+        <div className="col-span-2 md:col-span-4">
           <Gallery
             images={product.images}
             // variant={selectedVariant}
@@ -97,7 +102,7 @@ export default function ProductScreen(props) {
           />
         
         </div>
-        <div>
+        <div className="col-span-2 lg:col-span-3">
           <ul>
             <div className="mb-5">
               <li>
@@ -109,7 +114,7 @@ export default function ProductScreen(props) {
                 {product.rating} of {product.numReviews} reviews
               </li>
             </div>
-            {subproducts && (
+            {subproducts.length > 0 && (
               <>
                 <hr></hr>
                 <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 my-5">
@@ -151,12 +156,12 @@ export default function ProductScreen(props) {
               </>
             )}
             <hr></hr>
-            <div className="my-5">
-              <li className="text-lg">{product.description}</li>
+            <div className="my-5 description-prod">
+              <div className="my-5" dangerouslySetInnerHTML={{ __html: html }}></div>
             </div>
           </ul>
         </div>
-        <div>
+        <div className="col-span-2">
           <div className="card p-5">
             <div className="mb-2 flex justify-between">
               <div className="text-lg">Price</div>

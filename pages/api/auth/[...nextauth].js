@@ -12,13 +12,16 @@ export default NextAuth({
     async jwt({ token, user }) {
       if (user?._id) token._id = user._id;
       if (user?.isAdmin) token.isAdmin = user.isAdmin;
-      if (user?.phoneNum) token.phoneNum = user.phoneNum;
+      if (user?.firstName) token.firstName = user.firstName;
+      if (user?.registeredUser) token.registeredUser = user.registeredUser;
       return token;
     },
     async session({ session, token }) {
       if (token?._id) session.user._id = token._id;
       if (token?.isAdmin) session.user.isAdmin = token.isAdmin;
-      if (token?.phoneNum) session.user.phoneNum = token.phoneNum;
+      if (token?.firstName) session.user.firstName = token.firstName;
+      if (token?.registeredUser)
+        session.user.registeredUser = token.registeredUser;
       return session;
     },
   },
@@ -33,10 +36,10 @@ export default NextAuth({
         if (user && bcryptjs.compareSync(credentials.password, user.password)) {
           return {
             _id: user._id,
-            name: user.name,
+            firstName: user.firstName,
             email: user.email,
-            phoneNum: user.phoneNum,
             isAdmin: user.isAdmin,
+            registeredUser: user.registeredUser,
           };
         }
         throw new Error('Invalid email or password');

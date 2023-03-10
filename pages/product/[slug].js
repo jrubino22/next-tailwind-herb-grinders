@@ -12,8 +12,6 @@ import { Store } from '../../utils/Store';
 import Gallery from '../../components/Gallery';
 import MarkdownIt from 'markdown-it';
 
-
-
 export default function ProductScreen(props) {
   const { product } = props;
   const { subproducts } = props;
@@ -27,8 +25,6 @@ export default function ProductScreen(props) {
     );
   }
 
-
-
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [selectedSubProduct, setSelectedSubProduct] = useState(
     subproducts.length > 0 ? subproducts[0]._id : null
@@ -40,26 +36,39 @@ export default function ProductScreen(props) {
   );
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const [selectedSubProductPrice, setSelectedSubProductPrice] = useState(subproducts.length > 0 ? subproducts[0].price : null)
+  const [selectedSubProductPrice, setSelectedSubProductPrice] = useState(
+    subproducts.length > 0 ? subproducts[0].price : null
+  );
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [selectedSubProductImage, setSelectedSubProductImage] = useState(null);
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const [quantityToAdd, setQuantityToAdd] = useState(1);
+
+  const maxQuantity =
+    subproducts.length > 0 && selectedSubProduct
+      ? selectedSubProductStock
+      : product.countInStock;
+
   const changeVariant = (id, price, image, stock) => {
-    setSelectedSubProduct(id)
-    setSelectedSubProductPrice(price)
-    setSelectedSubProductImage(image)
-    setSelectedSubProductStock(stock)
-  }
+    setSelectedSubProduct(id);
+    setSelectedSubProductPrice(price);
+    setSelectedSubProductImage(image);
+    setSelectedSubProductStock(stock);
+    setQuantityToAdd(1);
+  };
 
   const addVariantToCart = async () => {
     const existItem = state.cart.cartItems.find(
       (x) => x._id === selectedSubProduct
     );
-    const quantity = existItem ? existItem.quantity + 1 : 1;
+    const quantity = existItem
+      ? parseInt(existItem.quantity) + parseInt(quantityToAdd)
+      : parseInt(quantityToAdd);
     const { data } = await axios.get(`/api/subproducts/${selectedSubProduct}`);
 
-    console.log("variant cart", data)
+    console.log('variant cart', data, quantity, quantityToAdd);
 
     if (data.countInStock < quantity) {
       return toast.error('Sorry. Product is out of stock');
@@ -70,10 +79,11 @@ export default function ProductScreen(props) {
   };
 
   const addToCartHandler = async () => {
-    const existItem = state.cart.cartItems.find((x) => x.slug === product.slug);
-    const quantity = existItem ? existItem.quantity + 1 : 1;
+    const existItem = state.cart.cartItems.find((x) => x._id === product._id);
+    const quantity = existItem
+    ? parseInt(existItem.quantity) + parseInt(quantityToAdd)
+    : parseInt(quantityToAdd);
     const { data } = await axios.get(`/api/products/${product._id}`);
-    
 
     if (data.countInStock < quantity) {
       return toast.error('Sorry. Product is out of stock');
@@ -100,27 +110,25 @@ export default function ProductScreen(props) {
             // onVariantChange={handleVariantChange}
             selectedSubProductImage={selectedSubProductImage}
           />
-        
         </div>
         <div className="col-span-2 lg:col-span-3">
           <ul>
             <div className="mb-5">
               <li>
-                <h1 className="text-xl">{product.name}</h1>
+                <h1 className="text-2xl font-bold mb-5">{product.name}</h1>
               </li>
-              <li className="text-lg">Category: {product.category}</li>
-              <li className="text-lg">Brand: {product.brand}</li>
-              <li className="text-lg">
-                {product.rating} of {product.numReviews} reviews
+
+              <li className="text-md">
+                <span className="font-bold">Brand:</span> {product.brand}
               </li>
             </div>
             {subproducts.length > 0 && (
               <>
                 <hr></hr>
-                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 my-5">
+                <div className="variants-container grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 my-5">
                   {subproducts.map((subproduct) => (
                     <div
-                      className="text-center col-span-1 mr-2"
+                      className="text-center variant-wrapper col-span-1 mr-2"
                       key={subproduct._id}
                     >
                       <div className="variant-info">
@@ -133,7 +141,14 @@ export default function ProductScreen(props) {
                         <input
                           type="radio"
                           value={subproduct._id}
-                          onChange={() => changeVariant(subproduct._id, subproduct.price, subproduct.image.url, subproduct.countInStock)}
+                          onChange={() =>
+                            changeVariant(
+                              subproduct._id,
+                              subproduct.price,
+                              subproduct.image.url,
+                              subproduct.countInStock
+                            )
+                          }
                           className="variant-select absolute opacity-0 h-0 w-0 peer"
                           name="colors"
                           checked={
@@ -157,7 +172,10 @@ export default function ProductScreen(props) {
             )}
             <hr></hr>
             <div className="my-5 description-prod">
-              <div className="my-5" dangerouslySetInnerHTML={{ __html: html }}></div>
+              <div
+                className="my-5"
+                dangerouslySetInnerHTML={{ __html: html }}
+              ></div>
             </div>
           </ul>
         </div>
@@ -165,17 +183,60 @@ export default function ProductScreen(props) {
           <div className="card p-5">
             <div className="mb-2 flex justify-between">
               <div className="text-lg">Price</div>
-              <div className="text-lg text-blue">${subproducts.length > 0 ? selectedSubProductPrice : product.price}</div>
+              <div className="text-lg text-blue">
+                $
+                {subproducts.length > 0
+                  ? selectedSubProductPrice
+                  : product.price}
+              </div>
+            </div>
+            <div className="mb-4 flex justify-between">
+              <div>Status</div>
+              <div
+                className={
+                  subproducts.length > 0
+                    ? selectedSubProductStock > 0
+                      ? 'text-green-600'
+                      : 'text-red-500'
+                    : product.countInStock > 0
+                    ? 'text-green-600'
+                    : 'text-red-500'
+                }
+              >
+                {subproducts.length > 0
+                  ? selectedSubProductStock > 0
+                    ? 'In stock'
+                    : 'Out of stock'
+                  : product.countInStock > 0
+                  ? 'In stock'
+                  : 'Out of stock'}
+              </div>
             </div>
             <div className="mb-2 flex justify-between">
-              <div>Status</div>
+              <div className="flex items-center">Quantity</div>
               <div>
-                {subproducts.length > 0 ? (selectedSubProductStock > 0 ? 'In stock' : 'Out of stock'):(product.countInStock > 0 ? 'In stock' : 'Out of stock')}
+              <select
+                id="quantity-select"
+                className="w-full border rounded px-2 py-2 mb-4"
+                value={quantityToAdd}
+                onChange={(e) => setQuantityToAdd(e.target.value)}
+              >
+                {Array.from(
+                  { length: maxQuantity },
+                  (_, index) => index + 1
+                ).map((value) => (
+                  <option key={value} value={value}>
+                    {value}
+                  </option>
+                ))}
+              </select>
               </div>
             </div>
             <button
               className="primary-button w-full"
-              onClick={subproducts.length > 0 ? addVariantToCart : addToCartHandler}
+              onClick={
+                subproducts.length > 0 ? addVariantToCart : addToCartHandler
+              }
             >
               Add to cart
             </button>

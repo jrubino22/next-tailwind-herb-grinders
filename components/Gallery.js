@@ -29,7 +29,7 @@ export default function Gallery({ images, selectedSubProductImage }) {
   return (
     <div className="overflow-hidden">
     <div>
-      <div className="large-img-prod mx-auto md:p-8 sm:p-2">
+      <div className="large-img-prod mx-auto">
         <img
           src={images[selectedImageIndex].url}
           alt={images[selectedImageIndex].altText}

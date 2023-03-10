@@ -24,6 +24,7 @@ function CartScreen() {
     dispatch({ type: 'CART_REMOVE_ITEM', payload: item });
   };
   const updateCartHandler = async (item, qty) => {
+    console.log('item', item)
     const quantity = Number(qty);
     const {data} = await axios.get(`/api/products/${item._id}`)
     if (data.countInStock < quantity) {
@@ -53,7 +54,7 @@ function CartScreen() {
               </thead>
               <tbody>
                 {cartItems.map((item) => (
-                  <tr key={item.slug} className="border-b">
+                  <tr key={item._id} className="border-b">
                     <td>
                       <Link href={`/product/${item.slug}`}>
                         <a className="flex items-center">

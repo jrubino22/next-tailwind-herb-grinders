@@ -98,9 +98,10 @@ export default function Layout({ title, children }) {
               {status === 'loading' ? (
                 'Loading'
               ) : session?.user ? (
+                
                 <Menu as="div" className="relative profile-menu inline-block">
                   <Menu.Button className="text-blue-600">
-                    {session.user.name}
+                    {session.user.firstName}
                   </Menu.Button>
                   <Menu.Items className="absolute right-0 w-56 origin-top-right bg-white shadow-lg">
                     <Menu.Item>

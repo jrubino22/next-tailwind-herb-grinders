@@ -246,3 +246,12 @@ input[type="password"] {
 button[type="submit"]:hover {
   background-color: #0061d1;
 }
+
+.guest-button {
+  background-color: #e2e8f0;
+  border-color: #e2e8f0;
+  color: #4a5568;
+  font-weight: bold;
+  margin-top: 1rem;
+  width: 100%;
+}

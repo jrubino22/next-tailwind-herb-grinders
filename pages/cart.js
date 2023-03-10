@@ -10,7 +10,6 @@ import { toast } from 'react-toastify';
 
 const round2 = (num) => Math.round(num * 100 + Number.EPSILON) / 100;
 
-
 function CartScreen() {
   const router = useRouter();
   const { state, dispatch } = useContext(Store);
@@ -117,7 +116,7 @@ function CartScreen() {
               </li>
               <li>
                 <button
-                  onClick={() => router.push('login?redirect=/shipping')}
+                  onClick={() => router.push('login?redirect=/shipping&checkout=true')}
                   className="primary-button w-full"
                 >
                   Checkout

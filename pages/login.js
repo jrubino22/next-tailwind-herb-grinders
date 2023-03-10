@@ -89,6 +89,17 @@ export default function LoginScreen() {
           Don&apos;t have an account? &nbsp;
           <Link href="register">Register</Link>
         </div>
+        {router.query.checkout && (
+          <>
+            <hr></hr>
+            <div className="mt-4 mb-4">
+              <p className="text-bold text-center">Or</p>
+              <button className="primary-button guest-button">
+                Continue as Guest
+              </button>
+            </div>
+          </>
+        )}
       </form>
     </Layout>
   );

@@ -35,11 +35,12 @@ export default function PaymentScreen() {
   };
 
   useEffect(() => {
-    if (!shippingAddress.address) {
+    if (!shippingAddress.addressLine1 ) {
       return router.push('/shipping');
     }
+    console.log('shippingAddress', shippingAddress)
     setSelectedPaymentMethod(paymentMethod || '');
-  }, [paymentMethod, router, shippingAddress.address]);
+  }, [paymentMethod, router, shippingAddress.addressLine1]);
 
   return (
     <Layout title="Payment Method">
@@ -75,5 +76,3 @@ export default function PaymentScreen() {
     </Layout>
   );
 }
-
-PaymentScreen.auth = true;

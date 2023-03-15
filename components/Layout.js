@@ -12,6 +12,7 @@ import { useRouter } from 'next/router';
 
 export default function Layout({ title, children }) {
   const { status, data: session } = useSession();
+  
 
   const { state, dispatch } = useContext(Store);
   const { cart } = state;

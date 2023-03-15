@@ -37,6 +37,11 @@ export default function LoginScreen() {
       toast.error(getError(err));
     }
   };
+
+  const guestCheckout = () => {
+    router.push('/guest-checkout')
+  }
+
   return (
     <Layout title="login">
       <form
@@ -89,18 +94,18 @@ export default function LoginScreen() {
           Don&apos;t have an account? &nbsp;
           <Link href="register">Register</Link>
         </div>
-        {router.query.checkout && (
+      </form>
+      {router.query.checkout && (
           <>
             <hr></hr>
-            <div className="mt-4 mb-4">
+            <div className="mt-4 mb-4 text-center">
               <p className="text-bold text-center">Or</p>
-              <button className="primary-button guest-button">
+              <button onClick={() => guestCheckout()} className="primary-button guest-button w-full md:w-2/5 mx-auto">
                 Continue as Guest
               </button>
             </div>
           </>
         )}
-      </form>
     </Layout>
   );
 }

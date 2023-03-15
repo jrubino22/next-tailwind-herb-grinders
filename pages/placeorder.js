@@ -78,8 +78,9 @@ export default function PlaceOrderScreen() {
             <div className="card p-5">
               <h2 className="mb-2 text-lg">Shipping Address</h2>
               <div>
-                {shippingAddress.fullName}, {shippingAddress.address},{' '}
-                {shippingAddress.city}, {shippingAddress.postalCode},{' '}
+                {shippingAddress.fullName}, {shippingAddress.addressLine1},{' '} 
+                {shippingAddress.addressLine2 ? `${shippingAddress.addressLine2}, `: ''} {shippingAddress.city},
+                {shippingAddress.state}, {' '} {shippingAddress.postalCode},{' '}
                 {shippingAddress.country}
               </div>
               <div>
@@ -111,13 +112,13 @@ export default function PlaceOrderScreen() {
                         <Link href={`/product/${item.slug}`}>
                           <a className="flex items-center">
                             <Image
-                              src={item.image}
-                              alt={item.name}
+                              src={item.images ? item.images[0].url : item.image.url}
+                              alt={item.images ? item.images[0].altText : item.image.altText}
                               width={50}
                               height={50}
                             ></Image>
                             &nbsp;
-                            {item.name}
+                            {item.name ? item.name : `${item.parentName} (${item.variant})` }
                           </a>
                         </Link>
                       </td>
@@ -181,4 +182,4 @@ export default function PlaceOrderScreen() {
   );
 }
 
-PlaceOrderScreen.auth = true;
+// PlaceOrderScreen.auth = true;

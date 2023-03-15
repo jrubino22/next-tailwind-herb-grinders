@@ -53,6 +53,17 @@ function reducer(state, action) {
           },
         },
       };
+    case 'SAVE_GUEST':
+      return {
+        ...state,
+        cart: {
+          ...state.cart,
+          shippingAddress: {
+            ...state.cart.shippingAddress,
+            ...action.payload,
+          },
+        },
+      };
     case 'SAVE_PAYMENT_METHOD':
       return {
         ...state,

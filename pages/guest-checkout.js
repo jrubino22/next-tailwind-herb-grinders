@@ -1,10 +1,11 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import CheckoutWizard from '../components/CheckoutWizard';
 import Layout from '../components/Layout';
 import { Store } from '../utils/Store';
 import { useRouter } from 'next/router';
-import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
+import Autocomplete from 'react-google-autocomplete';
+import Cookies from 'js-cookie';
 
 export default function ShippingScreen() {
   const {
@@ -16,25 +17,13 @@ export default function ShippingScreen() {
 
   const { state, dispatch } = useContext(Store);
   const { cart } = state;
-  const { shippingAddress } = cart;
+  // const { shippingAddress } = cart;
   const router = useRouter();
 
-  useEffect(() => {
-    console.log(process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY)
-    setValue('firstName', shippingAddress.firstName);
-    setValue('lastName', shippingAddress.lastName);
-    setValue('addressLine1', shippingAddress.addressLine1);
-    setValue('addressLine2', shippingAddress.addressLine2);
-    setValue('city', shippingAddress.city);
-    setValue('state', shippingAddress.state);
-    setValue('postalCode', shippingAddress.postalCode);
-    setValue('country', shippingAddress.country);
-    setValue('phoneNumber', shippingAddress.phoneNumber);
-  }, [setValue, shippingAddress]);
+  const [address1, setAddress1] = useState('');
 
   const submitHandler = ({
-    firstName,
-    lastName,
+    fullName,
     addressLine1,
     addressLine2,
     city,
@@ -46,8 +35,7 @@ export default function ShippingScreen() {
     dispatch({
       type: 'SAVE_SHIPPING_ADDRESS',
       payload: {
-        firstName,
-        lastName,
+        fullName,
         addressLine1,
         addressLine2,
         city,
@@ -57,8 +45,48 @@ export default function ShippingScreen() {
         phoneNumber,
       },
     });
-
+    Cookies.set(
+      'cart',
+      JSON.stringify({
+        ...cart,
+        shippingAddress: {
+          fullName,
+          phoneNumber,
+          addressLine1,
+          addressLine2,
+          city,
+          state,
+          postalCode,
+          country,
+        },
+      })
+    );
+    console.log(Cookies)
     router.push('/payment');
+  };
+
+  const handlePlaceSelect = (place) => {
+    const addressComponents = place.address_components.reduce(
+      (obj, item) => ({
+        ...obj,
+        [item.types[0]]: item.long_name,
+      }),
+      {}
+    );
+
+    console.log('addycomps', addressComponents);
+
+    setValue('city', addressComponents.locality);
+    setValue('state', addressComponents.administrative_area_level_1);
+    setValue('postalCode', addressComponents.postal_code);
+    setValue('country', addressComponents.country);
+    setAddress1(
+      `${addressComponents.street_number} ${addressComponents.route}`
+    );
+    setValue(
+      'addressLine1',
+      `${addressComponents.street_number} ${addressComponents.route}`
+    );
   };
 
   return (
@@ -70,45 +98,44 @@ export default function ShippingScreen() {
       >
         <h1 className="mb-4 text-xl">Guest Checkout</h1>
         <div className="mb-4">
-          <label htmlFor="firstName">First Name</label>
+          <label htmlFor="fullName">Full Name</label>
           <input
             className="w-full"
-            id="firstName"
+            id="fullName"
             autoFocus
-            {...register('firstName', {
+            {...register('fullName', {
               required: 'Please enter first name',
             })}
           />
-          {errors.firstName && (
-            <div className="text-red-500">{errors.firstName.message}</div>
+          {errors.fullName && (
+            <div className="text-red-500">{errors.fullName.message}</div>
           )}
         </div>
         <div className="mb-4">
-          <label htmlFor="lastName">Last Name</label>
+          <label htmlFor="phoneNum">Phone Number</label>
           <input
             className="w-full"
-            id="lastName"
-            {...register('lastName', {
-              required: 'Please enter last name',
+            id="phoneNum"
+            {...register('phone', {
+              required: 'Please enter phone number',
             })}
           />
-          {errors.lastName && (
-            <div className="text-red-500">{errors.lastName.message}</div>
+          {errors.phone && (
+            <div className="text-red-500">{errors.phone.message}</div>
           )}
         </div>
         <div className="mb-4">
-          <label htmlFor="addressLine1">Address Line 1</label>
-          <GooglePlacesAutocomplete
+          <label htmlFor="addressLine1">Address Line 1 </label>
+
+          <Autocomplete
             apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY}
-            autocompletionRequest={{
+            id="addressLine1"
+            className="w-full"
+            value={address1}
+            onChange={(e) => setAddress1(e.target.value)}
+            onPlaceSelected={handlePlaceSelect}
+            options={{
               types: ['address'],
-            }}
-            selectProps={{
-              id: 'addressLine1',
-              placeholder: 'Enter your address',
-              ...register('addressLine1', {
-                required: 'Please enter address line 1',
-              }),
             }}
           />
           {errors.addressLine1 && (
@@ -178,19 +205,6 @@ export default function ShippingScreen() {
               <div className="text-red-500">{errors.country.message}</div>
             )}
           </div>
-        </div>
-        <div className="mb-4">
-          <label htmlFor="phone">Phone Number</label>
-          <input
-            className="w-full"
-            id="phone"
-            {...register('phone', {
-              required: 'Please enter phone number',
-            })}
-          />
-          {errors.phone && (
-            <div className="text-red-500">{errors.phone.message}</div>
-          )}
         </div>
         <div className="mb-4 flex justify-between">
           <button

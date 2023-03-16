@@ -28,6 +28,7 @@
     "react-google-autocomplete": "^2.7.3",
     "react-google-places-autocomplete": "^3.4.0",
     "react-hook-form": "^7.38.0",
+    "react-phone-number-input": "^3.2.19",
     "react-responsive-carousel": "^3.2.23",
     "react-simplemde-editor": "^5.2.0",
     "react-toastify": "^9.0.8"

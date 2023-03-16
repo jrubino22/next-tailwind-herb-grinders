@@ -4,6 +4,8 @@ import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import Layout from '../components/Layout';
+import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input';
+import 'react-phone-number-input/style.css'
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -17,11 +19,28 @@ export default function RegisterScreen() {
 
   const [loading, setLoading] = useState(false);
 
+  const [phone, setPhone] = useState('')
+
+  const [phoneError, setPhoneError] = useState('');
+
+  function handleOnChange(value) {
+    setPhone(value);
+    setPhoneError('');
+  }
+
+  
+
+
   const password = watch('password');
 
   const onSubmit = async (formData) => {
+    if (!isValidPhoneNumber(phone)) {
+      setPhoneError('Please enter a valid phone number');
+      return;
+    }
     const data = {
         ...formData,
+        phoneNum: phone,
         registeredUser: true,
     }
     try {
@@ -50,6 +69,7 @@ export default function RegisterScreen() {
       toast.error(err.response.data.message);
     }
   };
+
 
   return (
     <Layout title="Register">
@@ -93,6 +113,19 @@ export default function RegisterScreen() {
             )}
           </div>
           <div className="mb-4">
+            <label htmlFor="phoneNum">Phone Number</label>
+            <PhoneInput
+              id="phoneNum"
+              value={phone}
+              onChange={handleOnChange}
+              defaultCountry="US"
+              className="w-full"
+            />
+            {phoneError && (
+              <div className="text-red-500">{phoneError}</div>
+            )}
+          </div>
+          <div className="mb-4">
             <label htmlFor="email">Email</label>
             <input
               type="email"
@@ -108,24 +141,6 @@ export default function RegisterScreen() {
             />
             {errors.email && (
               <div className="text-red-500">{errors.email.message}</div>
-            )}
-          </div>
-          <div className="mb-4">
-            <label htmlFor="phoneNum">Phone Number</label>
-            <input
-              type="text"
-              id="phoneNum"
-              {...register('phoneNum', {
-                required: 'Please enter your phone number',
-                pattern: {
-                  value: /^[0-9]{10}$/,
-                  message: 'Please enter a valid phone number',
-                },
-              })}
-              className="w-full"
-            />
-            {errors.phoneNum && (
-              <div className="text-red-500">{errors.phoneNum.message}</div>
             )}
           </div>
           <div className="mb-4">

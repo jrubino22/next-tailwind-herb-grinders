@@ -9,6 +9,18 @@ const userSchema = new mongoose.Schema(
         password: { type: String, required: true },
         registeredUser: {type: Boolean, required: true, default: false},
         isAdmin: {type: Boolean, required: true, default: false},
+        address: [
+            {
+              fullName: { type: String, required: true },
+              addressLine1: { type: String },
+              addressLine2: { type: String, required: false },
+              city: { Type: String },
+              state: { Type: String },
+              zip: { Type: String },
+              country: {Type: String},
+              phoneNum: { Type: String },
+            },
+          ],
     }, {
         timestamps: true,
     }

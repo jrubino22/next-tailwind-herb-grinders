@@ -1,3 +1,4 @@
+import Cookies from 'js-cookie';
 import React, { useContext, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import CheckoutWizard from '../components/CheckoutWizard';
@@ -5,7 +6,7 @@ import Layout from '../components/Layout';
 import { Store } from '../utils/Store';
 import { useRouter } from 'next/router';
 import Autocomplete from 'react-google-autocomplete';
-import Cookies from 'js-cookie';
+
 
 export default function ShippingScreen() {
   const {

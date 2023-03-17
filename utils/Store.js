@@ -47,10 +47,7 @@ function reducer(state, action) {
         ...state,
         cart: {
           ...state.cart,
-          shippingAddress: {
-            ...state.cart.shippingAddress,
-            ...action.payload,
-          },
+          shippingAddress: action.payload,
         },
       };
     case 'SAVE_GUEST':

@@ -6,7 +6,8 @@ import Layout from '../components/Layout';
 import { Store } from '../utils/Store';
 import { useRouter } from 'next/router';
 import Autocomplete from 'react-google-autocomplete';
-
+import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
 
 export default function ShippingScreen() {
   const {
@@ -22,28 +23,42 @@ export default function ShippingScreen() {
   const router = useRouter();
 
   const [address1, setAddress1] = useState('');
+  const [phone, setPhone] = useState('');
+
+  const [phoneError, setPhoneError] = useState('');
+
+  function handleOnChange(value) {
+    setPhone(value);
+    setPhoneError('');
+  }
 
   const submitHandler = ({
     fullName,
+    email,
     addressLine1,
     addressLine2,
     city,
     state,
     postalCode,
     country,
-    phoneNumber,
   }) => {
+    console.log(phone);
+    if (!phone || !isValidPhoneNumber(phone)) {
+      setPhoneError('Please enter a valid phone number');
+      return;
+    }
     dispatch({
       type: 'SAVE_SHIPPING_ADDRESS',
       payload: {
         fullName,
+        email,
         addressLine1,
         addressLine2,
         city,
         state,
         postalCode,
         country,
-        phoneNumber,
+        phoneNum: phone,
       },
     });
     Cookies.set(
@@ -52,7 +67,8 @@ export default function ShippingScreen() {
         ...cart,
         shippingAddress: {
           fullName,
-          phoneNumber,
+          email,
+          phoneNum: phone,
           addressLine1,
           addressLine2,
           city,
@@ -62,7 +78,7 @@ export default function ShippingScreen() {
         },
       })
     );
-    console.log(Cookies)
+    console.log(Cookies);
     router.push('/payment');
   };
 
@@ -113,25 +129,40 @@ export default function ShippingScreen() {
           )}
         </div>
         <div className="mb-4">
-          <label htmlFor="phoneNum">Phone Number</label>
+          <label htmlFor="email">Email</label>
           <input
-            className="w-full"
-            id="phoneNum"
-            {...register('phone', {
-              required: 'Please enter phone number',
+            type="email"
+            id="email"
+            {...register('email', {
+              required: 'Please enter your email',
+              pattern: {
+                value: /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$/i,
+                message: 'Please enter a valid email',
+              },
             })}
+            className="w-full"
           />
-          {errors.phone && (
-            <div className="text-red-500">{errors.phone.message}</div>
+          {errors.email && (
+            <div className="text-red-500">{errors.email.message}</div>
           )}
         </div>
         <div className="mb-4">
+          <label htmlFor="phoneNum">Phone Number</label>
+          <PhoneInput
+            id="phoneNum"
+            value={phone}
+            onChange={handleOnChange}
+            defaultCountry="US"
+          />
+          {phoneError && <div className="text-red-500">{phoneError}</div>}
+        </div>
+        <div className="mb-4">
           <label htmlFor="addressLine1">Address Line 1 </label>
-
           <Autocomplete
             apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY}
             id="addressLine1"
             className="w-full"
+            placeholder=""
             value={address1}
             onChange={(e) => setAddress1(e.target.value)}
             onPlaceSelected={handlePlaceSelect}

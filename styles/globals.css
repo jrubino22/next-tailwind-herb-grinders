@@ -6,7 +6,7 @@ html,
 body {
   padding: 0;
   margin: 0;
-  font-family: Roboto, sans-serif
+  font-family: Arial, sans-serif;
   /* Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue,  sans-serif, Oxygen, -apple-system, BlinkMacSystemFont, Segoe UI, ; */
 }
 
@@ -255,3 +255,71 @@ button[type="submit"]:hover {
   margin-top: 1rem;
   width: 100%;
 }
+
+.address-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-gap: 1rem;
+  margin-bottom: 1rem
+}
+
+.address-option {
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.address-option.selected {
+  border-color: #0070f3;
+  box-shadow: 0 0 0 1px #0070f3;
+}
+
+.address-name {
+  font-weight: bold;
+}
+
+.address-line {
+  margin-top: 0.25rem;
+}
+
+.continue-button {
+  display: inline-block;
+  margin-top: 5rem;
+  margin-bottom: 5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid #0070f3;
+  border-radius: 4px;
+  background-color: #0070f3;
+  width: 40%;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+.continue-button:hover {
+  background-color: #005ecc;
+}
+
+.continue-button-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.plus-icon-container {
+  display: flex;
+  align-items: center;
+}
+
+.plus-icon-container svg {
+  margin-left: 10px; /* Add some margin to the left of the icon */
+}
+
+
+
+

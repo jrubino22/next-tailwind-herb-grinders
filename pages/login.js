@@ -92,7 +92,7 @@ export default function LoginScreen() {
         </div>
         <div className="mb-4 ">
           Don&apos;t have an account? &nbsp;
-          <Link href="register">Register</Link>
+          <Link href={router.query.checkout ? "/register?checkout=true" : "/register"}>Register</Link>
         </div>
       </form>
       {router.query.checkout && (

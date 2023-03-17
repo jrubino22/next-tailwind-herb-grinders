@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
+import { signIn, } from 'next-auth/react';
 import Layout from '../components/Layout';
 import PhoneInput, { isValidPhoneNumber } from 'react-phone-number-input';
 import 'react-phone-number-input/style.css'
@@ -28,9 +29,6 @@ export default function RegisterScreen() {
     setPhoneError('');
   }
 
-  
-
-
   const password = watch('password');
 
   const onSubmit = async (formData) => {
@@ -39,34 +37,40 @@ export default function RegisterScreen() {
       return;
     }
     const data = {
-        ...formData,
-        phoneNum: phone,
-        registeredUser: true,
-    }
+      ...formData,
+      phoneNum: phone,
+      registeredUser: true,
+    };
     try {
       setLoading(true);
-      try {
-        setLoading(true);
-        const response = await fetch('/api/auth/registerUser', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data),
+      const response = await fetch('/api/auth/registerUser', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      setLoading(false);
+      if (response.ok) {
+        const email = formData.email;
+        const password = formData.password;
+        const result = await signIn('credentials', {
+          redirect: false,
+          email,
+          password,
         });
-        setLoading(false);
-        if (response.ok) {
-        router.push('/login');
-        toast.success('Registration successful');
+        if (result.error) {
+          throw new Error(result.error);
+        } else {
+          router.push(router.query.checkout ? '/shipping' : '/' );
+          toast.success('Registration and login successful');
         }
-      } catch (err) {
-        setLoading(false);
-        toast.error(err.response.data.message);
+      } else {
+        throw new Error('Registration failed');
       }
-      toast.success('Registration successful');
     } catch (err) {
       setLoading(false);
-      toast.error(err.response.data.message);
+      toast.error(err.message);
     }
   };
 
@@ -119,7 +123,6 @@ export default function RegisterScreen() {
               value={phone}
               onChange={handleOnChange}
               defaultCountry="US"
-              className="w-full"
             />
             {phoneError && (
               <div className="text-red-500">{phoneError}</div>

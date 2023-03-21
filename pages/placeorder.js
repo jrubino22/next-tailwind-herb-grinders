@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { useSession } from 'next-auth/react';
 import Cookies from 'js-cookie';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -14,6 +15,9 @@ export default function PlaceOrderScreen() {
   const { state, dispatch } = useContext(Store);
   const { cart } = state;
   const { cartItems, shippingAddress, paymentMethod } = cart;
+  const guestSessionId = Cookies.get('guestSessionId')
+
+  const { data: session } = useSession()
 
   const round2 = (num) => Math.round(num * 100 + Number.EPSILON) / 100;
 
@@ -35,18 +39,52 @@ export default function PlaceOrderScreen() {
 
   const [loading, setLoading] = useState(false);
 
+
+
   const placeOrderHandler = async () => {
     try {
       setLoading(true);
-      const { data } = await axios.post('/api/orders', {
-        orderItems: cartItems,
+        
+      const modifiedCartItems = cartItems.map(item => {
+        const imageUrl = item.images && item.images.length > 0 ? item.images[0].url : (item.image.url);
+        const itemName = item.name ? item.name : (item.parentName && item.variant) ? `${item.parentName} (${item.variant})` : 'Unknown';
+
+        return {
+          ...item,
+          name: itemName,
+          image: imageUrl,
+        };
+      });
+
+      let orderData = {
+        orderItems: modifiedCartItems,
         shippingAddress,
         paymentMethod,
         itemsPrice,
         shippingPrice,
         taxPrice,
         totalPrice,
-      });
+        guestSessionId
+      }
+
+      if (!session) {
+        const guestSessionId = Cookies.get('guestSessionId');
+        orderData = { ...orderData, guestSessionId };
+      }
+
+      const { data } = await axios.post('/api/orders', orderData);
+
+      const custName = session ? session.user.firstName : shippingAddress.fullName;
+      const custEmail = session ? session.user.email : shippingAddress.email;
+      const emailData = {
+        order: data._id,
+        email: custEmail,
+        name: custName,
+        orderItems: modifiedCartItems
+      }
+
+      await axios.post('api/email/confirm-order', emailData)
+
       setLoading(false);
       dispatch({ type: 'CART_CLEAR_ITEMS' });
       Cookies.set(

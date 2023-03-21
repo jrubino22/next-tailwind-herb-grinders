@@ -103,6 +103,9 @@ function AdminDashboardScreen() {
             <li>
               <Link href="/admin/media">Media</Link>
             </li>
+            <li>
+              <Link href="/admin/blog">Blog</Link>
+            </li>
           </ul>
         </div>
         <div className="md:col-span-3">

@@ -56,8 +56,8 @@ export default function ShippingScreen() {
     const fullAddress = {
       address,
       phoneNum: session.user.phoneNum,
-      email: session.user.email
-    }
+      email: session.user.email,
+    };
     dispatch({
       type: 'SAVE_SHIPPING_ADDRESS',
       payload: address,

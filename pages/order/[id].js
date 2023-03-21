@@ -190,7 +190,7 @@ function OrderScreen() {
                     <div>${totalPrice}</div>
                   </div>
                 </li>
-                {session.user.isAdmin && order.isPaid && !order.isDelivered && (
+                {session?.user?.isAdmin && order.isPaid && !order.isDelivered && (
                   <li>
                     {loadingDeliver && <div>Loading...</div>}
                     <button
@@ -210,5 +210,5 @@ function OrderScreen() {
   );
 }
 
-OrderScreen.auth = true;
+
 export default OrderScreen;

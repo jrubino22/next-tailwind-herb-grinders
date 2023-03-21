@@ -2,7 +2,8 @@ import mongoose from 'mongoose';
 
 const orderSchema = new mongoose.Schema(
   {
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    guestSessionId: { type: String },
     email: {type: String, required: true},
     orderItems: [
       {
@@ -37,6 +38,15 @@ const orderSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+
+orderSchema.pre('validate', function (next) {
+  if (!this.user && !this.guestSessionId) {
+    next(new Error('Either user or guestSessionId must be provided'));
+  } else {
+    next();
+  }
+});
 
 const Order = mongoose.models.Order || mongoose.model('Order', orderSchema);
 export default Order;

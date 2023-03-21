@@ -6,12 +6,16 @@ import Layout from '../components/Layout';
 import { getError } from '../utils/errors';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/router';
+import { v4 as uuidv4 } from 'uuid';
+import Cookies from 'js-cookie';
 
 export default function LoginScreen() {
   const { data: session } = useSession();
+  
 
   const router = useRouter();
   const { redirect } = router.query;
+ 
 
   useEffect(() => {
     if (session?.user) {
@@ -39,6 +43,8 @@ export default function LoginScreen() {
   };
 
   const guestCheckout = () => {
+    const guestSessionId = uuidv4();
+    Cookies.set('guestSessionId', guestSessionId, { expires: 1 });
     router.push('/guest-checkout')
   }
 

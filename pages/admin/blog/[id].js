@@ -224,12 +224,12 @@ export default function AdminBlogEditScreen() {
           {errorUpload && <div className="alert-error">{errorUpload}</div>}
         </div>
         <div className="mb-4">
-          <label htmlFor="imageURL">Image URL</label>
+          <label htmlFor="imageURL">Image</label>
           <img
             id="imageURL"
             src={imageURL}
             alt='altText'
-            className="w-24 h-24 object-cover rounded-md border border-gray-300"
+            className="object-cover rounded-md border border-gray-300"
           />
         </div>
         <div className="mb-4">
@@ -247,7 +247,7 @@ export default function AdminBlogEditScreen() {
                 <SimpleMDE
                   value={content}
                   onChange={(value) => setContent(value)}
-                  style={{ height: '500px' }}
+                  style={{  height: '1000px', overflow: 'auto' }}
                 />
               </div>
               <div className="mb-4">

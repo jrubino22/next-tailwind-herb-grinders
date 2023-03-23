@@ -320,6 +320,36 @@ button[type="submit"]:hover {
   margin-left: 10px; /* Add some margin to the left of the icon */
 }
 
+img[src$='#half-width'] { 
+  max-width:50% !important;
+}
 
+.post-content img {
+  max-width: 50%
+}
 
+.navigation-menu-container {
+  display: none;
+}
 
+/* Media Query for Desktop */
+@media (min-width: 768px) {
+  .navigation-menu-container {
+    display: block;
+  }
+}
+
+/* Media Query for Mobile */
+@media (max-width: 767px) {
+  .navigation-menu-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}

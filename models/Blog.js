@@ -15,5 +15,6 @@ const BlogSchema = new mongoose.Schema(
   }
 );
 
+delete mongoose.connection.models['blog'];
 const Blog = mongoose.models.Blog || mongoose.model('blog', BlogSchema);
 export default Blog;

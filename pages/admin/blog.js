@@ -79,7 +79,7 @@ export default function AdminBlogScreen() {
       const { data } = await axios.post(`/api/admin/blog-post`);
       dispatch({ type: 'CREATE_SUCCESS' });
       toast.success('Blog post created successfully');
-      router.push(`/admin/blog-post/${data.post._id}`);
+      router.push(`/admin/blog/${data._id}`);
     } catch (err) {
       dispatch({ type: 'CREATE_FAIL' });
       toast.error(getError(err));
@@ -90,10 +90,10 @@ export default function AdminBlogScreen() {
     try {
       await axios.put(`/api/admin/blog`, {
         ...formData,
-        image: {
-          url: imageURL,
-          altText: formData.altText,
-        },
+        // image: {
+        //   url: imageURL,
+        //   altText: formData.altText,
+        // },
       });
       toast.success('Blog page updated successfully');
     } catch (err) {

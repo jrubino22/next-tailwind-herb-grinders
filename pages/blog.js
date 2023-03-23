@@ -5,7 +5,7 @@ import BlogPost from '../models/BlogPost';
 import db from '../utils/db';
 import Pagination from '../components/Pagination';
 
-export default function Blog({ blogPosts }) {
+export default function BlogPage({ blogPosts }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [postsPerPage] = useState(10);
 

@@ -1,6 +1,17 @@
 import bcrypt from 'bcryptjs';
 
 const data = {
+  blog: [
+    {
+      title: 'HerbGrinders Blog',
+      description: 'desc',
+      metaDesc: 'this is an SEO friendly description',
+      image:{
+        url: 'none',
+        altText: 'picture of stuff'
+      }
+    }
+  ],
   subproducts: [
     {
     option: 'size',

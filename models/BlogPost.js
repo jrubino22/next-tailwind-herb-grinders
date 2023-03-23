@@ -3,13 +3,13 @@ import mongoose from 'mongoose';
 const BlogPostSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
-    slug: {type: String, required: true, unique: true },
+    slug: {type: String, required: true },
     subtitle: { type: String },
     author: {type: String },
     content: { type: String, required: true },
-    metaDesc: { type: String, required: true, unique: true },
+    metaDesc: { type: String, required: true },
     image: {
-      url: { type: String, required: true },
+      url: { type: String },
       altText: { type: String },
     },
     isActive: {type: Boolean, required: true, default: true},

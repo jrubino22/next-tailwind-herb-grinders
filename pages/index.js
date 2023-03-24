@@ -38,8 +38,9 @@ export default function Home({ products, banners }) {
   const sortedBanners = liveBanners.sort((a, b) => (a.order > b.order) ? 1 : -1)
 
   return (
-    <Layout title="HerbGrinders">
+    <Layout title="HerbGrinders" applyMarginPadding={false}>
       <Carousel showThumbs={false} autoPlay dynamicHeight>
+        
         {sortedBanners.map((banner) => (
           <a href={banner.link} key={banner._id}>
             <div>           
@@ -48,6 +49,7 @@ export default function Home({ products, banners }) {
           </a>
         ))}
       </Carousel>
+      <div className="my-4 px-4" > 
       <h2 className="h2 my-4 font-bold text-xl ml-5">New Grinders</h2>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-4">
         {products.map((product) => (
@@ -58,6 +60,7 @@ export default function Home({ products, banners }) {
           ></ProductItem>
         ))}
       </div>
+      </div>   
     </Layout>
   );
 }

@@ -32,6 +32,10 @@ a {
   }
 }
 
+.carousel {
+  padding: 0 0 2px 0 !important;
+}
+
 .card {
   @apply mb-5 block rounded-lg border border-gray-200 shadow-md;
 }
@@ -42,6 +46,22 @@ a {
 
 .default-button {
   @apply rounded bg-gray-100 py-2 px-4 text-black shadow outline-none hover:bg-gray-200 active:bg-gray-300;
+}
+
+.header-bg {
+  background-color: #111111; /* Change this color to your preferred shade */
+}
+
+.search-bar-bg {
+  background-color: #3C3C3C; /* Change this color to a slightly different shade */
+}
+
+.header-text-color {
+  color: #ffffff;
+}
+
+.search-input {
+  flex-grow: 1;
 }
 
 .main-prod-image {

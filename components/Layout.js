@@ -12,9 +12,14 @@ import { useRouter } from 'next/router';
 import NavigationMenu from './NavigationLinks';
 import MobileNavigationMenu from './MobileNavigationMenu';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faShoppingCart, faSignInAlt } from '@fortawesome/free-solid-svg-icons';
+import {
+  faShoppingCart,
+  faSignInAlt,
+  faSearch,
+  faBars
+} from '@fortawesome/free-solid-svg-icons';
 
-export default function Layout({ title, children }) {
+export default function Layout({ title, children, applyMarginPadding = true }) {
   const { status, data: session } = useSession();
 
   const { state, dispatch } = useContext(Store);
@@ -53,69 +58,47 @@ export default function Layout({ title, children }) {
 
       <ToastContainer position="bottom-center" limit={1} />
 
-      <div className="flex min-h-screen flex-col ">
-        <header className="bg-white shadow-md">
-          <nav className="flex h-12 px-4 justify-between  items-center justify-between">
+      <div className="flex min-h-screen flex-col bg-gray-100">
+        <header className="header-bg shadow-md">
+          <nav className="container mx-auto flex h-16 px-4 justify-between items-center">
             {/* Hamburger menu */}
             <button
               className="md:hidden"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               {/* Hamburger icon */}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                className="w-6 h-6"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M2 5a1 1 0 011-1h14a1 1 0 110 2H3a1 1 0 01-1-1zm0 6a1 1 0 011-1h14a1 1 0 110 2H3a1 1 0 01-1-1zm1 5a1 1 0 100 2h14a1 1 0 100-2H3z"
-                  clipRule="evenodd"
-                />
-              </svg>
+              <FontAwesomeIcon icon={faBars} className="w-6 h-6 text-white" />
             </button>
             <Link href="/">
-              <a className="text-lg font-bold">HerbGrinders.com</a>
+              <a className="text-2xl font-bold header-text-color ml-5">
+                HerbGrinders.com
+              </a>
             </Link>
             <form
               onSubmit={submitHandler}
-              className="mx-auto hidden w-full justify-center md:flex"
+              className="mx-auto hidden w-full justify-center md:flex flex-grow search-bar-bg rounded mx-5"
             >
               <input
                 onChange={(e) => setQuery(e.target.value)}
                 type="search"
-                className="rounded-tr-none w-1/2 rounded-br-none p-1 text-sm focus:ring-0"
+                className="search-input rounded-l p-2 text-sm focus:ring-0 border border-gray-300"
                 placeholder="Search"
               />
               <button
-                className="rounded rounded-tl-none rounded-bl-none bg-amber-300 p-1 text-sm dark:text-black"
+                className="rounded-r bg-blue-600 p-2 text-sm text-white border border-blue-600"
                 type="submit"
                 id="button-addon2"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="w-6 h-6"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
-                  />
-                </svg>
+                <FontAwesomeIcon icon={faSearch} className="w-6 h-6" />
               </button>
             </form>
             <div>
-              <div className="flex items-center">
+              <div className="flex items-center md:mr-5">
                 <Link href="/cart">
-                  <a className="p-2">
+                  <a className="p-2 md:mr-2">
                     <FontAwesomeIcon
                       icon={faShoppingCart}
-                      className="w-6 h-6"
+                      className="w-6 h-6 text-white"
                     />
                     {cartItemsCount > 0 && (
                       <span className="ml-1 rounded-full bg-red-600 px-2 py-1 text-xs font-bold text-white">
@@ -128,10 +111,10 @@ export default function Layout({ title, children }) {
                   'Loading'
                 ) : session?.user ? (
                   <Menu as="div" className="relative profile-menu inline-block">
-                    <Menu.Button className="text-blue-600">
+                    <Menu.Button className="header-text-color">
                       {session.user.firstName}
                     </Menu.Button>
-                    <Menu.Items className="absolute right-0 w-56 origin-top-right bg-white shadow-lg">
+                    <Menu.Items className="absolute right-0 w-56 origin-top-right bg-white shadow-lg rounded">
                       <Menu.Item>
                         <DropdownLink className="dropdown-link" href="/profile">
                           Profile
@@ -169,7 +152,10 @@ export default function Layout({ title, children }) {
                 ) : (
                   <Link href="/login">
                     <a className="p-2">
-                      <FontAwesomeIcon icon={faSignInAlt} className="w-6 h-6" />
+                      <FontAwesomeIcon
+                        icon={faSignInAlt}
+                        className="w-6 h-6 text-white"
+                      />
                     </a>
                   </Link>
                 )}
@@ -179,14 +165,23 @@ export default function Layout({ title, children }) {
           {/* Mobile search bar */}
           <form
             onSubmit={submitHandler}
-            className="mx-auto px-4 w-full justify-center md:hidden"
+            className="mx-auto px-4 mb-4  mr-5 w-full justify-center  md:hidden"
           >
-            <input
-              onChange={(e) => setQuery(e.target.value)}
-              type="search"
-              className="rounded p-1 w-full text-sm focus:ring-0"
-              placeholder="Search"
-            />
+            <div className="flex">
+              <input
+                onChange={(e) => setQuery(e.target.value)}
+                type="search"
+                className="rounded-l p-2 w-full text-sm focus:ring0 border border-gray-300"
+                placeholder="Search"
+              />
+              <button
+                className="rounded-r bg-blue-600 p-2 text-sm text-white border border-blue-600"
+                type="submit"
+                id="button-addon2"
+              >
+                <FontAwesomeIcon icon={faSearch} className="w-6 h-6" />
+              </button>
+            </div>
           </form>
         </header>
         <MobileNavigationMenu
@@ -196,9 +191,13 @@ export default function Layout({ title, children }) {
         <div className="hidden md:block">
           <NavigationMenu />
         </div>
-        <main className="container mt-4 px-4">{children}</main>
-        <footer className="flex justify-center items-center shadow-inner">
-          <p>Copyright © 2022 herbgrinders.com</p>
+        <main className={`container${applyMarginPadding ? ' my-4 px-4' : ''}`}>
+          {children}
+        </main>
+        <footer className="flex justify-center items-center shadow-inner mt-4 py-4 bg-white">
+          <p className="text-sm text-gray-600">
+            Copyright © 2023 herbgrinders.com
+          </p>
         </footer>
       </div>
     </>

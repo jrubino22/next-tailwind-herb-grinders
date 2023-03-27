@@ -1,12 +1,19 @@
 import SubProduct from './SubProduct';
+import Category from './Category';
 import mongoose from 'mongoose';
 
 const ProductSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
     slug: { type: String, required: true, unique: true },
-    category: { type: String, required: false },
+    category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: Category,
+      required: false,
+      default: '',
+    },
     subcategory: { type: String, required: false },
+
     images: [
       {
         url: { type: String, required: true },
@@ -23,7 +30,13 @@ const ProductSchema = new mongoose.Schema(
     countInStock: { type: Number, required: false, default: 0 },
     description: { type: String, required: true },
     weight: { type: String, required: false },
-    variants: [{ type: mongoose.Schema.Types.ObjectId, ref: SubProduct, required: false }],
+    variants: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: SubProduct,
+        required: false,
+      },
+    ],
   },
   {
     timestamps: true,

@@ -12,6 +12,13 @@ import 'easymde/dist/easymde.min.css';
 
 function reducer(state, action) {
   switch (action.type) {
+    case 'FETCH_CATEGORIES_SUCCESS':
+      return {
+        ...state,
+        loading: false,
+        categories: action.payload,
+        error: '',
+      };
     case 'FETCH_REQUEST':
       return { ...state, loading: true, error: '' };
     case 'FETCH_SUCCESS':
@@ -24,7 +31,7 @@ function reducer(state, action) {
         images: action.product.images,
         name: action.product.name,
         slug: action.product.slug,
-        description: action.product.description
+        description: action.product.description,
       };
     case 'FETCH_FAIL':
       return { ...state, loading: false, error: action.payload };
@@ -133,8 +140,9 @@ export default function AdminProductEditScreen() {
       loadingCreate,
       images,
       name,
-      slug,     
+      slug,
       description,
+      categories,
     },
     dispatch,
   ] = useReducer(reducer, {
@@ -142,15 +150,16 @@ export default function AdminProductEditScreen() {
     subproducts: [],
     error: '',
     images: [],
+    categories: [],
   });
 
-  console.log('desc', description)
+  console.log('desc', description);
 
   const [prettyDescription, setPrettyDescription] = useState('');
 
   const handleEditorChange = (value) => {
     setPrettyDescription(value);
-  }
+  };
 
   const {
     control,
@@ -201,7 +210,7 @@ export default function AdminProductEditScreen() {
   };
 
   useEffect(() => {
-    setPrettyDescription(description)
+    setPrettyDescription(description);
     const fetchData = async () => {
       try {
         dispatch({ type: 'FETCH_REQUEST' });
@@ -211,7 +220,8 @@ export default function AdminProductEditScreen() {
         setValue('name', data.name);
         setValue('slug', data.slug);
         setValue('price', data.price);
-        setValue('category', data.category);
+        setValue('category', data.category)
+        
         setValue('brand', data.brand);
         setValue('countInStock', data.countInStock);
         // setValue('description', data.description);
@@ -238,6 +248,13 @@ export default function AdminProductEditScreen() {
         console.log('sp', data);
       } catch (err) {
         dispatch({ type: 'FETCH_FAIL2', payload: getError(err) });
+      }
+      try {
+        dispatch({ type: 'FETCH_CATEGORIES_REQUEST' });
+        const { data } = await axios.get('/api/admin/categories');
+        dispatch({ type: 'FETCH_CATEGORIES_SUCCESS', payload: data });
+      } catch (err) {
+        dispatch({ type: 'FETCH_CATEGORIES_FAIL', payload: getError(err) });
       }
     };
     fetchData();
@@ -292,7 +309,7 @@ export default function AdminProductEditScreen() {
   };
 
   const getTheState = () => {
-    console.log('getTheState', prettyDescription);
+    console.log('getTheState');
   };
 
   const submitHandler = async ({
@@ -407,15 +424,21 @@ export default function AdminProductEditScreen() {
               </div>{' '}
               <div className="mb-4">
                 <label htmlFor="category">Category</label>
-                <input
-                  type="text"
+                <select
                   className="w-full"
                   id="category"
-                  autoFocus
                   {...register('category', {
-                    required: 'Please enter category',
+                    required: 'Please select a category',
                   })}
-                />
+                  // defaultValue={currentCategory.toString()}
+                >
+                  <option value="">Select a category...</option>
+                  {categories.map((category) => (
+                    <option key={category._id} value={category._id}>
+                      {category.title}
+                    </option>
+                  ))}
+                </select>
                 {errors.category && (
                   <div className="text-red-500">{errors.category.message}</div>
                 )}
@@ -458,15 +481,6 @@ export default function AdminProductEditScreen() {
                   value={prettyDescription}
                   onChange={(value) => handleEditorChange(value)}
                 />
-                {/* <textarea
-                  type="text"
-                  className="w-full"
-                  id="description"
-                  autoFocus
-                  {...register('description', {
-                    required: 'Please enter description',
-                  })}
-                /> */}
                 {errors.description && (
                   <div className="text-red-500">
                     {errors.description.message}

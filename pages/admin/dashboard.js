@@ -98,6 +98,11 @@ function AdminDashboardScreen() {
               <Link href="/admin/products">Products</Link>
             </li>
             <li>
+              <Link href="/admin/categories">
+               Categories
+              </Link>
+            </li>
+            <li>
               <Link href="/admin/users">Users</Link>
             </li>
             <li>

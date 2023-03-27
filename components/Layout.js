@@ -14,10 +14,11 @@ import MobileNavigationMenu from './MobileNavigationMenu';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faShoppingCart,
-  faSignInAlt,
+  faUser,
   faSearch,
-  faBars
+  faBars,
 } from '@fortawesome/free-solid-svg-icons';
+// import Image from 'next/image';
 
 export default function Layout({ title, children, applyMarginPadding = true }) {
   const { status, data: session } = useSession();
@@ -72,6 +73,7 @@ export default function Layout({ title, children, applyMarginPadding = true }) {
             <Link href="/">
               <a className="text-2xl font-bold header-text-color ml-5">
                 HerbGrinders.com
+                {/* <Image src="https://res.cloudinary.com/ddsp9kgde/image/upload/v1679710428/zodiac_oasis_logo_blue_horizontal_emoedp.png" alt="" height="90" width="280" /> */}
               </a>
             </Link>
             <form
@@ -153,7 +155,7 @@ export default function Layout({ title, children, applyMarginPadding = true }) {
                   <Link href="/login">
                     <a className="p-2">
                       <FontAwesomeIcon
-                        icon={faSignInAlt}
+                        icon={faUser}
                         className="w-6 h-6 text-white"
                       />
                     </a>

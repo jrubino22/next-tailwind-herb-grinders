@@ -3,11 +3,11 @@ import React, { useEffect, useReducer, useState } from 'react';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
-import SimpleMDE from 'react-simplemde-editor';
-import 'easymde/dist/easymde.min.css';
 import axios from 'axios';
 import Layout from '../../../components/Layout';
 import { getError } from '../../../utils/errors';
+import SimpleMDE from 'react-simplemde-editor';
+import 'easymde/dist/easymde.min.css';
 
 function reducer(state, action) {
   switch (action.type) {
@@ -34,9 +34,9 @@ function reducer(state, action) {
   }
 }
 
-export default function AdminBlogEditScreen() {
+export default function AdminCategoryEditScreen() {
   const { query } = useRouter();
-  const blogId = query.id;
+  const categoryId = query.id;
   const [{ loading, error, loadingUpload, errorUpload }, dispatch] = useReducer(
     reducer,
     {
@@ -49,30 +49,40 @@ export default function AdminBlogEditScreen() {
 
   const { handleSubmit, setValue, register } = useForm();
 
-  const [content, setContent] = useState('');
+  const [isTags, setIsTags] = useState(false);
   const [imageURL, setImageURL] = useState('');
+  const [useCategoryImageBanner, setUseCategoryImageBanner] = useState(false);
+  const [prettyDescription, setPrettyDescription] = useState('');
+
+  const handleEditorChange = (value) => {
+    setPrettyDescription(value);
+  }
+
 
   useEffect(() => {
-    const fetchBlogPost = async () => {
+    const fetchCategory = async () => {
       try {
         dispatch({ type: 'FETCH_REQUEST' });
-        const { data } = await axios.get(`/api/admin/blog-post/${blogId}`);
+        const { data } = await axios.get(`/api/admin/categories/${categoryId}`);
         dispatch({ type: 'FETCH_SUCCESS' });
         setValue('title', data.title);
         setValue('slug', data.slug);
-        setValue('subtitle', data.subtitle);
-        setValue('author', data.author);
+        setValue('description', data.description);
         setValue('metaDesc', data.metaDesc);
+        setValue('isTags', data.isTags);
+        setValue('productTags', data.productTags.join(', '));
         setValue('altText', data.image.altText);
-        setContent(data.content);
+        setIsTags(data.isTags);
         setImageURL(data.image.url);
+        setUseCategoryImageBanner(data.useBanner);
+        setPrettyDescription(data.description)
       } catch (err) {
         dispatch({ type: 'FETCH_FAIL', payload: getError(err) });
       }
     };
 
-    fetchBlogPost();
-  }, [blogId, setValue]);
+    fetchCategory();
+  }, [categoryId, setValue]);
 
   const uploadHandler = async (e) => {
     const url = `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/upload`;
@@ -98,27 +108,37 @@ export default function AdminBlogEditScreen() {
     }
   };
 
+  const handleCategoryImageBannerChange = (event) => {
+    setUseCategoryImageBanner(event.target.checked);
+  };
+
+  const handleIsTagsChange = (event) => {
+    setIsTags(event.target.checked);
+  };
+
   const submitHandler = async ({
     title,
     slug,
-    subtitle,
-    author,
     metaDesc,
+    productTags,
     altText,
   }) => {
     try {
       dispatch({ type: 'UPDATE_REQUEST' });
-      await axios.put(`/api/admin/blog-post/${blogId}`, {
+      await axios.put(`/api/admin/categories/${categoryId}`, {
         title,
         slug,
-        subtitle,
-        author,
-        content,
+        description: prettyDescription,
         metaDesc,
-        image: { url: imageURL, altText },
+        useCategoryImageBanner,
+        isTags,
+        productTags: productTags.split(',').map((tag) => tag.trim()),
+        image: { imageURL, altText },
+        url: imageURL,
+        altText: altText,
       });
       dispatch({ type: 'UPDATE_SUCCESS' });
-      toast.success('Blog post updated successfully');
+      toast.success('Category updated successfully');
     } catch (err) {
       dispatch({ type: 'UPDATE_FAIL', payload: getError(err) });
       toast.error(getError(err));
@@ -126,29 +146,16 @@ export default function AdminBlogEditScreen() {
   };
 
   return (
-    <Layout title={`Edit Blog Post: ${blogId}`}>
+    <Layout title={`Edit Category: ${categoryId}`}>
       <div className="grid md:grid-cols-4 md:gap-5">
         <div>
           <ul>
-            {' '}
             <li>
               <Link href="/admin/dashboard">Dashboard</Link>
             </li>
             <li>
-              <Link href="/admin/orders">Orders</Link>
-            </li>
-            <li>
-              <Link href="/admin/products">Products</Link>
-            </li>
-            <li>
-              <Link href="/admin/users">Users</Link>
-            </li>
-            <li>
-              <Link href="/admin/media">Media</Link>
-            </li>
-            <li>
-              <Link href="/admin/blog">
-                <a className="font-bold">Blog</a>
+              <Link href="/admin/categories">
+                <a className="font-bold">Categories</a>
               </Link>
             </li>
           </ul>
@@ -163,7 +170,7 @@ export default function AdminBlogEditScreen() {
               className="fx-auto max-w-screen-md"
               onSubmit={handleSubmit(submitHandler)}
             >
-              <h1 className="mb-4 text-xl">{`Edit Blog Post: ${blogId}`}</h1>
+              <h1 className="mb-4 text-xl">{`Edit Category: ${categoryId}`}</h1>
 
               {/* Add other form fields here */}
               <div className="mb-4">
@@ -185,65 +192,96 @@ export default function AdminBlogEditScreen() {
               </div>
 
               <div className="mb-4">
-                <label htmlFor="subtitle">Subtitle</label>
-                <input
-                  id="subtitle"
-                  type="text"
-                  {...register('subtitle', { required: true })}
-                />
-              </div>
-
-              <div className="mb-4">
-                <label htmlFor="author">Author</label>
-                <input id="author" type="text" {...register('author')} />
-              </div>
-
-              <div className="mb-4">
-                <label htmlFor="metaDesc">Meta Description</label>
-                <input
+                <label htmlFor="metaDesc" className="block">
+                  Meta Description
+                </label>{' '}
+                {/* Add the "block" class */}
+                <textarea
                   id="metaDesc"
-                  type="text"
+                  className="block w-full" // Add these classes
                   {...register('metaDesc', { required: true })}
                 />
               </div>
 
-              <div className="image-section bg-gray-200 p-4 rounded-md mb-4">
-                <div className="mb-4">
-                  <label htmlFor="image">Update Image</label>
-                  <input
-                    id="image"
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => uploadHandler(e)}
-                  />
-                  {loadingUpload && <div>Uploading...</div>}
-                  {errorUpload && (
-                    <div className="alert-error">{errorUpload}</div>
-                  )}
-                </div>
-                <div className="mb-4">
-                  <label htmlFor="imageURL">Image</label>
-                  <img
-                    id="imageURL"
-                    src={imageURL}
-                    alt="altText"
-                    className="object-cover rounded-md border border-gray-300"
-                  />
-                </div>
-                <div className="mb-4">
-                  <label htmlFor="altText">Image Alt Text</label>
-                  <input id="altText" type="text" {...register('altText')} />
-                </div>
+              <div className="mb-4">
+                <label htmlFor="description">description</label>
+                <SimpleMDE
+                  value={prettyDescription}
+                  onChange={(value) => handleEditorChange(value)}
+                />
+                {/* {errors.description && (
+                  <div className="text-red-500">
+                    {errors.description.message}
+                  </div>
+                )} */}
               </div>
 
-              <div className="mb-4">
-                <label htmlFor="content">Content</label>
-                <SimpleMDE
-                  value={content}
-                  onChange={(value) => setContent(value)}
-                  style={{ height: '1000px', overflow: 'auto' }}
-                />
+              <div>
+                <label htmlFor="isTags">
+                  Add products via product tags
+                  <input
+                    type="checkbox"
+                    id="isTags"
+                    name="isTags"
+                    checked={isTags}
+                    onChange={handleIsTagsChange}
+                  />
+                </label>
               </div>
+
+              {isTags && (
+                <div>
+                  <label htmlFor="productTags">
+                    Product Tags
+                    <input type="text" id="productTags" name="productTags" />
+                  </label>
+                </div>
+              )}
+
+              <div>
+                <label htmlFor="useCategoryImageBanner">
+                  Use category banner image
+                  <input
+                    type="checkbox"
+                    id="useCategoryImageBanner"
+                    name="useCategoryImageBanner"
+                    checked={useCategoryImageBanner}
+                    onChange={handleCategoryImageBannerChange}
+                  />
+                </label>
+              </div>
+
+              {useCategoryImageBanner && (
+                <div className="image-section bg-gray-200 p-4 rounded-md mb-4">
+                  <div className="mb-4">
+                    <label htmlFor="image">Update Image</label>
+                    <input
+                      id="image"
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => uploadHandler(e)}
+                    />
+                    {loadingUpload && <div>Uploading...</div>}
+                    {errorUpload && (
+                      <div className="alert-error">{errorUpload}</div>
+                    )}
+                  </div>
+                  <div className="mb-4">
+                    <label htmlFor="imageURL">Image</label>
+                    <img
+                      id="imageURL"
+                      src={imageURL}
+                      alt="altText"
+                      className="object-cover rounded-md border border-gray-300"
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label htmlFor="altText">Image Alt Text</label>
+                    <input id="altText" type="text" {...register('altText')} />
+                  </div>
+                </div>
+              )}
+
               <div className="mb-4">
                 <button className="primary-button">Update</button>
               </div>
@@ -254,4 +292,4 @@ export default function AdminBlogEditScreen() {
     </Layout>
   );
 }
-AdminBlogEditScreen.auth = { adminOnly: true };
+AdminCategoryEditScreen.auth = { adminOnly: true };

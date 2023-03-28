@@ -22,13 +22,15 @@ const postHandler = async (req, res) => {
   const newProduct = new Product({
     name: 'sample name',
     slug: 'sample-name-' + Math.random(),
-    images: [{
-      url: 'https://res.cloudinary.com/ddsp9kgde/image/upload/v1677708544/placeholder_qqiwqi.png',
-      altText:'placeholder image - this should be deleted once product images are added',
-      displayOrder: 1    
-    }],
+    images: [
+      {
+        url: 'https://res.cloudinary.com/ddsp9kgde/image/upload/v1677708544/placeholder_qqiwqi.png',
+        altText:
+          'placeholder image - this should be deleted once product images are added',
+        displayOrder: 1,
+      },
+    ],
     price: 0,
-    category: 'sample category',
     brand: 'sample brand',
     countInStock: 0,
     description: 'sample description',

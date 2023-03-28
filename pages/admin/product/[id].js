@@ -7,7 +7,8 @@ import { toast } from 'react-toastify';
 import Layout from '../../../components/Layout';
 import { getError } from '../../../utils/errors';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import SimpleMDE from 'react-simplemde-editor';
+import WeightInputComponent from '../../../components/WeightInputComponent';
+import DynamicSimpleMDE from '../../../components/DynamicSimpleMDE';
 import 'easymde/dist/easymde.min.css';
 
 function reducer(state, action) {
@@ -100,13 +101,6 @@ function reducer(state, action) {
       console.log('updatedImg', updatedImages);
       return { ...state, images: updatedImages };
     }
-    // case 'REMOVE_IMAGE':{
-    //   console.log('removeimg', action.payload)
-    //   return {
-    //     ...state,
-    //     images: state.images.filter(image  => image.url !== action.payload)
-    //   };
-    // }
     case 'REMOVE_IMAGE': {
       console.log('removeimg', action.payload);
       const imagesArray = [...state.images];
@@ -156,9 +150,18 @@ export default function AdminProductEditScreen() {
   console.log('desc', description);
 
   const [prettyDescription, setPrettyDescription] = useState('');
+  const [prettyFeatures, setPrettyFeatures] = useState('');
+  const [weightInGrams, setWeightInGrams] = useState(0);
+
+  const handleWeightChange = (value) => {
+    setWeightInGrams(value);
+  };
 
   const handleEditorChange = (value) => {
     setPrettyDescription(value);
+  };
+  const handleEditorChange2 = (value) => {
+    setPrettyFeatures(value);
   };
 
   const {
@@ -220,8 +223,10 @@ export default function AdminProductEditScreen() {
         setValue('name', data.name);
         setValue('slug', data.slug);
         setValue('price', data.price);
-        setValue('category', data.category)
-        
+        setValue('category', data.category);
+        setValue('isActive', data.isActive);
+        setPrettyFeatures(data.features);
+        setValue('productTags', data.productTags.join(', '));
         setValue('brand', data.brand);
         setValue('countInStock', data.countInStock);
         // setValue('description', data.description);
@@ -313,25 +318,30 @@ export default function AdminProductEditScreen() {
   };
 
   const submitHandler = async ({
+    isActive,
     name,
     slug,
     price,
     category,
     brand,
     countInStock,
+    productTags,
   }) => {
     try {
       console.log('put images2', images[0].altText);
       dispatch({ type: 'UPDATE_REQUEST' });
       await axios.put(`/api/admin/products/${productId}`, {
+        isActive,
         name,
         slug,
         price,
         category,
         images,
         brand,
+        productTags: productTags.split(',').map((tag) => tag.trim()),
         countInStock,
         prettyDescription,
+        prettyFeatures,
       });
       dispatch({ type: 'UPDATE_SUCCESS' });
       toast.success('Product updated successfully');
@@ -377,6 +387,18 @@ export default function AdminProductEditScreen() {
               onSubmit={handleSubmit(submitHandler)}
             >
               <h1 className="mb-4 text-xl">{`Edit Product ${productId}`}</h1>
+              <div className="mb-4">
+                <label className="mr-2" htmlFor="isActive">
+                  Active
+                  <input
+                    type="checkbox"
+                    id="isActive"
+                    name="isActive"
+                    className="ml-1"
+                    {...register('isActive')}
+                  />
+                </label>
+              </div>
               <div className="mb-4">
                 <label htmlFor="name">Name</label>
                 <input
@@ -475,9 +497,34 @@ export default function AdminProductEditScreen() {
                   </div>
                 )}
               </div>
+              <WeightInputComponent
+                id="weight"
+                name="weight"
+                register={register}
+                setValue={setValue}
+                setWeightInGrams={setWeightInGrams}
+              />
+              <div className="mb-4">
+                <label htmlFor="productTags">
+                  Product Tags - separate via comma
+                  <input
+                    type="text"
+                    id="productTags"
+                    name="productTags"
+                    {...register('productTags')}
+                  />
+                </label>
+              </div>
+              <div className="mb-4">
+                <label htmlFor="features">features</label>
+                <DynamicSimpleMDE
+                  value={prettyFeatures}
+                  onChange={(value) => handleEditorChange2(value)}
+                />
+              </div>
               <div className="mb-4">
                 <label htmlFor="description">description</label>
-                <SimpleMDE
+                <DynamicSimpleMDE
                   value={prettyDescription}
                   onChange={(value) => handleEditorChange(value)}
                 />
@@ -683,7 +730,7 @@ export default function AdminProductEditScreen() {
               )}
             </div>
             <button disabled={loadingCreate} className="primary-button mb-4">
-              {loadingCreate ? 'Loading' : 'Create'}
+              {loadingCreate ? 'Loading' : 'Create new variant'}
             </button>
             <div className="mb-4">
               <Link href={`/admin/products`}>Back</Link>

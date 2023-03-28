@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 import Layout from '../../../components/Layout';
 import { getError } from '../../../utils/errors';
-import SimpleMDE from 'react-simplemde-editor';
+import DynamicSimpleMDE from '../../../components/DynamicSimpleMDE';
 import 'easymde/dist/easymde.min.css';
 
 function reducer(state, action) {
@@ -56,8 +56,7 @@ export default function AdminCategoryEditScreen() {
 
   const handleEditorChange = (value) => {
     setPrettyDescription(value);
-  }
-
+  };
 
   useEffect(() => {
     const fetchCategory = async () => {
@@ -75,7 +74,7 @@ export default function AdminCategoryEditScreen() {
         setIsTags(data.isTags);
         setImageURL(data.image.url);
         setUseCategoryImageBanner(data.useBanner);
-        setPrettyDescription(data.description)
+        setPrettyDescription(data.description);
       } catch (err) {
         dispatch({ type: 'FETCH_FAIL', payload: getError(err) });
       }
@@ -205,7 +204,7 @@ export default function AdminCategoryEditScreen() {
 
               <div className="mb-4">
                 <label htmlFor="description">description</label>
-                <SimpleMDE
+                <DynamicSimpleMDE
                   value={prettyDescription}
                   onChange={(value) => handleEditorChange(value)}
                 />
@@ -232,8 +231,13 @@ export default function AdminCategoryEditScreen() {
               {isTags && (
                 <div>
                   <label htmlFor="productTags">
-                    Product Tags
-                    <input type="text" id="productTags" name="productTags" />
+                    Product Tags - separate via comma
+                    <input
+                      type="text"
+                      id="productTags"
+                      name="productTags"
+                      {...register('productTags')}
+                    />
                   </label>
                 </div>
               )}

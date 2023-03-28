@@ -10,7 +10,7 @@ const ProductSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: Category,
       required: false,
-      default: '',
+      default: null,
     },
     subcategory: { type: String, required: false },
 
@@ -22,14 +22,22 @@ const ProductSchema = new mongoose.Schema(
       },
     ],
     price: { type: Number, required: true, default: false },
+    isActive: { type: Boolean, required: true, default: false },
     brand: { type: String, required: false },
     sku: { type: String, required: false },
     rating: { type: Number, required: false, default: 0 },
     numReviews: { type: Number, required: false, default: 0 },
     keepTrackInventory: { type: Boolean, required: false, default: false },
     countInStock: { type: Number, required: false, default: 0 },
+    features: {
+      type: String,
+      required: true,
+      default: 'should be bullet points of features',
+    },
     description: { type: String, required: true },
-    weight: { type: String, required: false },
+    tags: { type: [String], default: [] },
+    weight: { type: Number, required: true, default: 0 },
+
     variants: [
       {
         type: mongoose.Schema.Types.ObjectId,

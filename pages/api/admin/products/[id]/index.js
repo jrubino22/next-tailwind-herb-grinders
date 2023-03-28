@@ -31,7 +31,6 @@ const getHandler = async (req, res) => {
   res.json(product);
 };
 
-
 const putHandler = async (req, res) => {
   await db.connect();
   const product = await Product.findById(req.query.id);
@@ -45,7 +44,9 @@ const putHandler = async (req, res) => {
     product.countInStock = req.body.countInStock;
     product.description = req.body.prettyDescription;
     product.images = req.body.images;
-
+    product.features = req.body.features;
+    product.isActive = req.body.isActive;
+    product.productTags = req.body.productTags;
 
     // Iterate over the images in the database and check if each image exists in the request body
     for (let i = 0; i < product.images.length; i++) {
@@ -70,8 +71,6 @@ const putHandler = async (req, res) => {
 
     await product.save();
     await db.disconnect();
-
-
 
     res.send({ message: 'Product updated successfully' });
   } else {

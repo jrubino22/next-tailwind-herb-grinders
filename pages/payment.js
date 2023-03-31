@@ -40,7 +40,7 @@ export default function PaymentScreen() {
     }
     console.log('shippingAddress', shippingAddress)
     setSelectedPaymentMethod(paymentMethod || '');
-  }, [paymentMethod, router, shippingAddress.addressLine1]);
+  }, [paymentMethod, router, shippingAddress]);
 
   return (
     <Layout title="Payment Method">

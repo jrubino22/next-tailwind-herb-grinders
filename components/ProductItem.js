@@ -2,9 +2,11 @@
 import React from 'react';
 import Link from 'next/link';
 
-export default function ProductItem({ product, addToCartHandler }) {
+export default function ProductItem({ product, addToCartHandler, fullVars }) {
+  console.log('fv', fullVars)
+  const fullVariants = fullVars ? fullVars : product.fullVariants
   return (
-    <div className="card">
+    <div className="card bg-white">
       <Link href={`/product/${product.slug}`}>
         <a>
           <img
@@ -22,11 +24,11 @@ export default function ProductItem({ product, addToCartHandler }) {
         </Link>
         <p className="mb-2">{product.brand}</p>
         <p>
-          {product.fullVariants
-            ? `from $${product.fullVariants[0].price}`
+          {(fullVariants && fullVariants.length > 0)
+            ? `from $${fullVariants[0].price}`
             : `$${product.price}`}
         </p>
-        {product.fullVariants ? (
+        {(fullVariants && fullVariants.length > 0) ? (
           <a
             type="button"
             href={`product/${product.slug}`}

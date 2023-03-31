@@ -71,7 +71,7 @@ export default function Layout({
 
       <ToastContainer position="bottom-center" limit={1} />
 
-      <div className="flex min-h-screen flex-col bg-gray-100">
+      <div className="flex min-h-screen flex-col bg-stone-50">
         <header className="header-bg shadow-md">
           <nav className="container mx-auto flex h-16 px-4 justify-between items-center">
             {/* Hamburger menu */}

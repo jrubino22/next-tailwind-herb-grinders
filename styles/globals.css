@@ -22,7 +22,7 @@ a {
   box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
   html {
     color-scheme: dark;
   }
@@ -30,7 +30,7 @@ a {
     color: white;
     background: black;
   }
-}
+} */
 
 .carousel {
   padding: 0 0 2px 0 !important;
@@ -49,11 +49,11 @@ a {
 }
 
 .header-bg {
-  background-color: #111111; /* Change this color to your preferred shade */
+  background-color: #111111;
 }
 
 .search-bar-bg {
-  background-color: #3C3C3C; /* Change this color to a slightly different shade */
+  background-color: #3C3C3C; 
 }
 
 .header-text-color {

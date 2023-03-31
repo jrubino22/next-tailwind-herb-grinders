@@ -26,23 +26,33 @@ const WeightInputComponent = ({ onChange, initialWeightInGrams }) => {
 
   const convertToGrams = (value, unit) => {
     value = parseFloat(value);
+    let weightInGrams;
     switch (unit) {
       case 'oz':
-        return value * 28.3495;
+        weightInGrams = value * 28.3495;
+        break;
       case 'lb':
-        return value * 453.592;
+        weightInGrams = value * 453.592;
+        break;
       default:
-        return value;
+        weightInGrams = value;
     }
+    return parseFloat(weightInGrams.toFixed(2));
   };
 
   return (
     <div className="mb-4">
-    <label htmlfor="weight">Weight</label>
+    <div>
+    <label htmlFor="weight">Weight</label>
+    </div>
+    <div>
       <input
+        className="w-3/4"
         type="number"
         min="0"
         step="0.01"
+        autoFocus
+        id="weight"
         value={displayWeight}
         onChange={handleWeightChange}
         onBlur={handleBlur}
@@ -52,6 +62,7 @@ const WeightInputComponent = ({ onChange, initialWeightInGrams }) => {
         <option value="oz">Ounces</option>
         <option value="lb">Pounds</option>
       </select>
+      </div>
     </div>
   );
 };

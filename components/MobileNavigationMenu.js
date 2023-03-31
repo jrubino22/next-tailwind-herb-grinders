@@ -4,24 +4,30 @@ import Link from 'next/link';
 const menuItems = [
   { id: 1, title: 'Blog', link: '/blog' },
   { id: 2, title: 'All Products', link: '/search' },
-  { id: 3, title: 'Rotary Grinders', link: '/#' },
-  { id: 4, title: 'Grinder Cards', link: '/#' },
+  { id: 3, title: 'Rotary Grinders', link: '/category/rotary-grinders' },
+  { id: 4, title: 'Grinder Cards', link: '/category/grinder-cards' },
 ];
 
 const MobileNavigationMenu = ({ isOpen, setMobileMenuOpen }) => {
   const menuRef = useRef(null);
 
-  const handleClickOutside = useCallback((event) => {
-    if (menuRef.current && !menuRef.current.contains(event.target)) {
-      setMobileMenuOpen(false);
-    }
-  }, [setMobileMenuOpen]);
+  const handleClickOutside = useCallback(
+    (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setMobileMenuOpen(false);
+      }
+    },
+    [setMobileMenuOpen]
+  );
 
-  const handleTouchStart = useCallback((event) => {
-    if (menuRef.current && !menuRef.current.contains(event.target)) {
-      setMobileMenuOpen(false);
-    }
-  }, [setMobileMenuOpen]);
+  const handleTouchStart = useCallback(
+    (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setMobileMenuOpen(false);
+      }
+    },
+    [setMobileMenuOpen]
+  );
 
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
@@ -36,7 +42,10 @@ const MobileNavigationMenu = ({ isOpen, setMobileMenuOpen }) => {
     <>
       {isOpen && (
         <div className="fixed inset-0 z-20 bg-gray-900 bg-opacity-50">
-          <nav ref={menuRef} className="absolute top-0 left-0 w-3/4 max-w-sm h-full bg-white shadow-lg">
+          <nav
+            ref={menuRef}
+            className="absolute top-0 left-0 w-3/4 max-w-sm h-full bg-white shadow-lg"
+          >
             <button
               className="p-4 text-white absolute right-0 top-0"
               onClick={() => setMobileMenuOpen(false)}
@@ -73,6 +82,6 @@ const MobileNavigationMenu = ({ isOpen, setMobileMenuOpen }) => {
       )}
     </>
   );
-}
+};
 
-export default MobileNavigationMenu
+export default MobileNavigationMenu;

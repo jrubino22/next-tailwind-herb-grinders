@@ -23,7 +23,6 @@ function reducer(state, action) {
     case 'FETCH_REQUEST':
       return { ...state, loading: true, error: '' };
     case 'FETCH_SUCCESS':
-      console.log('fetchsuccess', action);
       return {
         ...state,
         loading: false,
@@ -84,8 +83,6 @@ function reducer(state, action) {
     }
 
     case 'ADD_IMAGE':
-      console.log('action.image:', action.image);
-      console.log('reducer', state);
       return {
         ...state,
         images: [...(state.images || []), action.image],
@@ -98,11 +95,9 @@ function reducer(state, action) {
       const updatedImages = newImages.map((image, index) => {
         return { ...image, displayOrder: index + 1 };
       });
-      console.log('updatedImg', updatedImages);
       return { ...state, images: updatedImages };
     }
     case 'REMOVE_IMAGE': {
-      console.log('removeimg', action.payload);
       const imagesArray = [...state.images];
       imagesArray.splice(action.payload, 1);
       return {
@@ -116,6 +111,14 @@ function reducer(state, action) {
       return { ...state, loadingCreate: false };
     case 'CREATE_FAIL':
       return { ...state, loadingCreate: false };
+    case 'DELETE_REQUEST':
+      return { ...state, loadingDelete: true };
+    case 'DELETE_SUCCESS':
+      return { ...state, loadingDelete: false, successDelete: true };
+    case 'DELETE_FAIL':
+      return { ...state, loadingDelete: false };
+    case 'DELETE_RESET':
+      return { ...state, loadingDelete: false, successDelete: false };
     default:
       return state;
   }
@@ -147,14 +150,13 @@ export default function AdminProductEditScreen() {
     categories: [],
   });
 
-  console.log('desc', description);
-
   const [prettyDescription, setPrettyDescription] = useState('');
   const [prettyFeatures, setPrettyFeatures] = useState('');
-  const [weightInGrams, setWeightInGrams] = useState(0);
+  const [productWeight, setProductWeight] = useState(0);
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   const handleWeightChange = (value) => {
-    setWeightInGrams(value);
+    setProductWeight(value);
   };
 
   const handleEditorChange = (value) => {
@@ -200,7 +202,6 @@ export default function AdminProductEditScreen() {
       // console.log("data", data)
       dispatch({ type: 'CREATE_SUCCESS' });
       toast.success('Product created successfully');
-      console.log('sp', data);
       router.push(`/admin/subproduct/${data.subproduct._id}`);
     } catch (err) {
       dispatch({ type: 'CREATE_FAIL' });
@@ -222,20 +223,21 @@ export default function AdminProductEditScreen() {
         dispatch({ type: 'FETCH_SUCCESS', product: data });
         setValue('name', data.name);
         setValue('slug', data.slug);
-        setValue('price', data.price);
-        setValue('category', data.category);
-        setValue('isActive', data.isActive);
-        setPrettyFeatures(data.features);
-        setValue('productTags', data.productTags.join(', '));
         setValue('brand', data.brand);
+        setValue('price', data.price);
+        setValue('sku', data.sku);
+        setValue('metaDesc', data.metaDesc);
+        setValue('isActive', data.isActive);
+        setValue('productTags', data.tags.join(', '));
         setValue('countInStock', data.countInStock);
-        // setValue('description', data.description);
+        setSelectedCategory(data.category);
         const imageFields = data.images.map((image) => ({
           url: image.url,
           altText: image.altText,
           displayOrder: image.displayOrder,
         }));
         setValue('images', imageFields);
+        setPrettyFeatures(data.features);
       } catch (err) {
         dispatch({ type: 'FETCH_FAIL', payload: getError(err) });
       }
@@ -303,6 +305,22 @@ export default function AdminProductEditScreen() {
     }
   };
 
+  const deleteHandler = async (subproductId) => {
+    console.log('subid', subproductId);
+    if (!window.confirm('Are you sure?')) {
+      return;
+    }
+    try {
+      dispatch({ type: 'DELETE_REQUEST' });
+      await axios.delete(`/api/admin/subproduct/${subproductId}`);
+      dispatch({ type: 'DELETE_SUCCESS' });
+      toast.success('Product deleted successfully');
+    } catch (err) {
+      dispatch({ type: 'DELETE_FAIL' });
+      toast.error(getError(err));
+    }
+  };
+
   const removeImage = (i) => {
     try {
       dispatch({ type: 'REMOVE_IMAGE', payload: i });
@@ -321,9 +339,11 @@ export default function AdminProductEditScreen() {
     isActive,
     name,
     slug,
+    sku,
     price,
-    category,
+
     brand,
+    metaDesc,
     countInStock,
     productTags,
   }) => {
@@ -335,11 +355,14 @@ export default function AdminProductEditScreen() {
         name,
         slug,
         price,
-        category,
+        sku,
+        metaDesc,
+        category: selectedCategory === '' ? null : selectedCategory,
         images,
         brand,
         productTags: productTags.split(',').map((tag) => tag.trim()),
         countInStock,
+        productWeight,
         prettyDescription,
         prettyFeatures,
       });
@@ -405,6 +428,7 @@ export default function AdminProductEditScreen() {
                   type="text"
                   className="w-full"
                   id="name"
+                  name="name"
                   autoFocus
                   {...register('name', {
                     required: 'Please enter name',
@@ -414,45 +438,34 @@ export default function AdminProductEditScreen() {
                   <div className="text-red-500">{errors.name.message}</div>
                 )}
               </div>{' '}
-              <div className="mb-4">
-                <label htmlFor="slug">URL Slug</label>
-                <input
-                  type="text"
-                  className="w-full"
-                  id="slug"
-                  autoFocus
-                  {...register('slug', {
-                    required: 'Please enter slug',
-                  })}
-                />
-                {errors.slug && (
-                  <div className="text-red-500">{errors.slug.message}</div>
-                )}
-              </div>{' '}
-              <div className="mb-4">
-                <label htmlFor="price">Price</label>
-                <input
-                  type="text"
-                  className="w-full"
-                  id="price"
-                  autoFocus
-                  {...register('price', {
-                    required: 'Please enter price',
-                  })}
-                />
-                {errors.price && (
-                  <div className="text-red-500">{errors.price.message}</div>
-                )}
-              </div>{' '}
+              {subproducts.length < 1 && (
+                <div className="mb-4">
+                  <label htmlFor="price">Price</label>
+                  <input
+                    type="text"
+                    className="w-full"
+                    name="price"
+                    id="price"
+                    autoFocus
+                    {...register('price', {
+                      required: 'Please enter price',
+                    })}
+                  />
+                  {errors.price && (
+                    <div className="text-red-500">{errors.price.message}</div>
+                  )}
+                </div>
+              )}
               <div className="mb-4">
                 <label htmlFor="category">Category</label>
                 <select
                   className="w-full"
                   id="category"
+                  value={selectedCategory}
                   {...register('category', {
                     required: 'Please select a category',
                   })}
-                  // defaultValue={currentCategory.toString()}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
                 >
                   <option value="">Select a category...</option>
                   {categories.map((category) => (
@@ -461,49 +474,52 @@ export default function AdminProductEditScreen() {
                     </option>
                   ))}
                 </select>
-                {errors.category && (
-                  <div className="text-red-500">{errors.category.message}</div>
-                )}
               </div>
               <div className="mb-4">
                 <label htmlFor="brand">Brand</label>
                 <input
                   type="text"
                   className="w-full"
+                  name="brand"
                   id="brand"
                   autoFocus
-                  {...register('brand', {
-                    required: 'Please enter brand',
-                  })}
+                  {...register('brand')}
                 />
-                {errors.brand && (
-                  <div className="text-red-500">{errors.brand.message}</div>
-                )}
               </div>
-              <div className="mb-4">
-                <label htmlFor="countInStock">Count in Stock</label>
-                <input
-                  type="text"
-                  className="w-full"
-                  id="countInStock"
-                  autoFocus
-                  {...register('countInStock', {
-                    required: 'Please enter count in stock',
-                  })}
-                />
-                {errors.countInStock && (
-                  <div className="text-red-500">
-                    {errors.countInStock.message}
+              {subproducts.length < 1 && (
+                <>
+                  <div className="mb-4">
+                    <label htmlFor="countInStock">Count in Stock</label>
+                    <input
+                      type="text"
+                      className="w-full"
+                      id="countInStock"
+                      name="countInStock"
+                      autoFocus
+                      {...register('countInStock')}
+                    />
                   </div>
-                )}
-              </div>
-              <WeightInputComponent
-                id="weight"
-                name="weight"
-                register={register}
-                setValue={setValue}
-                setWeightInGrams={setWeightInGrams}
-              />
+
+                  <WeightInputComponent
+                    id="weight"
+                    name="weight"
+                    onChange={handleWeightChange}
+                    initialWeightInGrams={productWeight}
+                  />
+
+                  <div className="mb-4">
+                    <label htmlFor="sku">SKU</label>
+                    <input
+                      type="text"
+                      className="w-full"
+                      name="sku"
+                      id="sku"
+                      autoFocus
+                      {...register('sku')}
+                    />
+                  </div>
+                </>
+              )}
               <div className="mb-4">
                 <label htmlFor="productTags">
                   Product Tags - separate via comma
@@ -637,6 +653,7 @@ export default function AdminProductEditScreen() {
                     )}
                   </Droppable>
                 </DragDropContext>
+
                 <button
                   type="button"
                   onClick={() => {
@@ -655,6 +672,31 @@ export default function AdminProductEditScreen() {
                   {loadingUpload ? 'Uploading...' : 'Add Image'}
                 </button>
               </div>
+              <div className="mb-4">
+                <label htmlFor="slug">URL Slug</label>
+                <input
+                  type="text"
+                  className="w-full"
+                  id="slug"
+                  autoFocus
+                  {...register('slug', {
+                    required: 'Please enter slug',
+                  })}
+                />
+                {errors.slug && (
+                  <div className="text-red-500">{errors.slug.message}</div>
+                )}
+              </div>{' '}
+              <div className="mb-4">
+                <label htmlFor="metaDesc">Meta Description</label>
+                <textarea
+                  type="text"
+                  className="w-full"
+                  id="metaDesc"
+                  autoFocus
+                  {...register('metaDesc')}
+                />
+              </div>{' '}
               <div className="mb-4">
                 <button disabled={loadingUpdate} className="primary-button">
                   {loadingUpdate ? 'Loading' : 'Save Changes'}
@@ -693,7 +735,7 @@ export default function AdminProductEditScreen() {
                           </Link>
                           &nbsp;
                           <button
-                            // onClick={() => deleteHandler(subproducts._id)}
+                            onClick={() => deleteHandler(subproduct._id)}
                             className="default-button"
                             type="button"
                           >

@@ -253,7 +253,10 @@ export async function getServerSideProps({ query }) {
           },
         }
       : {};
-  const categoryFilter = category && category !== 'all' ? { category } : {};
+
+  const categoryFilter =
+    category && category !== 'all' ? { category: category } : {};
+
   const brandFilter = brand && brand !== 'all' ? { brand } : {};
   const ratingFilter =
     rating && rating !== 'all'
@@ -263,8 +266,9 @@ export async function getServerSideProps({ query }) {
           },
         }
       : {};
+
   const priceFilter =
-    price && priceFilter !== 'all'
+    price && price !== 'all'
       ? {
           price: {
             $gte: Number(price.split('-')[0]),
@@ -272,6 +276,7 @@ export async function getServerSideProps({ query }) {
           },
         }
       : {};
+
   const order =
     sort === 'featured'
       ? { isFeatured: -1 }
@@ -284,23 +289,83 @@ export async function getServerSideProps({ query }) {
       : sort === 'newest'
       ? { createdAt: -1 }
       : { _id: -1 };
+
   await db.connect();
-  const categories = await Product.find().distinct('category');
-  const brands = await Product.find().distinct('brand');
-  const productDocs = await Product.find(
+
+  // Updated logic to fetch categories
+  const categories = await Product.aggregate([
+    { $match: { category: { $ne: null } } },
     {
-      ...queryFilter,
-      ...categoryFilter,
-      ...priceFilter,
-      ...brandFilter,
-      ...ratingFilter,
+      $lookup: {
+        from: 'categories',
+        localField: 'category',
+        foreignField: '_id',
+        as: 'categoryObj',
+      },
     },
-    '-reviews'
-  )
-    .sort(order)
-    .skip(pageSize * (page - 1))
-    .limit(pageSize)
-    .lean();
+    { $unwind: '$categoryObj' },
+    { $group: { _id: '$categoryObj.name' } },
+    { $project: { _id: 0, name: '$_id' } },
+  ]);
+
+  const brands = await Product.find().distinct('brand');
+
+  const productDocs = await Product.aggregate([
+    {
+      $lookup: {
+        from: 'subproducts',
+        localField: 'variants',
+        foreignField: '_id',
+        as: 'variants',
+      },
+    },
+    {
+      $match: {
+        ...queryFilter,
+        ...categoryFilter,
+        ...priceFilter,
+        ...brandFilter,
+        ...ratingFilter,
+      },
+    },
+    {
+      $addFields: {
+        images: {
+          $map: {
+            input: '$images',
+            as: 'image',
+            in: {
+              $mergeObjects: [
+                '$$image',
+                { idStr: { $toString: '$$image._id' } },
+              ],
+            },
+          },
+        },
+        variants: {
+          $map: {
+            input: '$variants',
+            as: 'variant',
+            in: {
+              $mergeObjects: [
+                '$$variant',
+                { idStr: { $toString: '$$variant._id' } },
+              ],
+            },
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        'images._id': 0,
+        'variants._id': 0,
+      },
+    },
+    { $sort: order },
+    { $skip: pageSize * (page - 1) },
+    { $limit: pageSize },
+  ]);
 
   const countProducts = await Product.countDocuments({
     ...queryFilter,
@@ -311,16 +376,116 @@ export async function getServerSideProps({ query }) {
   });
 
   await db.disconnect();
-  const products = productDocs.map(db.convertDocToObj);
+  const products = productDocs.map((product) => {
+    product.images = product.images.map((image) => {
+      return { ...image, _id: image.idStr };
+    });
+
+    product.variants = product.variants.map((variant) => {
+      return { ...variant, _id: variant.idStr };
+    });
+
+    return product;
+  });
 
   return {
     props: {
-      products,
+      products: JSON.parse(JSON.stringify(products.map(db.convertDocToObj))),
       countProducts,
+      categories: JSON.parse(JSON.stringify(categories.map(db.convertDocToObj))),
+      brands,
       page,
       pages: Math.ceil(countProducts / pageSize),
-      categories,
-      brands,
     },
   };
 }
+// export async function getServerSideProps({ query }) {
+//   const pageSize = query.pageSize || PAGE_SIZE;
+//   const page = query.page || 1;
+//   const category = query.category || '';
+//   const brand = query.brand || '';
+//   const price = query.price || '';
+//   const rating = query.rating || '';
+//   const sort = query.sort || '';
+//   const searchQuery = query.query || '';
+
+//   const queryFilter =
+//     searchQuery && searchQuery !== 'all'
+//       ? {
+//           name: {
+//             $regex: searchQuery,
+//             $options: 'i',
+//           },
+//         }
+//       : {};
+//   const categoryFilter = category && category !== 'all' ? { category: category } : {};
+//   const brandFilter = brand && brand !== 'all' ? { brand } : {};
+//   const ratingFilter =
+//     rating && rating !== 'all'
+//       ? {
+//           rating: {
+//             $gte: Number(rating),
+//           },
+//         }
+//       : {};
+//   const priceFilter =
+//     price && priceFilter !== 'all'
+//       ? {
+//           price: {
+//             $gte: Number(price.split('-')[0]),
+//             $lte: Number(price.split('-')[1]),
+//           },
+//         }
+//       : {};
+//   const order =
+//     sort === 'featured'
+//       ? { isFeatured: -1 }
+//       : sort === 'lowest'
+//       ? { price: 1 }
+//       : sort === 'highest'
+//       ? { price: -1 }
+//       : sort === 'toprated'
+//       ? { rating: -1 }
+//       : sort === 'newest'
+//       ? { createdAt: -1 }
+//       : { _id: -1 };
+//   await db.connect();
+//   const categories = await Product.find().distinct('category');
+//   const brands = await Product.find().distinct('brand');
+//   const productDocs = await Product.find(
+//     {
+//       ...queryFilter,
+//       ...categoryFilter,
+//       ...priceFilter,
+//       ...brandFilter,
+//       ...ratingFilter,
+//     },
+//     '-reviews'
+//   )
+//     .sort(order)
+//     .skip(pageSize * (page - 1))
+//     .limit(pageSize)
+//     .lean();
+
+//   const countProducts = await Product.countDocuments({
+//     ...queryFilter,
+//     ...categoryFilter,
+//     ...priceFilter,
+//     ...brandFilter,
+//     ...ratingFilter,
+//   });
+
+//   await db.disconnect();
+//   const products = productDocs.map(db.convertDocToObj);
+
+//   return {
+//     props: {
+//       products,
+//       countProducts,
+//       page,
+//       pages: Math.ceil(countProducts / pageSize),
+//       categories,
+//       brands,
+//     },
+//   };
+// }

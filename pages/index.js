@@ -67,7 +67,7 @@ export default function Home({ products, banners }) {
 
 export async function getServerSideProps() {
   await db.connect();
-  const products = await Product.find().lean();
+  const products = await Product.find({isActive: true }).lean();
   const banners = await Banner.find().lean();
 
   for (let i = 0; i < products.length; i++) {

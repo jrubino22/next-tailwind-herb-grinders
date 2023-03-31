@@ -14,7 +14,7 @@ const SubProductSchema = new mongoose.Schema(
     price: { type: Number, required: true },
     keepTrackInventory: { type: Boolean, required: false, default: false },
     countInStock: { type: Number, required: false, default: 0 },
-    weight: { type: Number, required: false },
+    weight: { type: Number, required: true, default: 0 },
   },
   {
     timestamps: true,

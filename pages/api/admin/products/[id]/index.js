@@ -35,7 +35,9 @@ const putHandler = async (req, res) => {
   await db.connect();
   const product = await Product.findById(req.query.id);
   if (product) {
+    const originalName = product.name;
     const originalSlug = product.slug;
+    const originalImages = [...product.images];
     product.name = req.body.name;
     product.slug = req.body.slug;
     product.price = req.body.price;
@@ -44,28 +46,46 @@ const putHandler = async (req, res) => {
     product.countInStock = req.body.countInStock;
     product.description = req.body.prettyDescription;
     product.images = req.body.images;
-    product.features = req.body.features;
+    product.features = req.body.prettyFeatures;
+    product.metaDesc = req.body.metaDesc;
+    product.sku = req.body.sku;
     product.isActive = req.body.isActive;
-    product.productTags = req.body.productTags;
+    product.weight = req.body.productWeight;
+    product.tags = req.body.productTags;
 
-    // Iterate over the images in the database and check if each image exists in the request body
-    for (let i = 0; i < product.images.length; i++) {
-      const dbImage = product.images[i];
-      const reqImage = req.body.images.find((img) => img.url === dbImage.url);
+    const deletedImageUrls = [];
 
-      // If the image does not exist in the request body, remove it from the database
+    for (const originalImage of originalImages) {
+      const reqImage = req.body.images.find(
+        (img) => img.url === originalImage.url
+      );
+
       if (!reqImage) {
-        await Product.updateOne(
-          { _id: product._id },
-          { $pull: { images: { url: dbImage.url } } }
-        );
+        deletedImageUrls.push(originalImage.url);
       }
+    }
+
+    const nonDeletedImage = req.body.images.length > 0 ? req.body.images[0] : { url: '' };
+    console.log('ndi', nonDeletedImage);
+
+    for (const deletedImageUrl of deletedImageUrls) {
+      console.log('deletedimg', deletedImageUrl);
+      await SubProduct.updateMany(
+        { parentId: req.query.id, 'image.url': deletedImageUrl },
+        { $set: { 'image.url': nonDeletedImage.url } }
+      );
     }
 
     if (req.body.slug !== originalSlug) {
       await SubProduct.updateMany(
         { parentId: req.query.id },
         { $set: { slug: req.body.slug } }
+      );
+    }
+    if (req.body.name !== originalName) {
+      await SubProduct.updateMany(
+        { parentId: req.query.id },
+        { $set: { parentName: req.body.slug } }
       );
     }
 

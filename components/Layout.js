@@ -20,7 +20,12 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 // import Image from 'next/image';
 
-export default function Layout({ title, children, applyMarginPadding = true }) {
+export default function Layout({
+  title,
+  metaDesc,
+  children,
+  applyMarginPadding = true,
+}) {
   const { status, data: session } = useSession();
 
   const { state, dispatch } = useContext(Store);
@@ -53,7 +58,14 @@ export default function Layout({ title, children, applyMarginPadding = true }) {
         <title>
           {title ? title + '- HerbGrinders.com' : 'HerbGrinders.com'}
         </title>
-        <meta name="description" content="Herb Grinders" />
+        <meta
+          name="description"
+          content={
+            metaDesc
+              ? metaDesc
+              : 'Find the perfect herb or weed grinder for your smoking needs at HerbGrinders.com. Our vast selection includes everything from sleek and stylish to practical and durable grinders. Browse our collection of high-quality herb grinders and weed grinders today.'
+          }
+        />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
@@ -98,15 +110,15 @@ export default function Layout({ title, children, applyMarginPadding = true }) {
               <div className="flex items-center md:mr-5">
                 <Link href="/cart">
                   <a className="p-2 md:mr-2">
-                    <FontAwesomeIcon
-                      icon={faShoppingCart}
-                      className="w-6 h-6 text-white"
-                    />
                     {cartItemsCount > 0 && (
                       <span className="ml-1 rounded-full bg-red-600 px-2 py-1 text-xs font-bold text-white">
                         {cartItemsCount}
                       </span>
                     )}
+                    <FontAwesomeIcon
+                      icon={faShoppingCart}
+                      className="w-6 h-6 text-white"
+                    />
                   </a>
                 </Link>
                 {status === 'loading' ? (

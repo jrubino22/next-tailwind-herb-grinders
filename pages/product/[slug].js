@@ -11,6 +11,9 @@ import db from '../../utils/db';
 import { Store } from '../../utils/Store';
 import Gallery from '../../components/Gallery';
 import MarkdownIt from 'markdown-it';
+import { Disclosure } from '@headlessui/react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 
 export default function ProductScreen(props) {
   const { product } = props;
@@ -81,8 +84,8 @@ export default function ProductScreen(props) {
   const addToCartHandler = async () => {
     const existItem = state.cart.cartItems.find((x) => x._id === product._id);
     const quantity = existItem
-    ? parseInt(existItem.quantity) + parseInt(quantityToAdd)
-    : parseInt(quantityToAdd);
+      ? parseInt(existItem.quantity) + parseInt(quantityToAdd)
+      : parseInt(quantityToAdd);
     const { data } = await axios.get(`/api/products/${product._id}`);
 
     if (data.countInStock < quantity) {
@@ -95,10 +98,11 @@ export default function ProductScreen(props) {
 
   const md = new MarkdownIt();
 
-  const html = md.render(product.description);
+  const features = md.render(product.features);
+  const descrip = md.render(product.description);
 
   return (
-    <Layout title={product.name}>
+    <Layout title={product.name} metaDesc={product.metaDesc}>
       <div className="py-2">
         <Link href="/">back to products</Link>
       </div>
@@ -171,10 +175,10 @@ export default function ProductScreen(props) {
               </>
             )}
             <hr></hr>
-            <div className="my-5 description-prod">
+            <div className="my-5 hidden md:block">
               <div
-                className="my-5"
-                dangerouslySetInnerHTML={{ __html: html }}
+                className="my-5 prod-description"
+                dangerouslySetInnerHTML={{ __html: features }}
               ></div>
             </div>
           </ul>
@@ -215,21 +219,21 @@ export default function ProductScreen(props) {
             <div className="mb-2 flex justify-between">
               <div className="flex items-center">Quantity</div>
               <div>
-              <select
-                id="quantity-select"
-                className="w-full border rounded px-2 py-2 mb-4"
-                value={quantityToAdd}
-                onChange={(e) => setQuantityToAdd(e.target.value)}
-              >
-                {Array.from(
-                  { length: maxQuantity },
-                  (_, index) => index + 1
-                ).map((value) => (
-                  <option key={value} value={value}>
-                    {value}
-                  </option>
-                ))}
-              </select>
+                <select
+                  id="quantity-select"
+                  className="w-full border rounded px-2 py-2 mb-4"
+                  value={quantityToAdd}
+                  onChange={(e) => setQuantityToAdd(e.target.value)}
+                >
+                  {Array.from(
+                    { length: maxQuantity },
+                    (_, index) => index + 1
+                  ).map((value) => (
+                    <option key={value} value={value}>
+                      {value}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
             <button
@@ -240,6 +244,63 @@ export default function ProductScreen(props) {
             >
               Add to cart
             </button>
+          </div>
+        </div>
+      </div>
+      <div className="mt-1 grid md:grid-cols-10 md:gap-5">
+        <div className="md:hidden">
+          <Disclosure>
+            {({ open }) => (
+              <>
+                <Disclosure.Button className="mb-1 flex justify-between w-full px-4 py-2 text-lg font-semibold text-left  bg-white rounded-lg hover:bg-gray-100 focus:outline-none focus-visible:ring focus-visible:ring-blue-500 focus-visible:ring-opacity-75">
+                  <span>Product Features</span>
+                  <FontAwesomeIcon
+                    icon={faChevronDown}
+                    className={`${
+                      open ? 'transform rotate-180' : ''
+                    } w-5 h-5 text-white-500`}
+                  />
+                </Disclosure.Button>
+                <Disclosure.Panel className="px-4 pt-4 pb-2 text-gray-700">
+                  <div
+                    className="prose prod-description"
+                    dangerouslySetInnerHTML={{ __html: features }}
+                  ></div>
+                </Disclosure.Panel>
+              </>
+            )}
+          </Disclosure>
+          <Disclosure>
+            {({ open }) => (
+              <>
+                <Disclosure.Button className="flex justify-between w-full px-4 py-2 text-lg font-semibold text-left  bg-white rounded-lg hover:bg-gray-100 focus:outline-none focus-visible:ring focus-visible:ring-blue-500 focus-visible:ring-opacity-75">
+                  <span>Product Description</span>
+                  <FontAwesomeIcon
+                    icon={faChevronDown}
+                    className={`${
+                      open ? 'transform rotate-180' : ''
+                    } w-5 h-5 text-white-500`}
+                  />
+                </Disclosure.Button>
+                <Disclosure.Panel className="px-4 pt-4 pb-2 text-gray-700">
+                  <div
+                    className="prose prod-description"
+                    dangerouslySetInnerHTML={{ __html: descrip }}
+                  ></div>
+                </Disclosure.Panel>
+              </>
+            )}
+          </Disclosure>
+        </div>
+        {/* Product description on desktop */}
+        <div className="hidden md:block md:col-start-2 md:col-span-8">
+          <hr className="my-10 border-t border-gray-300" />
+          <div className="mt-10">
+            <h2 className="text-xl font-semibold mb-3">Product Description</h2>
+            <div
+              className="prod-description prose md:prose-lg lg:prose-xl text-gray-700"
+              dangerouslySetInnerHTML={{ __html: descrip }}
+            ></div>
           </div>
         </div>
       </div>

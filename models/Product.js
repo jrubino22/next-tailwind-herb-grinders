@@ -23,20 +23,21 @@ const ProductSchema = new mongoose.Schema(
     ],
     price: { type: Number, required: true, default: false },
     isActive: { type: Boolean, required: true, default: false },
-    brand: { type: String, required: false },
-    sku: { type: String, required: false },
+    brand: { type: String, required: false, default: '' },
+    sku: { type: String, required: false, default: '' },
     rating: { type: Number, required: false, default: 0 },
     numReviews: { type: Number, required: false, default: 0 },
     keepTrackInventory: { type: Boolean, required: false, default: false },
     countInStock: { type: Number, required: false, default: 0 },
     features: {
       type: String,
-      required: true,
+      required: false,
       default: 'should be bullet points of features',
     },
     description: { type: String, required: true },
+    metaDesc: {type: String, required: false, default: ''},
     tags: { type: [String], default: [] },
-    weight: { type: Number, required: true, default: 0 },
+    weight: { type: Number, required: false, default: 0 },
 
     variants: [
       {

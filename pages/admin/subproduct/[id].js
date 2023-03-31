@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import Layout from '../../../components/Layout';
 import { getError } from '../../../utils/errors';
+import WeightInputComponent from '../../../components/WeightInputComponent';
 
 function reducer(state, action) {
   switch (action.type) {
@@ -61,6 +62,11 @@ export default function AdminSubproductEditScreen() {
   );
 
   const [selectedImage, setSelectedImage] = useState('');
+  const [productWeight, setProductWeight] = useState(0);
+
+  const handleWeightChange = (value) => {
+    setProductWeight(value);
+  };
 
   const {
     register,
@@ -81,7 +87,7 @@ export default function AdminSubproductEditScreen() {
         setValue('sku', data.sku);
         setValue('price', data.price);
         setValue('countInStock', data.countInStock);
-        setValue('weight', data.weight);
+        setProductWeight(data.weight);
 
         // Retrieve the parent ID from the subproduct data
         const parentId = data.parentId;
@@ -91,10 +97,13 @@ export default function AdminSubproductEditScreen() {
           `/api/admin/products/${parentId}`
         );
         if (images.length === 0) {
-          dispatch({ type: 'FETCH_IMAGES_SUCCESS', payload: parentData.images });
+          dispatch({
+            type: 'FETCH_IMAGES_SUCCESS',
+            payload: parentData.images,
+          });
         }
-        console.log('imageurl', data.image.url)
-        console.log('parentImg', images)
+        console.log('imageurl', data.image.url);
+        console.log('parentImg', images);
         const preSelectedImage = images.find(
           (productImage) => productImage.url === data.image.url
         );
@@ -109,16 +118,10 @@ export default function AdminSubproductEditScreen() {
   }, [subproductId, setValue, images]);
 
   const getTheState = () => {
-    console.log("getTheState", selectedImage)
-  }
+    console.log('getTheState', productWeight);
+  };
 
-  const submitHandler = async ({
-    variant,
-    sku,
-    price,
-    countInStock,
-    weight,
-  }) => {
+  const submitHandler = async ({ variant, sku, price, countInStock }) => {
     try {
       dispatch({ type: 'UPDATE_REQUEST' });
       await axios.put(`/api/admin/subproduct/${subproductId}`, {
@@ -130,7 +133,7 @@ export default function AdminSubproductEditScreen() {
         },
         price,
         countInStock,
-        weight,
+        weight: productWeight,
       });
       dispatch({ type: 'UPDATE_SUCCESS' });
       toast.success('Variant updated successfully');
@@ -240,21 +243,12 @@ export default function AdminSubproductEditScreen() {
                   </div>
                 )}
               </div>{' '}
-              <div className="mb-4">
-                <label htmlFor="weight">Weight</label>
-                <input
-                  type="text"
-                  className="w-full"
-                  id="weight"
-                  autoFocus
-                  {...register('weight', {
-                    required: 'Please enter weight',
-                  })}
-                />
-                {errors.weight && (
-                  <div className="text-red-500">{errors.weight.message}</div>
-                )}
-              </div>
+              <WeightInputComponent
+                id="weight"
+                name="weight"
+                onChange={handleWeightChange}
+                initialWeightInGrams={productWeight}
+              />
               <div className="mb-4 variant-img-cont-cont">
                 <label htmlFor="image">Variant Image</label>
                 <div className="variant-admin-img-container">

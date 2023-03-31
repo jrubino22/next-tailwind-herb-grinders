@@ -2,8 +2,8 @@ import React from 'react';
 import Link from 'next/link';
 
 const leftMenuItems = [
-  { id: 1, title: 'Rotary Grinders', link: '/#' },
-  { id: 2, title: 'Grinder Cards', link: '/#' },
+  { id: 1, title: 'Rotary Grinders', link: '/category/rotary-grinders' },
+  { id: 2, title: 'Grinder Cards', link: '/category/grinder-cards' },
   { id: 3, title: 'Electric Grinders', link: '/#' },
   { id: 4, title: 'Disposable Grinders', link: '/#' },
   { id: 5, title: 'All Products', link: '/search' },
@@ -13,7 +13,7 @@ const rightMenuItems = [
   { id: 1, title: 'Blog', link: '/blog' },
   { id: 1, title: 'About Us', link: '/blog' },
   { id: 1, title: 'FAQs', link: '/blog' },
-]
+];
 
 const NavigationMenu = () => {
   return (
@@ -24,7 +24,9 @@ const NavigationMenu = () => {
             {leftMenuItems.map((item, index) => (
               <li key={index}>
                 <Link href={item.link}>
-                  <a className="font-weight-600 header-text-color hover:text-blue-600">{item.title}</a>
+                  <a className="font-weight-600 header-text-color hover:text-blue-600">
+                    {item.title}
+                  </a>
                 </Link>
               </li>
             ))}
@@ -33,7 +35,9 @@ const NavigationMenu = () => {
             {rightMenuItems.map((item, index) => (
               <li key={index}>
                 <Link href={item.link}>
-                  <a className="font-weight-600 header-text-color hover:text-blue-600">{item.title}</a>
+                  <a className="font-weight-600 header-text-color hover:text-blue-600">
+                    {item.title}
+                  </a>
                 </Link>
               </li>
             ))}
@@ -42,6 +46,6 @@ const NavigationMenu = () => {
       </nav>
     </div>
   );
-}
+};
 
 export default NavigationMenu;

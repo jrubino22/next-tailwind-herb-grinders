@@ -3,7 +3,7 @@ import React, { useEffect, useReducer, useState } from 'react';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
-import SimpleMDE from 'react-simplemde-editor';
+import DynamicSimpleMDE from '../../../components/DynamicSimpleMDE';
 import 'easymde/dist/easymde.min.css';
 import axios from 'axios';
 import Layout from '../../../components/Layout';
@@ -238,7 +238,7 @@ export default function AdminBlogEditScreen() {
 
               <div className="mb-4">
                 <label htmlFor="content">Content</label>
-                <SimpleMDE
+                <DynamicSimpleMDE
                   value={content}
                   onChange={(value) => setContent(value)}
                   style={{ height: '1000px', overflow: 'auto' }}

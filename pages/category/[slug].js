@@ -7,6 +7,7 @@ import Layout from '../../components/Layout';
 import ProductItem from '../../components/ProductItem';
 import Category from '../../models/Category';
 import Product from '../../models/Product';
+import SubProduct from '../../models/SubProduct';
 import db from '../../utils/db';
 import { Store } from '../../utils/Store';
 
@@ -35,28 +36,33 @@ export default function CategoryPage({ category, products }) {
   };
 
   return (
-    <Layout title={category.title} metaDesc={category.metaDesc} applyMarginPadding={false}>
+    <Layout
+      title={category.title}
+      metaDesc={category.metaDesc}
+      applyMarginPadding={false}
+    >
       {category.useBanner && (
-              <div className="relative w-full h-96">
-              <Image
-                src={category.image.url}
-                alt={category.image.altText}
-                layout="fill"
-                objectFit="cover"
-                priority
-              />
-              
-              <div
-                className="absolute bottom-0 left-0 w-full p-5 text-white"
-                style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
-              >
-                
-                <h1 className="text-4xl font-bold mb-2">{category.title}</h1>
-              </div>
-            </div>
+        <div className="relative w-full h-96">
+          <Image
+            src={category.image.url}
+            alt={category.image.altText}
+            layout="fill"
+            objectFit="cover"
+            priority
+          />
+
+          <div
+            className="absolute bottom-0 left-0 w-full p-5 text-white"
+            style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+          >
+            <h1 className="text-4xl font-bold mb-2">{category.title}</h1>
+          </div>
+        </div>
       )}
       <div className="my-4 px-4">
-        {!category.useBanner && (<h2 className="h2 my-4 font-bold text-xl ml-5">{category.title}</h2>)}
+        {!category.useBanner && (
+          <h2 className="h2 my-4 font-bold text-xl ml-5">{category.title}</h2>
+        )}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-4">
           {products.map((product) => (
             <ProductItem
@@ -72,24 +78,39 @@ export default function CategoryPage({ category, products }) {
 }
 
 export async function getServerSideProps({ params }) {
-    await db.connect();
-    const category = await Category.findOne({ slug: params.slug }).lean();
-  
-    let products;
-    if (category.isTags) {
-      products = await Product.find({
-        tags: { $in: category.productTags },
-      }).lean();
-    } else {
-      products = await Product.find({ category: category._id }).lean();
-    }
-  
-    await db.disconnect();
-  
-    return {
-      props: {
-        category: db.convertDocToObj(category),
-        products: JSON.parse(JSON.stringify(products.map(db.convertDocToObj))),
-      },
-    };
+  await db.connect();
+  const category = await Category.findOne({ slug: params.slug }).lean();
+
+  let products;
+  if (category.isTags) {
+    products = await Product.find({
+      tags: { $in: category.productTags },
+    }).lean();
+  } else {
+    products = await Product.find({ category: category._id }).lean();
   }
+
+  for (let i = 0; i < products.length; i++) {
+    if (products[i].variants && products[i].variants.length > 0) {
+      const productVariants = [];
+      for (let j = 0; j < products[i].variants.length; j++) {
+        const singleVariant = await SubProduct.findById(
+          products[i].variants[j]
+        ).lean();
+        productVariants.push(singleVariant);
+      }
+      products[i].fullVariants = productVariants;
+    } else {
+      products[i].fullVariants = null;
+    }
+  }
+
+  await db.disconnect();
+
+  return {
+    props: {
+      category: db.convertDocToObj(category),
+      products: JSON.parse(JSON.stringify(products.map(db.convertDocToObj))),
+    },
+  };
+}

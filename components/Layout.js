@@ -71,7 +71,7 @@ export default function Layout({
 
       <ToastContainer position="bottom-center" limit={1} />
 
-      <div className="flex min-h-screen flex-col bg-stone-50">
+      <div className="flex min-h-screen flex-col bg-white">
         <header className="header-bg shadow-md">
           <nav className="container mx-auto flex h-16 px-4 justify-between items-center">
             {/* Hamburger menu */}
@@ -90,7 +90,7 @@ export default function Layout({
             </Link>
             <form
               onSubmit={submitHandler}
-              className="mx-auto hidden w-full justify-center md:flex flex-grow search-bar-bg rounded mx-5"
+              className="mx-auto hidden w-1/2 justify-center md:flex flex-grow search-bar-bg rounded mx-5"
             >
               <input
                 onChange={(e) => setQuery(e.target.value)}
@@ -99,7 +99,7 @@ export default function Layout({
                 placeholder="Search"
               />
               <button
-                className="rounded-r bg-blue-600 p-2 text-sm text-white border border-blue-600"
+                className="rounded-r bg-green-500 p-2 text-sm text-white border border-green-600"
                 type="submit"
                 id="button-addon2"
               >
@@ -111,7 +111,7 @@ export default function Layout({
                 <Link href="/cart">
                   <a className="p-2 md:mr-2">
                     {cartItemsCount > 0 && (
-                      <span className="ml-1 rounded-full bg-red-600 px-2 py-1 text-xs font-bold text-white">
+                      <span className="ml-1 rounded-full bg-green-500 px-2 py-1 text-xs font-bold text-black">
                         {cartItemsCount}
                       </span>
                     )}

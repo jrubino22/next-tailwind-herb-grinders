@@ -37,11 +37,11 @@ a {
 }
 
 .card {
-  @apply mb-5 block rounded-lg border border-gray-200 shadow-md;
+  @apply mb-5 block rounded-lg border border-gray-100 shadow-md;
 }
 
 .primary-button {
-  @apply rounded bg-amber-300 py-2 px-4 shadow outline-none hover:bg-amber-400 active:bg-amber-500;
+  @apply rounded text-white bg-green-500 py-2 px-4 shadow outline-none hover:bg-green-400 active:bg-green-500;
 }
 
 .default-button {
@@ -213,9 +213,9 @@ textarea {
   max-height: 100%;
 }
 
-.view-options-btn {
+/* .view-options-btn {
   color: black
-}
+} */
 
 .large-img-prod {
   height: 50vh;

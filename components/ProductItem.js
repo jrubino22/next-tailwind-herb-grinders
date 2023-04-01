@@ -6,7 +6,7 @@ export default function ProductItem({ product, addToCartHandler, fullVars }) {
   console.log('fv', fullVars)
   const fullVariants = fullVars ? fullVars : product.fullVariants
   return (
-    <div className="card bg-white">
+    <div className="card bg-slate-50">
       <Link href={`/product/${product.slug}`}>
         <a>
           <img
@@ -16,13 +16,13 @@ export default function ProductItem({ product, addToCartHandler, fullVars }) {
           />
         </a>
       </Link>
-      <div className="flex flex-col items-center justify-center p-5 ">
+      <div className="flex flex-col items-center justify-center p-5 bg-slate-100">
         <Link href={`/product/${product.slug}`}>
           <a>
-            <h2 className="text-lg">{product.name}</h2>
+            <h2 className="text-md">{product.name}</h2>
           </a>
         </Link>
-        <p className="mb-2">{product.brand}</p>
+        <p className="mb-1 text-sm">{product.brand}</p>
         <p>
           {(fullVariants && fullVariants.length > 0)
             ? `from $${fullVariants[0].price}`

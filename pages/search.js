@@ -9,8 +9,8 @@ import Product from '../models/Product';
 import db from '../utils/db';
 import Pagination from '../components/Pagination';
 import mongoose from 'mongoose';
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTimesCircle } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 
 const PAGE_SIZE = 30;
 
@@ -166,7 +166,8 @@ export default function Search(props) {
             <div className="flex items-center">
               {products.length === 0 ? 'No' : countProducts} Results
               {query !== 'all' && query !== '' && ' : ' + query}
-              {category !== 'all' &&  ` : ${categories.find(cat => cat._id === category).title}`}
+              {category !== 'all' &&
+                ` : ${categories.find((cat) => cat._id === category).title}`}
               {brand !== 'all' && ' : ' + brand}
               {price !== 'all' && ' : Price' + price}
               {rating !== 'all' && ' : Rating ' + rating + '& up'}
@@ -177,8 +178,10 @@ export default function Search(props) {
               rating !== 'all' ||
               price !== 'all' ? (
                 <button onClick={() => router.push('/search')}>
-<FontAwesomeIcon icon={faTimesCircle} className="w-6 h-6 text-currentColor" />
-                  
+                  <FontAwesomeIcon
+                    icon={faTimesCircle}
+                    className="w-6 h-6 text-currentColor"
+                  />
                 </button>
               ) : null}
             </div>
@@ -243,7 +246,9 @@ export async function getServerSideProps({ query }) {
       : {};
 
   const categoryFilter =
-    category && category !== 'all' ? { category: mongoose.Types.ObjectId(category) } : {};
+    category && category !== 'all'
+      ? { category: mongoose.Types.ObjectId(category) }
+      : {};
 
   const brandFilter = brand && brand !== 'all' ? { brand } : {};
   const ratingFilter =
@@ -255,29 +260,15 @@ export async function getServerSideProps({ query }) {
         }
       : {};
 
-      const priceFilter =
-      price && price !== 'all'
-        ? {
-            $or: [
-              {
-                price: {
-                  $gte: Number(price.split('-')[0]),
-                  $lte: Number(price.split('-')[1]),
-                },
+  const priceFilter =
+    price && price !== 'all'
+      ? {
+              price: {
+                $gte: Number(price.split('-')[0]),
+                $lte: Number(price.split('-')[1]),
               },
-              {
-                variants: {
-                  $elemMatch: {
-                    price: {
-                      $gte: Number(price.split('-')[0]),
-                      $lte: Number(price.split('-')[1]),
-                    },
-                  },
-                },
-              },
-            ],
-          }
-        : {};
+        }
+      : {};
   const order =
     sort === 'featured'
       ? { isFeatured: -1 }
@@ -321,27 +312,26 @@ export async function getServerSideProps({ query }) {
 
   const brands = await Product.find().distinct('brand');
 
-
   const productDocs = await Product.aggregate([
-    {
-      $lookup: {
-        from: 'subproducts',
-        localField: 'variants',
-        foreignField: '_id',
-        as: 'variants',
-      },
-    },
     {
       $match: {
         ...queryFilter,
         ...categoryFilter,
-        ...priceFilter,
         ...brandFilter,
         ...ratingFilter,
       },
     },
     {
       $addFields: {
+        categoryStr: {
+          $toString: '$category',
+        },
+        createdAtStr: {
+          $toString: '$createdAt',
+        },
+        updatedAtStr: {
+          $toString: '$updatedAt',
+        },
         images: {
           $map: {
             input: '$images',
@@ -354,6 +344,18 @@ export async function getServerSideProps({ query }) {
             },
           },
         },
+      },
+    },
+    {
+      $lookup: {
+        from: 'subproducts',
+        localField: 'variants',
+        foreignField: '_id',
+        as: 'variants',
+      },
+    },
+    {
+      $addFields: {
         variants: {
           $map: {
             input: '$variants',
@@ -361,41 +363,57 @@ export async function getServerSideProps({ query }) {
             in: {
               $mergeObjects: [
                 '$$variant',
-                { idStr: { $toString: '$$variant._id' } },
-                { parentIdStr: { $toString: '$$variant.parentId' } },
-                { varCreatedAtStr: { $toString: '$$variant.createdAt' } },
-                { varUpdatedAtStr: { $toString: '$$variant.updatedAt' } },
+                {
+                  idStr: { $toString: '$$variant._id' },
+                  parentIdStr: { $toString: '$$variant.parentId' },
+                  _id: '$$REMOVE',
+                  parentId: '$$REMOVE',
+                  createdAt: '$$REMOVE',
+                },
               ],
             },
           },
         },
+      },
+    },
+    {
+      $addFields: {
         minVariantPrice: {
-          $cond: {
-            if: { $gt: [{ $size: '$variants' }, 0] },
-            then: {
-              $reduce: {
-                input: {
-                  $map: {
+          $cond: [
+            {
+              $gt: [{ $size: '$variants' }, 0],
+            },
+            {
+              $min: [
+                {
+                  $reduce: {
                     input: '$variants',
-                    as: 'variant',
-                    in: '$$variant.price',
+                    initialValue: Infinity,
+                    in: {
+                      $min: [
+                        '$$value',
+                        {
+                          $ifNull: ['$$this.price', Infinity],
+                        },
+                      ],
+                    },
                   },
                 },
-                initialValue: '$price',
-                in: { $min: ['$$value', '$$this'] },
-              },
+              ],
             },
-            else: '$price',
-          },
+            { $ifNull: ['$price', Infinity] },
+          ],
         },
-        categoryStr: {
-          $toString: '$category',
-        },
-        createdAtStr: {
-          $toString: '$createdAt',
-        },
-        updatedAtStr: {
-          $toString: '$updatedAt',
+      },
+    },
+    {
+      $addFields: {
+        price: {
+          $cond: [
+            { $eq: ['$minVariantPrice', Infinity] },
+            '$price',
+            '$minVariantPrice',
+          ],
         },
       },
     },
@@ -404,11 +422,20 @@ export async function getServerSideProps({ query }) {
         category: 0,
         createdAt: 0,
         updatedAt: 0,
+        description: 0,
+        metaDesc: 0,
+        features: 0,
+        // price: '$minVariantPrice',
         'images._id': 0,
         'variants._id': 0,
         'variants.parentId': 0,
         'variants.createdAt': 0,
         'variants.updatedAt': 0,
+      },
+    },
+    {
+      $match: {
+        ...priceFilter,
       },
     },
     { $sort: order },
@@ -426,6 +453,8 @@ export async function getServerSideProps({ query }) {
     ...ratingFilter,
   });
 
+  console.log('productdocs2', productDocs);
+
   const totalPages = Math.ceil(countProducts / pageSize);
 
   await db.disconnect();
@@ -438,7 +467,7 @@ export async function getServerSideProps({ query }) {
     });
 
     product.variants = product.variants.map((variant) => {
-      return { ...variant, _id: variant.idStr };
+      return { ...variant, _id: variant.idStr, parentId: variant.parentIdStr };
     });
 
     const productData = {
@@ -447,7 +476,7 @@ export async function getServerSideProps({ query }) {
       category: product.categoryStr,
       weight: hasVariants ? undefined : product.weight,
       countInStock: hasVariants ? undefined : product.countInStock,
-      price: product.minVariantPrice,
+      // price: product.minVariantPrice,
       sku: hasVariants ? undefined : product.sku,
     };
 

@@ -38,7 +38,17 @@ const ProductSchema = new mongoose.Schema(
     metaDesc: {type: String, required: false, default: ''},
     tags: { type: [String], default: [] },
     weight: { type: Number, required: false, default: 0 },
-
+    options: {
+      type: [
+        {
+          name: { type: String, required: true },
+          values: [{ type: String, required: true }],
+        },
+      ],
+      _id: false,
+      timestamps: false, // Disable _id and timestamps for options
+      default: [],
+    },
     variants: [
       {
         type: mongoose.Schema.Types.ObjectId,

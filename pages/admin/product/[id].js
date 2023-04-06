@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import React, { useEffect, useReducer, useState } from 'react';
+import React, { useEffect, useReducer, useState, useCallback } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import Layout from '../../../components/Layout';
@@ -10,6 +10,8 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import WeightInputComponent from '../../../components/WeightInputComponent';
 import DynamicSimpleMDE from '../../../components/DynamicSimpleMDE';
 import 'easymde/dist/easymde.min.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
 function reducer(state, action) {
   switch (action.type) {
@@ -134,7 +136,7 @@ export default function AdminProductEditScreen() {
       loadingUpload,
       loadingUpdate,
       subproducts,
-      loadingCreate,
+      // loadingCreate,
       images,
       name,
       slug,
@@ -154,6 +156,139 @@ export default function AdminProductEditScreen() {
   const [prettyFeatures, setPrettyFeatures] = useState('');
   const [productWeight, setProductWeight] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [options, setOptions] = useState([]);
+  const [optionValues, setOptionValues] = useState([]);
+  const [variants, setVariants] = useState([]);
+  const [showAddOptionInput, setShowAddOptionInput] = useState(false);
+  const [recentAddedOptionValue, setRecentAddedOptionValue] = useState(null);
+
+  useEffect(() => {
+    const allOptionsHaveValues = optionValues.every(
+      (option) => option.values.length > 0
+    );
+  
+    if (allOptionsHaveValues && recentAddedOptionValue) {
+      generateVariants(recentAddedOptionValue);
+    }
+  }, [generateVariants, optionValues, recentAddedOptionValue]);
+
+  const addOption = (option) => {
+    if (options.length < 3) {
+      setOptions([...options, option]);
+      setOptionValues([...optionValues, { name: option, values: [] }]);
+    }
+  };
+
+  const addOptionValue = (optionName, optionValue) => {
+    setOptionValues(
+      optionValues.map((option) =>
+        option.name === optionName
+          ? { ...option, values: [...option.values, optionValue] }
+          : option
+      )
+    );
+    generateVariants(optionName, optionValue);
+  };
+
+  const handleAddValueBlur = (optionName, inputValue) => {
+    if (inputValue) {
+      addOptionValue(optionName, inputValue);
+      setRecentAddedOptionValue({ optionName, optionValue: inputValue });
+    }
+  };
+
+  const generateVariants = useCallback(
+    (recentAddedOptionValue) => {
+      const newVariants = [];
+  
+      const generateCombinations = (current, rest) => {
+        if (!rest.length) {
+          newVariants.push(current);
+          return;
+        }
+        rest[0].values.forEach((value) =>
+          generateCombinations(
+            [...current, { name: rest[0].name, value }],
+            rest.slice(1)
+          )
+        );
+      };
+  
+      generateCombinations([], optionValues);
+  
+      const updatedVariants = [];
+  
+      // Identify if the added value is the first one for that option
+      const isNewValue =
+        recentAddedOptionValue &&
+        optionValues.find(
+          (option) =>
+            option.name === recentAddedOptionValue.optionName &&
+            option.values.length === 1
+        );
+  
+      // Update existing variants with new options
+      if (isNewValue) {
+        variants.forEach((variant) => {
+          const updatedVariant = {
+            ...variant,
+            _id: variant._id,
+            options: [
+              ...variant.options,
+              {
+                name: recentAddedOptionValue.optionName,
+                value: recentAddedOptionValue.optionValue,
+              },
+            ],
+          };
+          updatedVariants.push(updatedVariant);
+        });
+      } else {
+        updatedVariants.push(...variants);
+      }
+      console.log('uv', updatedVariants)
+  
+      // Add new variants
+      newVariants.forEach((newVariant) => {
+        const exists = updatedVariants.find((updatedVariant) =>
+          updatedVariant.options.every(
+            (option, index) =>
+              option.name === newVariant[index].name &&
+              option.value === newVariant[index].value
+          )
+        );
+  
+        if (!exists) {
+          updatedVariants.push({ options: newVariant });
+        }
+      });
+  
+      setVariants(updatedVariants);
+    },
+    [optionValues, variants]
+  );
+
+  const deleteOptionValue = (optionName, optionValue) => {
+    setOptionValues(
+      optionValues.map((option) =>
+        option.name === optionName
+          ? {
+              ...option,
+              values: option.values.filter((value) => value !== optionValue),
+            }
+          : option
+      )
+    );
+
+    setVariants(
+      variants.filter((variant) => {
+        const targetOption = variant.find(
+          (option) => option.name === optionName
+        );
+        return targetOption && targetOption.value !== optionValue;
+      })
+    );
+  };
 
   const handleWeightChange = (value) => {
     setProductWeight(value);
@@ -179,33 +314,68 @@ export default function AdminProductEditScreen() {
     name: 'images',
   });
 
-  const {
-    register: register2,
-    handleSubmit: handleSubmit2,
-    formState: { errors: errors2 },
-  } = useForm();
+  const updateVariants = async () => {
+    const existingVariants = variants
+      .filter((variant) => variant._id)
+      .map((variant) => {
+        const selectedOptions = optionValues.map((option) => {
+          const value = variant.find((v) => v.name === option.name)?.value;
+          return { name: option.name, value: value || '' };
+        });
 
-  const createHandler = async ({ variant }) => {
-    if (!window.confirm('Create new variant?')) {
-      return;
-    }
-    try {
-      dispatch({ type: 'CREATE_REQUEST' });
-      const { data } = await axios.post(`/api/admin/subproducts`, {
-        productId,
-        parentName: name,
-        slug,
-        variant,
-        imageURL: images[0].url,
-        imageAlt: images[0].altText,
+        return { _id: variant._id, selectedOptions };
       });
-      // console.log("data", data)
-      dispatch({ type: 'CREATE_SUCCESS' });
-      toast.success('Product created successfully');
-      router.push(`/admin/subproduct/${data.subproduct._id}`);
+
+    await axios.put(`/api/admin/subproducts`, {
+      subproducts: existingVariants,
+    });
+    const newVariants = variants
+      .map((variant) => {
+        
+        const variantName = variant.map((option) => option.value).join(', ');
+        const imageUrl = images[0].url ? images[0].url : '';
+        const imageAlt = images[0].altText ? images[0].altText : '';
+        const parentName = name;
+
+        // Generate selectedOptions for new and existing products
+        const selectedOptions = optionValues.map((option) => {
+          const value = variant.find((v) => v.name === option.name)?.value;
+          return { name: option.name, value: value || '' };
+        });
+
+        return {
+          ...variant,
+          variant: variantName,
+          imageUrl,
+          imageAlt,
+          parentName,
+          slug,
+          selectedOptions,
+        };
+      })
+      .filter((variant) => !variant._id);
+    const deletedVariantIds = Array.isArray(subproducts)
+      ? subproducts
+          .filter(
+            (subproduct) =>
+              !variants.find((variant) => variant._id === subproduct._id)
+          )
+          .map((subproduct) => subproduct._id)
+      : [];
+
+    try {
+      console.log('nv', newVariants);
+      const { data } = await axios.post('/api/admin/subproducts', {
+        productId,
+        newVariants,
+        deletedVariantIds,
+        options: optionValues,
+      });
+      toast.success('variants updated successfully');
+      console.log('Variants updated successfully', data);
     } catch (err) {
-      dispatch({ type: 'CREATE_FAIL' });
       toast.error(getError(err));
+      console.error('Error updating variants', error);
     }
   };
 
@@ -215,6 +385,7 @@ export default function AdminProductEditScreen() {
 
   useEffect(() => {
     setPrettyDescription(description);
+
     const fetchData = async () => {
       try {
         dispatch({ type: 'FETCH_REQUEST' });
@@ -238,9 +409,12 @@ export default function AdminProductEditScreen() {
         }));
         setValue('images', imageFields);
         setPrettyFeatures(data.features);
+        setOptions(data.options.map((option) => option.name));
+        setOptionValues(data.options);
       } catch (err) {
         dispatch({ type: 'FETCH_FAIL', payload: getError(err) });
       }
+
       try {
         dispatch({ type: 'FETCH_REQUEST2' });
         const { data } = await axios.get(
@@ -253,9 +427,24 @@ export default function AdminProductEditScreen() {
         );
         dispatch({ type: 'FETCH_SUCCESS2', payload: data });
         console.log('sp', data);
+
+        const initialVariants = data.map((subproduct) => {
+          const variantOptions = subproduct.selectedOptions.map((option) => ({
+            name: option.name,
+            value: option.value,
+          }));
+        
+          return {
+            options: variantOptions,
+            _id: subproduct._id,
+          };
+        });
+        
+        setVariants(initialVariants);
       } catch (err) {
         dispatch({ type: 'FETCH_FAIL2', payload: getError(err) });
       }
+
       try {
         dispatch({ type: 'FETCH_CATEGORIES_REQUEST' });
         const { data } = await axios.get('/api/admin/categories');
@@ -264,10 +453,39 @@ export default function AdminProductEditScreen() {
         dispatch({ type: 'FETCH_CATEGORIES_FAIL', payload: getError(err) });
       }
     };
+
     fetchData();
   }, [productId, setValue, description]);
 
-  const router = useRouter();
+  // const deleteHandler = async (subproductId) => {
+  //   console.log('subid', subproductId);
+  //   if (!window.confirm('Are you sure?')) {
+  //     return;
+  //   }
+  //   try {
+  //     dispatch({ type: 'DELETE_REQUEST' });
+  //     await axios.delete(`/api/admin/subproduct/${subproductId}`);
+  //     dispatch({ type: 'DELETE_SUCCESS' });
+  //     toast.success('Product deleted successfully');
+  //   } catch (err) {
+  //     dispatch({ type: 'DELETE_FAIL' });
+  //     toast.error(getError(err));
+  //   }
+  // };
+
+  const removeImage = (i) => {
+    try {
+      dispatch({ type: 'REMOVE_IMAGE', payload: i });
+      console.log('remove img func', images);
+      toast.success('Image Removed');
+    } catch {
+      toast.error('Unable to remove image');
+    }
+  };
+
+  const getTheState = () => {
+    console.log(variants);
+  };
 
   const uploadHandler = async (e, imageField = 'image') => {
     console.log('uploadhandler0', e);
@@ -303,36 +521,6 @@ export default function AdminProductEditScreen() {
       dispatch({ type: 'UPLOAD_FAIL', payload: getError(err) });
       toast.error(getError(err));
     }
-  };
-
-  const deleteHandler = async (subproductId) => {
-    console.log('subid', subproductId);
-    if (!window.confirm('Are you sure?')) {
-      return;
-    }
-    try {
-      dispatch({ type: 'DELETE_REQUEST' });
-      await axios.delete(`/api/admin/subproduct/${subproductId}`);
-      dispatch({ type: 'DELETE_SUCCESS' });
-      toast.success('Product deleted successfully');
-    } catch (err) {
-      dispatch({ type: 'DELETE_FAIL' });
-      toast.error(getError(err));
-    }
-  };
-
-  const removeImage = (i) => {
-    try {
-      dispatch({ type: 'REMOVE_IMAGE', payload: i });
-      console.log('remove img func', images);
-      toast.success('Image Removed');
-    } catch {
-      toast.error('Unable to remove image');
-    }
-  };
-
-  const getTheState = () => {
-    console.log('getTheState');
   };
 
   const submitHandler = async ({
@@ -705,83 +893,171 @@ export default function AdminProductEditScreen() {
             </form>
           )}
         </div>
-        <div className="md:col-span-2 border-l-2 border-gray-400 pl-4">
-          {/* {loading ? (
-            <div>Loading...</div>
-          ) : error ? (
-            <div className="alert-error">{error}</div>
-          ) : ( */}
-          {subproducts && (
-            <>
-              <h2 className="mb-4 text-xl">Product Variants</h2>
-              <div className="overflow-x-auto">
-                <table className="min-w-full">
-                  <thead className="border-b">
-                    <tr>
-                      <th className="px-5 text-left">Variant</th>
-                      <th className="px-5 text-left">Price</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {subproducts.map((subproduct) => (
-                      <tr key={subproduct._id} className="border-b">
-                        <td className="p-5">{subproduct.variant}</td>
-                        <td className="p-5">${subproduct.price}</td>
-                        <td className="p-5">
-                          <Link href={`/admin/subproduct/${subproduct._id}`}>
-                            <a type="button" className="default-button">
-                              Edit
-                            </a>
-                          </Link>
-                          &nbsp;
-                          <button
-                            onClick={() => deleteHandler(subproduct._id)}
-                            className="default-button"
-                            type="button"
-                          >
-                            Delete
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </>
-          )}
-          {/* )} */}
-          <h2 className="mb-4 mt-4 text-xl">Create Variant</h2>
-          <form
-            className="fx-auto max-w-screen-md"
-            onSubmit={handleSubmit2(createHandler)}
-          >
+        <>
+          <form className="mb-8">
             <div className="mb-4">
-              <label htmlFor="variant">Variant Description</label>
-              <input
-                type="text"
-                className="w-full"
-                id="variant"
-                placeholder="size and/or color"
-                autoFocus
-                {...register2('variant', {
-                  required: 'Please enter variant',
-                })}
-              />
-              {errors.option && (
-                <div className="text-red-500">{errors2.option.message}</div>
+              <h2 className="text-xl font-bold">Options</h2>
+              {options.map((option, index) => (
+                <div key={index} className="mb-4">
+                  <h3 className="text-lg font-semibold">{option}</h3>
+                  <ul className="list-disc pl-8">
+                    {optionValues[index].values.map((value, i) => (
+                      <li key={i} className="flex items-center">
+                        {value}
+                        <span
+                          className="ml-2 cursor-pointer"
+                          onClick={() => deleteOptionValue(option, value)}
+                        >
+                          <FontAwesomeIcon icon={faTimes} />
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                  <input
+                    type="text"
+                    className="border border-gray-300 p-2"
+                    placeholder="Add value"
+                    onBlur={(e) => {
+                      handleAddValueBlur(option, e.target.value);
+                      e.target.value = '';
+                    }}
+                  />
+                </div>
+              ))}
+              {!showAddOptionInput && options.length < 3 && (
+                <button
+                  className="border border-gray-300 p-2"
+                  onClick={() => setShowAddOptionInput(true)}
+                >
+                  Add Option
+                </button>
+              )}
+              {showAddOptionInput && (
+                <input
+                  type="text"
+                  className="border border-gray-300 p-2"
+                  placeholder="Add option"
+                  onBlur={(e) => {
+                    if (e.target.value) addOption(e.target.value);
+                    e.target.value = '';
+                  }}
+                />
               )}
             </div>
-            <button disabled={loadingCreate} className="primary-button mb-4">
-              {loadingCreate ? 'Loading' : 'Create new variant'}
-            </button>
-            <div className="mb-4">
-              <Link href={`/admin/products`}>Back</Link>
-            </div>
           </form>
-        </div>
+          <div>
+            <h2 className="text-xl font-bold mb-4">Variants</h2>
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left p-2">Variant</th>
+                </tr>
+              </thead>
+              <tbody>
+                {variants.map((variant, index) => (
+                  <tr key={index} className="border-b">
+                    <td className="p-2">
+                      {variant.options
+                        ? variant.options
+                            .map((option) => `${option.name}: ${option.value}`)
+                            .join(', ')
+                        : 'no options'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div>
+              <button
+                onClick={updateVariants}
+                disabled={loadingUpdate}
+                className="mt-5 primary-button"
+              >
+                {loadingUpdate ? 'Loading' : 'Update Variants'}
+              </button>
+            </div>
+          </div>
+        </>
       </div>
     </Layout>
   );
 }
 
 AdminProductEditScreen.auth = { adminOnly: true };
+
+{
+  /* <div className="md:col-span-2 border-l-2 border-gray-400 pl-4">
+          {/* {loading ? (
+            <div>Loading...</div>
+          ) : error ? (
+            <div className="alert-error">{error}</div>
+          ) : ( */
+}
+//   {subproducts && (
+//     <>
+//       <h2 className="mb-4 text-xl">Product Variants</h2>
+//       <div className="overflow-x-auto">
+//         <table className="min-w-full">
+//           <thead className="border-b">
+//             <tr>
+//               <th className="px-5 text-left">Variant</th>
+//               <th className="px-5 text-left">Price</th>
+//             </tr>
+//           </thead>
+//           <tbody>
+//             {subproducts.map((subproduct) => (
+//               <tr key={subproduct._id} className="border-b">
+//                 <td className="p-5">{subproduct.variant}</td>
+//                 <td className="p-5">${subproduct.price}</td>
+//                 <td className="p-5">
+//                   <Link href={`/admin/subproduct/${subproduct._id}`}>
+//                     <a type="button" className="default-button">
+//                       Edit
+//                     </a>
+//                   </Link>
+//                   &nbsp;
+//                   <button
+//                     onClick={() => deleteHandler(subproduct._id)}
+//                     className="default-button"
+//                     type="button"
+//                   >
+//                     Delete
+//                   </button>
+//                 </td>
+//               </tr>
+//             ))}
+//           </tbody>
+//         </table>
+//       </div>
+//     </>
+//   )}
+//   {/* )} */}
+//   <h2 className="mb-4 mt-4 text-xl">Create Variant</h2>
+//   <form
+//     className="fx-auto max-w-screen-md"
+//     onSubmit={handleSubmit2(createHandler)}
+//   >
+//     <div className="mb-4">
+//       <label htmlFor="variant">Variant Description</label>
+//       <input
+//         type="text"
+//         className="w-full"
+//         id="variant"
+//         placeholder="size and/or color"
+//         autoFocus
+//         {...register2('variant', {
+//           required: 'Please enter variant',
+//         })}
+//       />
+//       {errors.option && (
+//         <div className="text-red-500">{errors2.option.message}</div>
+//       )}
+//     </div>
+//     <button disabled={loadingCreate} className="primary-button mb-4">
+//       {loadingCreate ? 'Loading' : 'Create new variant'}
+//     </button>
+//     <div className="mb-4">
+//       <Link href={`/admin/products`}>Back</Link>
+//     </div>
+//   </form>
+// </div>

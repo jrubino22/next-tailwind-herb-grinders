@@ -8,13 +8,23 @@ const SubProductSchema = new mongoose.Schema(
     slug: {type: String, required: true},
     sku: { type: String, required: false },
     image: {
-      url: { type: String, required: true },
-      altText: { type: String },
+      url: { type: String, required: false, default:'' },
+      altText: { type: String, default:'default image'},
     },
     price: { type: Number, required: true },
     keepTrackInventory: { type: Boolean, required: false, default: false },
     countInStock: { type: Number, required: false, default: 0 },
     weight: { type: Number, required: true, default: 0 },
+    selectedOptions: {
+      type: [
+        {
+          name: { type: String, required: true },
+          value: { type: String, required: true },
+        },
+      ],
+      _id: false,
+      timestamps: false, // Disable _id and timestamps for selectedOptions
+    },
   },
   {
     timestamps: true,

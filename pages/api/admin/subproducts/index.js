@@ -8,58 +8,95 @@ const handler = async (req, res) => {
   if (!session || !session.user.isAdmin) {
     return res.status(401).send('admin signin required');
   }
-  // const { user } = session;
+
   if (req.method === 'GET') {
     return getHandler(req, res);
   }
   if (req.method === 'POST') {
     return postHandler(req, res);
-  } else {
+  }
+  if (req.method === 'PUT') {
+    return putHandler(req, res);
+  }
+  else {
     return res.status(400).send({ message: 'Method not allowed' });
   }
 };
 
 const postHandler = async (req, res) => {
-  console.log('pid', req.body.productId);
+  const { productId, newVariants, deletedVariantIds, options } = req.body;
+
   await db.connect();
 
-  const newSubProduct = new SubProduct({
-    variant: req.body.variant,
-    parentId: req.body.productId,
-    parentName: req.body.parentName,
-    slug: req.body.slug,
-    image: {
-      url: req.body.imageURL,
-      altText: req.body.imageAlt
-    },
-    sku: ' ',
-    price: 0,
-    countInStock: 0,
-    weight: 0,
-  });
-  const subproduct = await newSubProduct.save();
+  await Promise.all(
+    newVariants
+      .filter((variant) => variant._id)
+      .map((variant) =>
+        SubProduct.findByIdAndUpdate(variant._id, {
+          variant: variant.variant,
+          image: {
+            url: variant.imageUrl,
+            altText: variant.imageAlt,
+          },
+          parentName: variant.parentName,
+          slug: variant.slug,
+          selectedOptions: variant.selectedOptions,
+        })
+      )
+  );
 
-  await Product.findOneAndUpdate(
-    { _id: subproduct.parentId },
-    { $push: { variants: subproduct._id } },
-    { new: true, safe: true, upsert: true }
-  ).then((result) => {
-    return JSON.stringify({
-      data: result,
-    });
-  });
+  const createdSubProducts = await SubProduct.insertMany(
+    newVariants.map((variant) => ({
+      variant: variant.variant,
+      parentId: productId,
+      parentName: variant.parentName,
+      slug: variant.slug,
+      image: {
+        url: variant.imageURL,
+        altText: variant.imageAlt,
+      },
+      selectedOptions: variant.selectedOptions,
+      sku: variant.sku || ' ',
+      price: variant.price || 0,
+      countInStock: variant.countInStock || 0,
+      weight: variant.weight || 0,
+    }))
+  );
+
+  const updatedProduct = await Product.findByIdAndUpdate(
+    productId,
+    {
+      $push: {
+        variants: {
+          $each: createdSubProducts.map((subproduct) => subproduct._id),
+        },
+      },
+      options: options,
+    },
+    { new: true }
+  );
+
+  if (deletedVariantIds.length > 0) {
+    await SubProduct.deleteMany({ _id: { $in: deletedVariantIds } });
+    await Product.findByIdAndUpdate(
+      productId,
+      { $pull: { variants: { $in: deletedVariantIds } } },
+      { new: true }
+    );
+  }
 
   await db.disconnect();
   res.send({
-    message: 'Variant created successfully',
-    subproduct,
+    message: 'Variants updated successfully',
+    updatedProduct,
+    createdSubProducts,
   });
 };
 
 const getHandler = async (req, res) => {
   console.log('pid', req.query.params);
   await db.connect();
- 
+
   const product = await Product.findById(req.query._id);
 
   // const productVariants = (await product.variants) ? [] : null;
@@ -71,7 +108,33 @@ const getHandler = async (req, res) => {
   //   await db.disconnect();
   //   res.send(productVariants);
   // }
-  res.send(product)
+  res.send(product);
+};
+
+const putHandler = async (req, res) => {
+  const { subproducts } = req.body;
+
+  await db.connect();
+
+  // Update each subproduct in the array
+  const updatedSubProducts = await Promise.all(
+    subproducts.map(async (subproduct) => {
+      const { _id, selectedOptions } = subproduct;
+      return await SubProduct.findByIdAndUpdate(
+        _id,
+        {
+          selectedOptions,
+        },
+        { new: true }
+      );
+    })
+  );
+
+  if (updatedSubProducts) {
+    res.send(updatedSubProducts);
+  } else {
+    res.status(404).send({ message: 'Subproducts not found' });
+  }
 };
 
 export default handler;

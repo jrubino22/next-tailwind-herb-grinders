@@ -5,6 +5,7 @@ import React, { useEffect, useReducer } from 'react';
 import { toast } from 'react-toastify';
 import Layout from '../../components/Layout';
 import { getError } from '../../utils/errors';
+// import { upload, parseFile, importProducts } from '../../utils/productImport'
 
 function reducer(state, action) {
   switch (action.type) {
@@ -44,6 +45,30 @@ export default function AdminProductsScreen() {
     products: [],
     error: '',
   });
+
+  // const importProductsHandler = async (e) => {
+  //   const file = e.target.files[0];
+  //   if (!file) {
+  //     return;
+  //   }
+
+  //   try {
+  //     // Use multer's upload.single() middleware to handle the file upload
+  //     const uploadedFile = await new Promise((resolve, reject) => {
+  //       upload.single('file')(
+  //         { file: { mimetype: file.type }, ...e },
+  //         {},
+  //         (err, file) => (err ? reject(err) : resolve(file))
+  //       );
+  //     });
+
+  //     const rows = await parseFile(uploadedFile);
+  //     await importProducts(rows);
+  //     toast.success('Products imported successfully');
+  //   } catch (err) {
+  //     toast.error(getError(err));
+  //   }
+  // };
 
   const createHandler = async () => {
     if (!window.confirm('Create new product?')) {
@@ -129,6 +154,16 @@ export default function AdminProductsScreen() {
             >
               {loadingCreate ? 'Loading' : 'Create'}
             </button>
+            {/* <label htmlFor="importProducts" className="primary-button ml-2">
+              Import Products
+            </label>
+            <input
+              type="file"
+              id="importProducts"
+              accept=".csv,.xlsx,.xls"
+              onChange={importProductsHandler}
+              className="hidden"
+            /> */}
           </div>
           {loading ? (
             <div>Loading...</div>

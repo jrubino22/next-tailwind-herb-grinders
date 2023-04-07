@@ -1,8 +1,8 @@
 import axios from 'axios';
-import Image from 'next/image';
+// import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { toast } from 'react-toastify';
 import Layout from '../../components/Layout';
 import Product from '../../models/Product';
@@ -27,25 +27,49 @@ export default function ProductScreen(props) {
       </Layout>
     );
   }
+// eslint-disable-next-line react-hooks/rules-of-hooks
+const [selectedOptions, setSelectedOptions] = useState(
+  subproducts.length > 0
+    ? product.options.reduce((options, option) => {
+        return { ...options, [option.name]: option.values[0] };
+      }, {})
+    : {}
+);
 
+// eslint-disable-next-line react-hooks/rules-of-hooks
+const findMatchingSubProduct = useCallback(() => {
+  if (subproducts.length === 0) {
+    return null;
+  }
+
+  const matchingSubProduct = subproducts.find((subproduct) => {
+    const selectedOptionsObj = subproduct.selectedOptions.reduce((options, option) => {
+      return { ...options, [option.name]: option.value };
+    }, {});
+
+    return Object.entries(selectedOptions).every(
+      ([key, value]) => selectedOptionsObj[key] === value
+    );
+  });
+
+  return matchingSubProduct || subproducts[0];
+}, [subproducts, selectedOptions]);
+  
+  const matchingSubProduct = findMatchingSubProduct();
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [selectedSubProduct, setSelectedSubProduct] = useState(
-    subproducts.length > 0 ? subproducts[0]._id : null
+    matchingSubProduct ? matchingSubProduct._id : null
   );
-
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [selectedSubProductStock, setSelectedSubProductStock] = useState(
-    subproducts.length > 0 ? subproducts[0].countInStock : null
+    matchingSubProduct ? matchingSubProduct.countInStock : null
   );
-
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [selectedSubProductPrice, setSelectedSubProductPrice] = useState(
-    subproducts.length > 0 ? subproducts[0].price : null
+    matchingSubProduct ? matchingSubProduct.price : null
   );
-
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const [selectedSubProductImage, setSelectedSubProductImage] = useState(null);
-
+ // eslint-disable-next-line react-hooks/rules-of-hooks
+ const [selectedSubProductImage, setSelectedSubProductImage] = useState(null);
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [quantityToAdd, setQuantityToAdd] = useState(1);
 
@@ -54,13 +78,33 @@ export default function ProductScreen(props) {
       ? selectedSubProductStock
       : product.countInStock;
 
-  const changeVariant = (id, price, image, stock) => {
-    setSelectedSubProduct(id);
-    setSelectedSubProductPrice(price);
-    setSelectedSubProductImage(image);
-    setSelectedSubProductStock(stock);
-    setQuantityToAdd(1);
-  };
+      // const handleOptionChange = (optionName, value) => {
+      //   setSelectedOptions((prevSelectedOptions) => ({
+      //     ...prevSelectedOptions,
+      //     [optionName]: value,
+      //   }));
+      // };
+
+      const changeOption = (optionName, optionValue) => {
+        setSelectedOptions({ ...selectedOptions, [optionName]: optionValue });
+      };
+
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      useEffect(() => {
+        const updatedMatchingSubProduct = findMatchingSubProduct();
+        setSelectedSubProduct(updatedMatchingSubProduct._id);
+        setSelectedSubProductStock(updatedMatchingSubProduct.countInStock);
+        setSelectedSubProductPrice(updatedMatchingSubProduct.price);
+        setSelectedSubProductImage(updatedMatchingSubProduct.image);
+      }, [findMatchingSubProduct, selectedOptions]);
+
+  // const changeVariant = (id, price, image, stock) => {
+  //   setSelectedSubProduct(id);
+  //   setSelectedSubProductPrice(price);
+  //   setSelectedSubProductImage(image);
+  //   setSelectedSubProductStock(stock);
+  //   setQuantityToAdd(1);
+  // };
 
   const addVariantToCart = async () => {
     const existItem = state.cart.cartItems.find(
@@ -126,54 +170,21 @@ export default function ProductScreen(props) {
                 <span className="font-bold">Brand:</span> {product.brand}
               </li>
             </div>
-            {subproducts.length > 0 && (
-              <>
-                <hr></hr>
-                <div className="variants-container grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 my-5">
-                  {subproducts.map((subproduct) => (
-                    <div
-                      className="text-center variant-wrapper col-span-1 mr-2"
-                      key={subproduct._id}
-                    >
-                      <div className="variant-info">
-                        <p className="content-center variant-price">
-                          ${subproduct.price}
-                        </p>
-                        <p className="content-center">{subproduct.variant}</p>
-                      </div>
-                      <label>
-                        <input
-                          type="radio"
-                          value={subproduct._id}
-                          onChange={() =>
-                            changeVariant(
-                              subproduct._id,
-                              subproduct.price,
-                              subproduct.image.url,
-                              subproduct.countInStock
-                            )
-                          }
-                          className="variant-select absolute opacity-0 h-0 w-0 peer"
-                          name="colors"
-                          checked={
-                            subproduct._id === selectedSubProduct ? true : false
-                          }
-                        />
-                        <div className="variant-image peer-checked:shadow-[0_0_0_3px_rgb(252,211,77)]">
-                          <Image
-                            alt={subproduct.image.altText}
-                            src={subproduct.image.url}
-                            width={640}
-                            height={640}
-                            layout="responsive"
-                          />
-                        </div>
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </>
-            )}
+            {product.options && product.options.length > 0 && product.options.map((option, index) => (
+                  <div key={index}>
+                    <h3 className="font-bold">{option.name}</h3>
+                    <select
+  value={selectedOptions[option.name] || ''}
+  onChange={(e) => changeOption(option.name, e.target.value)}
+>
+  {option.values.map((value, idx) => (
+    <option key={idx} value={value}>
+      {value}
+    </option>
+  ))}
+</select>
+                  </div>
+                ))}
             <hr></hr>
             <div className="my-5 hidden md:block">
               <div

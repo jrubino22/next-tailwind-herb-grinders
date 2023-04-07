@@ -17,8 +17,7 @@ const handler = async (req, res) => {
   }
   if (req.method === 'PUT') {
     return putHandler(req, res);
-  }
-  else {
+  } else {
     return res.status(400).send({ message: 'Method not allowed' });
   }
 };
@@ -28,23 +27,7 @@ const postHandler = async (req, res) => {
 
   await db.connect();
 
-  await Promise.all(
-    newVariants
-      .filter((variant) => variant._id)
-      .map((variant) =>
-        SubProduct.findByIdAndUpdate(variant._id, {
-          variant: variant.variant,
-          image: {
-            url: variant.imageUrl,
-            altText: variant.imageAlt,
-          },
-          parentName: variant.parentName,
-          slug: variant.slug,
-          selectedOptions: variant.selectedOptions,
-        })
-      )
-  );
-
+  console.log('server-newvar-0', newVariants[0]);
   const createdSubProducts = await SubProduct.insertMany(
     newVariants.map((variant) => ({
       variant: variant.variant,
@@ -52,7 +35,7 @@ const postHandler = async (req, res) => {
       parentName: variant.parentName,
       slug: variant.slug,
       image: {
-        url: variant.imageURL,
+        url: variant.imageUrl,
         altText: variant.imageAlt,
       },
       selectedOptions: variant.selectedOptions,
@@ -116,14 +99,18 @@ const putHandler = async (req, res) => {
 
   await db.connect();
 
-  // Update each subproduct in the array
   const updatedSubProducts = await Promise.all(
     subproducts.map(async (subproduct) => {
       const { _id, selectedOptions } = subproduct;
+
+      const variant = selectedOptions.map((option) => option.value).join(', ');
+
+      console.log('selectopsserver', selectedOptions);
       return await SubProduct.findByIdAndUpdate(
         _id,
         {
           selectedOptions,
+          variant,
         },
         { new: true }
       );

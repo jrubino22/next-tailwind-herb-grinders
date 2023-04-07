@@ -128,6 +128,7 @@ function reducer(state, action) {
 
 export default function AdminProductEditScreen() {
   const { query } = useRouter();
+  const router = useRouter();
   const productId = query.id;
   const [
     {
@@ -161,16 +162,28 @@ export default function AdminProductEditScreen() {
   const [variants, setVariants] = useState([]);
   const [showAddOptionInput, setShowAddOptionInput] = useState(false);
   const [recentAddedOptionValue, setRecentAddedOptionValue] = useState(null);
+  const [shouldRegenerateVariants, setShouldRegenerateVariants] =
+    useState(false);
 
   useEffect(() => {
     const allOptionsHaveValues = optionValues.every(
       (option) => option.values.length > 0
     );
-  
-    if (allOptionsHaveValues && recentAddedOptionValue) {
+
+    if (
+      allOptionsHaveValues &&
+      recentAddedOptionValue &&
+      shouldRegenerateVariants
+    ) {
       generateVariants(recentAddedOptionValue);
+      setShouldRegenerateVariants(false);
     }
-  }, [generateVariants, optionValues, recentAddedOptionValue]);
+  }, [
+    generateVariants,
+    optionValues,
+    recentAddedOptionValue,
+    shouldRegenerateVariants,
+  ]);
 
   const addOption = (option) => {
     if (options.length < 3) {
@@ -180,6 +193,7 @@ export default function AdminProductEditScreen() {
   };
 
   const addOptionValue = (optionName, optionValue) => {
+    setShouldRegenerateVariants(true);
     setOptionValues(
       optionValues.map((option) =>
         option.name === optionName
@@ -200,7 +214,7 @@ export default function AdminProductEditScreen() {
   const generateVariants = useCallback(
     (recentAddedOptionValue) => {
       const newVariants = [];
-  
+      console.log('ran-generate-variants');
       const generateCombinations = (current, rest) => {
         if (!rest.length) {
           newVariants.push(current);
@@ -213,11 +227,11 @@ export default function AdminProductEditScreen() {
           )
         );
       };
-  
+
       generateCombinations([], optionValues);
-  
+
       const updatedVariants = [];
-  
+
       // Identify if the added value is the first one for that option
       const isNewValue =
         recentAddedOptionValue &&
@@ -226,7 +240,7 @@ export default function AdminProductEditScreen() {
             option.name === recentAddedOptionValue.optionName &&
             option.values.length === 1
         );
-  
+
       // Update existing variants with new options
       if (isNewValue) {
         variants.forEach((variant) => {
@@ -246,8 +260,8 @@ export default function AdminProductEditScreen() {
       } else {
         updatedVariants.push(...variants);
       }
-      console.log('uv', updatedVariants)
-  
+      console.log('uv', updatedVariants);
+
       // Add new variants
       newVariants.forEach((newVariant) => {
         const exists = updatedVariants.find((updatedVariant) =>
@@ -257,37 +271,68 @@ export default function AdminProductEditScreen() {
               option.value === newVariant[index].value
           )
         );
-  
+
         if (!exists) {
           updatedVariants.push({ options: newVariant });
         }
       });
-  
+
       setVariants(updatedVariants);
     },
     [optionValues, variants]
   );
 
-  const deleteOptionValue = (optionName, optionValue) => {
-    setOptionValues(
-      optionValues.map((option) =>
-        option.name === optionName
-          ? {
-              ...option,
-              values: option.values.filter((value) => value !== optionValue),
-            }
-          : option
-      )
+  const deleteOptionValue = async (optionName, optionValue) => {
+    setShouldRegenerateVariants(false);
+
+    let updatedOptionValues = optionValues.map((option) =>
+      option.name === optionName
+        ? {
+            ...option,
+            values: option.values.filter((value) => value !== optionValue),
+          }
+        : option
     );
 
-    setVariants(
-      variants.filter((variant) => {
-        const targetOption = variant.find(
-          (option) => option.name === optionName
-        );
-        return targetOption && targetOption.value !== optionValue;
-      })
+    // Check the conditions and update the optionValues and variants accordingly
+    const option = updatedOptionValues.find(
+      (option) => option.name === optionName
     );
+
+    if (option.values.length === 0) {
+      updatedOptionValues = updatedOptionValues.filter(
+        (option) => option.name !== optionName
+      );
+
+      if (updatedOptionValues.length === 0) {
+        // Condition 3: No option objects left, delete all variants
+        setVariants([]);
+      } else {
+        // Condition 2: Delete optionName-value pair from variants
+        setVariants(
+          variants.map((variant) => ({
+            ...variant,
+            options: variant.options.filter(
+              (option) => option.name !== optionName
+            ),
+          }))
+        );
+      }
+    } else {
+      // Condition 1: Delete variants that have the optionName-value pair
+      setVariants(
+        variants.filter(
+          (variant) =>
+            !variant.options.some(
+              (option) =>
+                option.name === optionName && option.value === optionValue
+            )
+        )
+      );
+    }
+    console.log('delete-function-vars', variants);
+    // Update the optionValues state
+    setOptionValues(updatedOptionValues);
   };
 
   const handleWeightChange = (value) => {
@@ -315,31 +360,37 @@ export default function AdminProductEditScreen() {
   });
 
   const updateVariants = async () => {
+    console.log('updatevarsvars', variants);
     const existingVariants = variants
       .filter((variant) => variant._id)
       .map((variant) => {
         const selectedOptions = optionValues.map((option) => {
-          const value = variant.find((v) => v.name === option.name)?.value;
+          const value = variant.options.find(
+            (v) => v.name === option.name
+          )?.value;
           return { name: option.name, value: value || '' };
         });
 
         return { _id: variant._id, selectedOptions };
       });
-
+    console.log('existingvars', existingVariants);
     await axios.put(`/api/admin/subproducts`, {
       subproducts: existingVariants,
     });
     const newVariants = variants
       .map((variant) => {
-        
-        const variantName = variant.map((option) => option.value).join(', ');
+        const variantName = variant.options
+          .map((option) => option.value)
+          .join(', ');
         const imageUrl = images[0].url ? images[0].url : '';
         const imageAlt = images[0].altText ? images[0].altText : '';
         const parentName = name;
-
+        console.log('varimgurl', images[0].url)
         // Generate selectedOptions for new and existing products
         const selectedOptions = optionValues.map((option) => {
-          const value = variant.find((v) => v.name === option.name)?.value;
+          const value = variant.options.find(
+            (v) => v.name === option.name
+          )?.value;
           return { name: option.name, value: value || '' };
         });
 
@@ -362,9 +413,9 @@ export default function AdminProductEditScreen() {
           )
           .map((subproduct) => subproduct._id)
       : [];
-
+    console.log('deletedvars', deletedVariantIds);
     try {
-      console.log('nv', newVariants);
+      console.log('newvars', newVariants);
       const { data } = await axios.post('/api/admin/subproducts', {
         productId,
         newVariants,
@@ -373,6 +424,7 @@ export default function AdminProductEditScreen() {
       });
       toast.success('variants updated successfully');
       console.log('Variants updated successfully', data);
+      router.reload();
     } catch (err) {
       toast.error(getError(err));
       console.error('Error updating variants', error);
@@ -433,13 +485,13 @@ export default function AdminProductEditScreen() {
             name: option.name,
             value: option.value,
           }));
-        
+
           return {
             options: variantOptions,
             _id: subproduct._id,
           };
         });
-        
+
         setVariants(initialVariants);
       } catch (err) {
         dispatch({ type: 'FETCH_FAIL2', payload: getError(err) });
@@ -484,7 +536,7 @@ export default function AdminProductEditScreen() {
   };
 
   const getTheState = () => {
-    console.log(variants);
+    console.log('gts', variants);
   };
 
   const uploadHandler = async (e, imageField = 'image') => {
@@ -617,7 +669,6 @@ export default function AdminProductEditScreen() {
                   className="w-full"
                   id="name"
                   name="name"
-                  autoFocus
                   {...register('name', {
                     required: 'Please enter name',
                   })}
@@ -634,7 +685,7 @@ export default function AdminProductEditScreen() {
                     className="w-full"
                     name="price"
                     id="price"
-                    autoFocus
+                    s
                     {...register('price', {
                       required: 'Please enter price',
                     })}
@@ -650,9 +701,7 @@ export default function AdminProductEditScreen() {
                   className="w-full"
                   id="category"
                   value={selectedCategory}
-                  {...register('category', {
-                    required: 'Please select a category',
-                  })}
+                  {...register('category')}
                   onChange={(e) => setSelectedCategory(e.target.value)}
                 >
                   <option value="">Select a category...</option>
@@ -670,7 +719,7 @@ export default function AdminProductEditScreen() {
                   className="w-full"
                   name="brand"
                   id="brand"
-                  autoFocus
+                  s
                   {...register('brand')}
                 />
               </div>
@@ -683,7 +732,7 @@ export default function AdminProductEditScreen() {
                       className="w-full"
                       id="countInStock"
                       name="countInStock"
-                      autoFocus
+                      s
                       {...register('countInStock')}
                     />
                   </div>
@@ -702,7 +751,7 @@ export default function AdminProductEditScreen() {
                       className="w-full"
                       name="sku"
                       id="sku"
-                      autoFocus
+                      s
                       {...register('sku')}
                     />
                   </div>
@@ -783,7 +832,7 @@ export default function AdminProductEditScreen() {
                                     type="text"
                                     className="w-full border border-gray-300 rounded-lg p-2"
                                     id={`images[${i}].url`}
-                                    autoFocus
+                                    s
                                     {...register(`images.${i}.url`)}
                                     value={image.url}
                                     onChange={(e) => {
@@ -866,7 +915,7 @@ export default function AdminProductEditScreen() {
                   type="text"
                   className="w-full"
                   id="slug"
-                  autoFocus
+                  s
                   {...register('slug', {
                     required: 'Please enter slug',
                   })}
@@ -881,7 +930,7 @@ export default function AdminProductEditScreen() {
                   type="text"
                   className="w-full"
                   id="metaDesc"
-                  autoFocus
+                  s
                   {...register('metaDesc')}
                 />
               </div>{' '}
@@ -897,33 +946,40 @@ export default function AdminProductEditScreen() {
           <form className="mb-8">
             <div className="mb-4">
               <h2 className="text-xl font-bold">Options</h2>
-              {options.map((option, index) => (
-                <div key={index} className="mb-4">
-                  <h3 className="text-lg font-semibold">{option}</h3>
-                  <ul className="list-disc pl-8">
-                    {optionValues[index].values.map((value, i) => (
-                      <li key={i} className="flex items-center">
-                        {value}
-                        <span
-                          className="ml-2 cursor-pointer"
-                          onClick={() => deleteOptionValue(option, value)}
-                        >
-                          <FontAwesomeIcon icon={faTimes} />
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                  <input
-                    type="text"
-                    className="border border-gray-300 p-2"
-                    placeholder="Add value"
-                    onBlur={(e) => {
-                      handleAddValueBlur(option, e.target.value);
-                      e.target.value = '';
-                    }}
-                  />
-                </div>
-              ))}
+              {options.map((option, index) => {
+                const optionObj = optionValues.find(
+                  (opt) => opt.name === option
+                );
+                return (
+                  <div key={index} className="mb-4">
+                    <h3 className="text-lg font-semibold">{option}</h3>
+                    {optionObj && (
+                      <ul className="list-disc pl-8">
+                        {optionObj.values.map((value, i) => (
+                          <li key={i} className="flex items-center">
+                            {value}
+                            <span
+                              className="ml-2 cursor-pointer"
+                              onClick={() => deleteOptionValue(option, value)}
+                            >
+                              <FontAwesomeIcon icon={faTimes} />
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    <input
+                      type="text"
+                      className="border border-gray-300 p-2"
+                      placeholder="Add value"
+                      onBlur={(e) => {
+                        handleAddValueBlur(option, e.target.value);
+                        e.target.value = '';
+                      }}
+                    />
+                  </div>
+                );
+              })}
               {!showAddOptionInput && options.length < 3 && (
                 <button
                   className="border border-gray-300 p-2"
@@ -963,6 +1019,15 @@ export default function AdminProductEditScreen() {
                             .join(', ')
                         : 'no options'}
                     </td>
+                    {variant._id && (
+                      <td className="p-2">
+                        <Link href={`/admin/subproduct/${variant._id}`}>
+                          <a>
+                            <button>Edit</button>
+                          </a>
+                        </Link>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>
@@ -984,80 +1049,3 @@ export default function AdminProductEditScreen() {
 }
 
 AdminProductEditScreen.auth = { adminOnly: true };
-
-{
-  /* <div className="md:col-span-2 border-l-2 border-gray-400 pl-4">
-          {/* {loading ? (
-            <div>Loading...</div>
-          ) : error ? (
-            <div className="alert-error">{error}</div>
-          ) : ( */
-}
-//   {subproducts && (
-//     <>
-//       <h2 className="mb-4 text-xl">Product Variants</h2>
-//       <div className="overflow-x-auto">
-//         <table className="min-w-full">
-//           <thead className="border-b">
-//             <tr>
-//               <th className="px-5 text-left">Variant</th>
-//               <th className="px-5 text-left">Price</th>
-//             </tr>
-//           </thead>
-//           <tbody>
-//             {subproducts.map((subproduct) => (
-//               <tr key={subproduct._id} className="border-b">
-//                 <td className="p-5">{subproduct.variant}</td>
-//                 <td className="p-5">${subproduct.price}</td>
-//                 <td className="p-5">
-//                   <Link href={`/admin/subproduct/${subproduct._id}`}>
-//                     <a type="button" className="default-button">
-//                       Edit
-//                     </a>
-//                   </Link>
-//                   &nbsp;
-//                   <button
-//                     onClick={() => deleteHandler(subproduct._id)}
-//                     className="default-button"
-//                     type="button"
-//                   >
-//                     Delete
-//                   </button>
-//                 </td>
-//               </tr>
-//             ))}
-//           </tbody>
-//         </table>
-//       </div>
-//     </>
-//   )}
-//   {/* )} */}
-//   <h2 className="mb-4 mt-4 text-xl">Create Variant</h2>
-//   <form
-//     className="fx-auto max-w-screen-md"
-//     onSubmit={handleSubmit2(createHandler)}
-//   >
-//     <div className="mb-4">
-//       <label htmlFor="variant">Variant Description</label>
-//       <input
-//         type="text"
-//         className="w-full"
-//         id="variant"
-//         placeholder="size and/or color"
-//         autoFocus
-//         {...register2('variant', {
-//           required: 'Please enter variant',
-//         })}
-//       />
-//       {errors.option && (
-//         <div className="text-red-500">{errors2.option.message}</div>
-//       )}
-//     </div>
-//     <button disabled={loadingCreate} className="primary-button mb-4">
-//       {loadingCreate ? 'Loading' : 'Create new variant'}
-//     </button>
-//     <div className="mb-4">
-//       <Link href={`/admin/products`}>Back</Link>
-//     </div>
-//   </form>
-// </div>

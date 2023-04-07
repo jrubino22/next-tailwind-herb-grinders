@@ -14,16 +14,23 @@ export default function Gallery({ images, selectedSubProductImage }) {
         setSelectedImageIndex(0);
         return;
       }
-
+  
       const matchingImage = images.findIndex((image) => image.url === newImage);
-
-      setSelectedImageIndex(matchingImage);
+  
+      if (matchingImage >= 0 && matchingImage < images.length) {
+        setSelectedImageIndex(matchingImage);
+      } else {
+        setSelectedImageIndex(0);
+      }
     },
     [images]
   );
 
   useEffect(() => {
     handleImageChange(selectedSubProductImage);
+    console.log('images', images)
+    console.log('sspi',selectedSubProductImage)
+    console.log('inex', selectedImageIndex)
   }, [handleImageChange, selectedSubProductImage]);
 
   return (

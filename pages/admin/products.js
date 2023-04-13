@@ -1,11 +1,10 @@
 import axios from 'axios';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import React, { useEffect, useReducer } from 'react';
+import React, { useEffect, useReducer, useRef } from 'react';
 import { toast } from 'react-toastify';
 import Layout from '../../components/Layout';
 import { getError } from '../../utils/errors';
-// import { upload, parseFile, importProducts } from '../../utils/productImport'
 
 function reducer(state, action) {
   switch (action.type) {
@@ -46,29 +45,37 @@ export default function AdminProductsScreen() {
     error: '',
   });
 
-  // const importProductsHandler = async (e) => {
-  //   const file = e.target.files[0];
-  //   if (!file) {
-  //     return;
-  //   }
+  const fileInputRef = useRef(null);
 
-  //   try {
-  //     // Use multer's upload.single() middleware to handle the file upload
-  //     const uploadedFile = await new Promise((resolve, reject) => {
-  //       upload.single('file')(
-  //         { file: { mimetype: file.type }, ...e },
-  //         {},
-  //         (err, file) => (err ? reject(err) : resolve(file))
-  //       );
-  //     });
+  const handleUploadButtonClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
 
-  //     const rows = await parseFile(uploadedFile);
-  //     await importProducts(rows);
-  //     toast.success('Products imported successfully');
-  //   } catch (err) {
-  //     toast.error(getError(err));
-  //   }
-  // };
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+    console.log('fd', file);
+
+    try {
+      await axios.post(
+        '/api/admin/import-products',
+        formData
+        // , {
+        //   headers: {
+        //     'Content-Type': 'multipart/form-data',
+        //   },
+        // }
+      );
+      toast.success('Products uploaded successfully');
+    } catch (err) {
+      toast.error(getError(err));
+    }
+  };
 
   const createHandler = async () => {
     if (!window.confirm('Create new product?')) {
@@ -150,20 +157,23 @@ export default function AdminProductsScreen() {
             <button
               disabled={loadingCreate}
               onClick={createHandler}
-              className="primary-button"
+              className="primary-button mr-5"
             >
               {loadingCreate ? 'Loading' : 'Create'}
             </button>
-            {/* <label htmlFor="importProducts" className="primary-button ml-2">
-              Import Products
-            </label>
+            <button
+              onClick={handleUploadButtonClick}
+              className="primary-button ml-5"
+            >
+              Upload Products
+            </button>
             <input
               type="file"
-              id="importProducts"
-              accept=".csv,.xlsx,.xls"
-              onChange={importProductsHandler}
-              className="hidden"
-            /> */}
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              hidden
+              accept=".csv"
+            />
           </div>
           {loading ? (
             <div>Loading...</div>

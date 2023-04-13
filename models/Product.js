@@ -13,7 +13,6 @@ const ProductSchema = new mongoose.Schema(
       default: null,
     },
     subcategory: { type: String, required: false },
-
     images: [
       {
         url: { type: String, required: true },
@@ -21,7 +20,8 @@ const ProductSchema = new mongoose.Schema(
         displayOrder: { type: Number },
       },
     ],
-    price: { type: Number, required: true, default: false },
+    price: { type: Number, required: true, default: 0 },
+    compareAtPrice: { type: Number, required: true, default: 0 },
     isActive: { type: Boolean, required: true, default: false },
     brand: { type: String, required: false, default: '' },
     sku: { type: String, required: false, default: '' },
@@ -35,9 +35,10 @@ const ProductSchema = new mongoose.Schema(
       default: 'should be bullet points of features',
     },
     description: { type: String, required: true },
-    metaDesc: {type: String, required: false, default: ''},
+    metaDesc: { type: String, required: false, default: '' },
     tags: { type: [String], default: [] },
     weight: { type: Number, required: false, default: 0 },
+    onlyImported: { type: Boolean, required: true, default: false },
     options: {
       type: [
         {

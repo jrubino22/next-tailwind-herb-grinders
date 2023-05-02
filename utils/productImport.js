@@ -17,46 +17,53 @@ export const importProducts = async (buffer) => {
 
     const hasVariants = productRows.some((row) => row['Variant SKU']);
 
+    const addVariants = productRows.length > 1;
+
     const mainProductRow = findMainProductRow(productRows, handle);
 
     let product = await Product.findOne({ slug: handle });
     if (!product) {
       product = await createProduct(productRows[0]);
     }
-
-    for (const productRow of productRows) {
-      if (hasVariants && productRow['Variant SKU']) {
-        const subproduct = await createSubProduct(
-          productRow,
-          product,
-          optionNamesMap,
-          mainProductRow
-        );
-        await Product.updateOne(
-          { _id: product._id },
-          {
-            $addToSet: { variants: subproduct._id },
-            $set: {
-              options: getProductOptions(mainProductRow, optionNamesMap),
-              price: null,
-              sku: '',
-              countInStock: 0,
-            },
-          }
-        );
-      } else if (!productRow['Variant SKU']) {
-        await Product.updateOne(
-          { _id: product._id },
-          {
-            $addToSet: {
-              images: {
-                url: productRow['Image Src'],
-                altText: productRow['Image Alt Text'],
-                displayOrder: product.images.length,
+    if (addVariants) {
+      for (const productRow of productRows) {
+        if (hasVariants && productRow['Variant SKU']) {
+          const subproduct = await createSubProduct(
+            productRow,
+            product,
+            optionNamesMap,
+            mainProductRow
+          );
+          await Product.updateOne(
+            { _id: product._id },
+            {
+              $addToSet: { variants: subproduct._id },
+              $set: {
+                options: getProductOptions(
+                  mainProductRow,
+                  optionNamesMap[handle],
+                  productRows
+                ),
+                price: 0,
+                sku: '',
+                countInStock: 0,
               },
-            },
-          }
-        );
+            }
+          );
+        } else if (!productRow['Variant SKU']) {
+          await Product.updateOne(
+            { _id: product._id },
+            {
+              $addToSet: {
+                images: {
+                  url: productRow['Image Src'],
+                  altText: productRow['Image Alt Text'],
+                  displayOrder: product.images.length,
+                },
+              },
+            }
+          );
+        }
       }
     }
   }
@@ -107,28 +114,28 @@ function findMainProductRow(rows, handle) {
   });
 }
 
-function getProductOptions(mainProductRow, subProducts) {
+function getProductOptions(mainProductRow, optionNames, productRows) {
   const options = [];
-  const mainProductOptions = [
-    mainProductRow['Option1 Name'],
-    mainProductRow['Option2 Name'],
-    mainProductRow['Option3 Name'],
-  ].filter((option) => option);
 
-  mainProductOptions.forEach((optionName, index) => {
-    const optionValues = new Set(
-      subProducts.map((subProduct) => subProduct[`Option${index + 1} Value`])
-    );
+  for (const optionName in optionNames) {
+    const optionValues = new Set();
+
+    productRows.forEach((row) => {
+      for (let i = 1; i <= 3; i++) {
+        if (mainProductRow[`Option${i} Name`] && row[`Option${i} Value`]) {
+          optionValues.add(row[`Option${i} Value`]);
+        }
+      }
+    });
 
     options.push({
       name: optionName,
       values: Array.from(optionValues),
     });
-  });
+  }
 
   return options;
 }
-
 async function createProduct(row) {
   const sanatizedSku = removeLeadingQuote(row['Variant SKU']);
   const productData = {
@@ -148,8 +155,10 @@ async function createProduct(row) {
       : 0,
     countInStock: row['Variant Inventory Qty'],
     onlyImported: true,
-    Brand: row['Vendor'],
+    brand: row['Vendor'],
+    metaDesc: row['SEO Description'],
     sku: sanatizedSku,
+    weight: row['Variant Grams'],
   };
 
   const product = new Product(productData);

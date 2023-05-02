@@ -1,17 +1,17 @@
 import axios from 'axios';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import React, { useEffect, useReducer, useRef } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import { toast } from 'react-toastify';
-import Layout from '../../components/Layout';
-import { getError } from '../../utils/errors';
+import Layout from '../../../components/Layout'; 
+import { getError } from '../../../utils/errors';
 
 function reducer(state, action) {
   switch (action.type) {
     case 'FETCH_REQUEST':
       return { ...state, loading: true, error: '' };
     case 'FETCH_SUCCESS':
-      return { ...state, loading: false, products: action.payload, error: '' };
+      return { ...state, loading: false, media: action.payload, error: '' };
     case 'FETCH_FAIL':
       return { ...state, loading: false, error: action.payload };
     case 'CREATE_REQUEST':
@@ -33,60 +33,28 @@ function reducer(state, action) {
   }
 }
 
-export default function AdminProductsScreen() {
+export default function AdminMediaScreen() {
   const router = useRouter();
 
   const [
-    { loading, error, products, loadingCreate, successDelete, loadingDelete },
+    { loading, error, media, loadingCreate, successDelete, loadingDelete },
     dispatch,
   ] = useReducer(reducer, {
     loading: true,
-    products: [],
+    media: [],
     error: '',
   });
 
-  const fileInputRef = useRef(null);
-
-  const handleUploadButtonClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
-
-  const handleFileChange = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append('file', file);
-    console.log('fd', file);
-
-    try {
-      await axios.post(
-        '/api/admin/import-products',
-        formData
-        // , {
-        //   headers: {
-        //     'Content-Type': 'multipart/form-data',
-        //   },
-        // }
-      );
-      toast.success('Products uploaded successfully');
-    } catch (err) {
-      toast.error(getError(err));
-    }
-  };
-
   const createHandler = async () => {
-    if (!window.confirm('Create new product?')) {
+    if (!window.confirm('Add new banner?')) {
       return;
     }
     try {
       dispatch({ type: 'CREATE_REQUEST' });
-      const { data } = await axios.post(`/api/admin/products`);
+      const { data } = await axios.post(`/api/admin/media`);
       dispatch({ type: 'CREATE_SUCCESS' });
-      toast.success('Product created successfully');
-      router.push(`/admin/product/${data.product._id}`);
+      toast.success('Banner created successfully');
+      router.push(`/admin/media/${data.banner._id}`);
     } catch (err) {
       dispatch({ type: 'CREATE_FAIL' });
       toast.error(getError(err));
@@ -97,7 +65,7 @@ export default function AdminProductsScreen() {
     const fetchData = async () => {
       try {
         dispatch({ type: 'FETCH_REQUEST' });
-        const { data } = await axios.get(`/api/admin/products`);
+        const { data } = await axios.get(`/api/admin/media`);
         dispatch({ type: 'FETCH_SUCCESS', payload: data });
       } catch (err) {
         dispatch({ type: 'FETCH_FAIL', payload: getError(err) });
@@ -111,15 +79,15 @@ export default function AdminProductsScreen() {
     }
   }, [successDelete]);
 
-  const deleteHandler = async (productId) => {
+  const deleteHandler = async (mediaId) => {
     if (!window.confirm('Are you sure?')) {
       return;
     }
     try {
       dispatch({ type: 'DELETE_REQUEST' });
-      await axios.delete(`/api/admin/products/${productId}`);
+      await axios.delete(`/api/admin/media/${mediaId}`);
       dispatch({ type: 'DELETE_SUCCESS' });
-      toast.success('Product deleted successfully');
+      toast.success('Banner deleted successfully');
     } catch (err) {
       dispatch({ type: 'DELETE_FAIL' });
       toast.error(getError(err));
@@ -138,42 +106,29 @@ export default function AdminProductsScreen() {
               <Link href="/admin/orders">Orders</Link>
             </li>
             <li>
-              <Link href="/admin/products">
-                <a className="font-bold">Products</a>
-              </Link>
+              <Link href="/admin/products">Products</Link>
             </li>
             <li>
               <Link href="/admin/users">Users</Link>
             </li>
             <li>
-              <Link href="/admin/media">Media</Link>
+              <Link href="/admin/media">
+                <a className="font-bold">Media</a>
+              </Link>
             </li>
           </ul>
         </div>
         <div className="overflow-x-auto md:col-span-3">
           <div className="justify-between">
-            <h1 className="mb-4 text-xl">Products</h1>
+            <h1 className="mb-4 text-xl">Media</h1>
             {loadingDelete && <div>Deleting item...</div>}
             <button
               disabled={loadingCreate}
               onClick={createHandler}
-              className="primary-button mr-5"
+              className="primary-button"
             >
               {loadingCreate ? 'Loading' : 'Create'}
             </button>
-            <button
-              onClick={handleUploadButtonClick}
-              className="primary-button ml-5"
-            >
-              Upload Products
-            </button>
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileChange}
-              hidden
-              accept=".csv"
-            />
           </div>
           {loading ? (
             <div>Loading...</div>
@@ -185,32 +140,29 @@ export default function AdminProductsScreen() {
                 <thead className="border-b">
                   <tr>
                     <th className="px-5 text-left">ID</th>
-                    <th className="px-5 text-left">Name</th>
-                    <th className="px-5 text-left">Active</th>
-                    {/* <th className="px-5 text-left">Category</th> */}
-                    <th className="px-5 text-left">Brand</th>
-                    {/* <th className="px-5 text-left">Rating</th> */}
-                    <th className="px-5 text-left">Actions</th>
+                    <th className="px-5 text-left">Label</th>
+                    <th className="px-5 text-left">Image</th>
+                    <th className="px-5 text-left">Live</th>
+                    <th className="px-5 text-left">Order</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {products.map((product) => (
-                    <tr key={product._id} className="border-b">
-                      <td className="p-5">{product._id.substring(20, 24)}</td>
-                      <td className="p-5">{product.name}</td>
-                      <td className="p-5">{product.isActive ? 'Active' : 'Inactive'}</td>
-                      {/* <td className="p-5">{product.category}</td> */}
-                      <td className="p-5">{product.brand}</td>
-                      {/* <td className="p-5">{product.rating}</td> */}
+                  {media.map((media) => (
+                    <tr key={media._id} className="border-b">
+                      <td className="p-5">{media._id.substring(20, 24)}</td>
+                      <td className="p-5">{media.label}</td>
+                      <td className="p-5">{media.image.substring(62, 200)}</td>
+                      <td className="p-5">{media.live ? 'Yes' : 'No'}</td>
+                      {media.live ? <td className="p-5">{media.order}</td> : <td></td>}
                       <td className="p-5">
-                        <Link href={`/admin/product/${product._id}`}>
+                        <Link href={`/admin/media/${media._id}`}>
                           <a type="button" className="default-button">
                             Edit
                           </a>
                         </Link>
                         &nbsp;
                         <button
-                          onClick={() => deleteHandler(product._id)}
+                          onClick={() => deleteHandler(media._id)}
                           className="default-button"
                           type="button"
                         >
@@ -229,4 +181,4 @@ export default function AdminProductsScreen() {
   );
 }
 
-AdminProductsScreen.auth = { adminOnly: true };
+AdminMediaScreen.auth = { adminOnly: true };

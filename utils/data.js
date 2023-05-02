@@ -1,28 +1,43 @@
 import bcrypt from 'bcryptjs';
 
 const data = {
-  blog: [
+  indexFeatured: [
     {
-      title: 'HerbGrinders Blog',
-      description: 'desc',
-      metaDesc: 'this is an SEO friendly description',
-      image:{
-        url: 'none',
-        altText: 'picture of stuff'
-      }
-    }
+      image:
+        'https://res.cloudinary.com/ddsp9kgde/image/upload/v1682713898/644c2d1ad28c492df57b3877_mrbvkc.jpg',
+      alt: 'check out our blog',
+      link: '/blog',
+      order: 6,
+      live: true,
+    },
+    {
+      image:
+        'https://res.cloudinary.com/ddsp9kgde/image/upload/v1682713898/644c2d1ad28c492df57b3877_mrbvkc.jpg',
+      alt: 'check out our blog',
+      link: '/search',
+      order: 7,
+      live: true,
+    },
+    {
+      image:
+        'https://res.cloudinary.com/ddsp9kgde/image/upload/v1682713142/644c2a2fd28c492df57b0f2c_ze0iws.jpg',
+      alt: 'indulge with the dine in grinder collection',
+      link: '/blog',
+      order: 8,
+      live: true,
+    },
   ],
   subproducts: [
     {
-    option: 'size',
-    variant: '55mm',
-    parentId: '6361916359ea0c869ab9e8c7',
-    image: 'none',
-    sku: '1',
-    price: 0,
-    countInStock: 0,
-    weight: 0,
-    }
+      option: 'size',
+      variant: '55mm',
+      parentId: '6361916359ea0c869ab9e8c7',
+      image: 'none',
+      sku: '1',
+      price: 0,
+      countInStock: 0,
+      weight: 0,
+    },
   ],
   banners: [
     {

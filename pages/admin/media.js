@@ -1,101 +1,17 @@
-import axios from 'axios';
+import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import React, { useEffect, useReducer } from 'react';
-import { toast } from 'react-toastify';
 import Layout from '../../components/Layout';
-import { getError } from '../../utils/errors';
 
-function reducer(state, action) {
-  switch (action.type) {
-    case 'FETCH_REQUEST':
-      return { ...state, loading: true, error: '' };
-    case 'FETCH_SUCCESS':
-      return { ...state, loading: false, media: action.payload, error: '' };
-    case 'FETCH_FAIL':
-      return { ...state, loading: false, error: action.payload };
-    case 'CREATE_REQUEST':
-      return { ...state, loadingCreate: true };
-    case 'CREATE_SUCCESS':
-      return { ...state, loadingCreate: false };
-    case 'CREATE_FAIL':
-      return { ...state, loadingCreate: false };
-    case 'DELETE_REQUEST':
-      return { ...state, loadingDelete: true };
-    case 'DELETE_SUCCESS':
-      return { ...state, loadingDelete: false, successDelete: true };
-    case 'DELETE_FAIL':
-      return { ...state, loadingDelete: false };
-    case 'DELETE_RESET':
-      return { ...state, loadingDelete: false, successDelete: false };
-    default:
-      state;
-  }
-}
-
-export default function AdminMediaScreen() {
+const AdminMediaMenu = () => {
   const router = useRouter();
 
-  const [
-    { loading, error, media, loadingCreate, successDelete, loadingDelete },
-    dispatch,
-  ] = useReducer(reducer, {
-    loading: true,
-    media: [],
-    error: '',
-  });
-
-  const createHandler = async () => {
-    if (!window.confirm('Add new banner?')) {
-      return;
-    }
-    try {
-      dispatch({ type: 'CREATE_REQUEST' });
-      const { data } = await axios.post(`/api/admin/media`);
-      dispatch({ type: 'CREATE_SUCCESS' });
-      toast.success('Banner created successfully');
-      router.push(`/admin/media/${data.banner._id}`);
-    } catch (err) {
-      dispatch({ type: 'CREATE_FAIL' });
-      toast.error(getError(err));
-    }
-  };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        dispatch({ type: 'FETCH_REQUEST' });
-        const { data } = await axios.get(`/api/admin/media`);
-        dispatch({ type: 'FETCH_SUCCESS', payload: data });
-      } catch (err) {
-        dispatch({ type: 'FETCH_FAIL', payload: getError(err) });
-      }
-    };
-
-    if (successDelete) {
-      dispatch({ type: 'DELETE_RESET' });
-    } else {
-      fetchData();
-    }
-  }, [successDelete]);
-
-  const deleteHandler = async (mediaId) => {
-    if (!window.confirm('Are you sure?')) {
-      return;
-    }
-    try {
-      dispatch({ type: 'DELETE_REQUEST' });
-      await axios.delete(`/api/admin/media/${mediaId}`);
-      dispatch({ type: 'DELETE_SUCCESS' });
-      toast.success('Banner deleted successfully');
-    } catch (err) {
-      dispatch({ type: 'DELETE_FAIL' });
-      toast.error(getError(err));
-    }
+  const goToPage = (path) => {
+    router.push(path);
   };
 
   return (
-    <Layout title="Admin Products">
+    <Layout title="Admin Media Menu">
       <div className="grid md:grid-cols-4 md:gap-5">
         <div>
           <ul>
@@ -118,67 +34,26 @@ export default function AdminMediaScreen() {
             </li>
           </ul>
         </div>
-        <div className="overflow-x-auto md:col-span-3">
-          <div className="justify-between">
-            <h1 className="mb-4 text-xl">Media</h1>
-            {loadingDelete && <div>Deleting item...</div>}
+        <div className="">
+          <div className="flex flex-col items-center space-y-4">
+            <h1 className="text-2xl font-semibold mb-6">Admin Media Menu</h1>
             <button
-              disabled={loadingCreate}
-              onClick={createHandler}
-              className="primary-button"
+              className="bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-700"
+              onClick={() => goToPage('/admin/media/banners')}
             >
-              {loadingCreate ? 'Loading' : 'Create'}
+              Homepage Banners
+            </button>
+            <button
+              className="bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-700"
+              onClick={() => goToPage('/admin/media/index-media')}
+            >
+              Index Media
             </button>
           </div>
-          {loading ? (
-            <div>Loading...</div>
-          ) : error ? (
-            <div className="alert-error">{error}</div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full">
-                <thead className="border-b">
-                  <tr>
-                    <th className="px-5 text-left">ID</th>
-                    <th className="px-5 text-left">Label</th>
-                    <th className="px-5 text-left">Image</th>
-                    <th className="px-5 text-left">Live</th>
-                    <th className="px-5 text-left">Order</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {media.map((media) => (
-                    <tr key={media._id} className="border-b">
-                      <td className="p-5">{media._id.substring(20, 24)}</td>
-                      <td className="p-5">{media.label}</td>
-                      <td className="p-5">{media.image.substring(62, 200)}</td>
-                      <td className="p-5">{media.live ? 'Yes' : 'No'}</td>
-                      {media.live ? <td className="p-5">{media.order}</td> : <td></td>}
-                      <td className="p-5">
-                        <Link href={`/admin/media/${media._id}`}>
-                          <a type="button" className="default-button">
-                            Edit
-                          </a>
-                        </Link>
-                        &nbsp;
-                        <button
-                          onClick={() => deleteHandler(media._id)}
-                          className="default-button"
-                          type="button"
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
         </div>
       </div>
     </Layout>
   );
-}
+};
 
-AdminMediaScreen.auth = { adminOnly: true };
+export default AdminMediaMenu;

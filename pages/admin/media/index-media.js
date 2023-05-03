@@ -5,30 +5,48 @@ import Link from 'next/link';
 import Layout from '../../../components/Layout';
 import { getError } from '../../../utils/errors';
 import { useRouter } from 'next/router';
+import { toast } from 'react-toastify';
 
 const AdminIndexFeatured = () => {
-  const { register, handleSubmit } = useForm();
+  const { register, handleSubmit, setValue } = useForm();
   const [images, setImages] = useState([]);
 
-  const router = useRouter()
+  const router = useRouter();
 
   useEffect(() => {
     const fetchImages = async () => {
-      const { data } = await axios.get('/api/admin/indexFeatured');
+      const { data } = await axios.get('/api/admin/index-featured');
       setImages(data);
     };
     fetchImages();
   }, []);
 
+  useEffect(() => {
+    images.forEach((image, index) => {
+      setValue(`altText-${index}`, image.alt);
+      setValue(`link-${index}`, image.link);
+    });
+  }, [images, setValue]);
+
   const onSubmit = async (data, index) => {
     try {
-      await axios.put(`/api/admin/indexFeatured/${images[index]._id}`, data);
+      const updatedData = {
+        image: images[index].image,
+        alt: document.getElementById(`altText-${index}`).value,
+        link: document.getElementById(`link-${index}`).value,
+      };
+      console.log('data', updatedData);
+      await axios.put(
+        `/api/admin/index-featured/${images[index]._id}`,
+        updatedData
+      );
       setImages((prevImages) => {
         const newImages = [...prevImages];
-        newImages[index] = { ...newImages[index], ...data };
+        newImages[index] = { ...newImages[index], ...updatedData };
         return newImages;
       });
-      router.reload()
+      toast.success('Update Successful');
+      router.reload();
     } catch (err) {
       console.error(getError(err));
     }
@@ -53,6 +71,7 @@ const AdminIndexFeatured = () => {
       setImages((prevImages) => {
         const newImages = [...prevImages];
         newImages[index] = updatedImage;
+        console.log('new-images', newImages);
         return newImages;
       });
     } catch (err) {
@@ -149,48 +168,52 @@ const AdminIndexFeatured = () => {
                   .filter((_, index) => [3, 4].includes(index))
                   .map((image, index) => (
                     <div
-                      key={index}
+                      key={index + 3}
                       className="image-section bg-gray-200 p-4 rounded-md mb-4"
                     >
                       <form
-                        onSubmit={handleSubmit((data) => onSubmit(data, index))}
+                        onSubmit={handleSubmit((data) =>
+                          onSubmit(data, index + 3)
+                        )}
                       >
                         <div className="mb-4">
-                          <label htmlFor={`image-${index}`}>Update Image</label>
+                          <label htmlFor={`image-${index + 3}`}>
+                            Update Image
+                          </label>
                           <input
-                            id={`image-${index}`}
+                            id={`image-${index + 3}`}
                             type="file"
                             accept="image/*"
-                            onChange={(e) => uploadHandler(e, index)}
+                            onChange={(e) => uploadHandler(e, index + 3)}
                           />
                         </div>
                         <div className="mb-4">
-                          <label htmlFor={`imageURL-${index}`}>Image</label>
+                          <label htmlFor={`imageURL-${index + 3}`}>Image</label>
                           <img
-                            id={`imageURL-${index}`}
+                            id={`imageURL-${index + 3}`}
                             src={image.image}
                             alt={image.alt}
                             className="object-cover rounded-md border border-gray-300"
                           />
                         </div>
                         <div className="mb-4">
-                          <label htmlFor={`altText-${index}`}>
+                          <label htmlFor={`altText-${index + 3}`}>
                             Image Alt Text
                           </label>
                           <input
-                            id={`altText-${index}`}
+                            id={`altText-${index + 3}`}
                             type="text"
                             defaultValue={image.alt}
-                            {...register(`altText-${index}`)}
+                            {...register(`altText-${index + 3}`)}
                           />
                         </div>
                         <div className="mb-4">
-                          <label htmlFor={`link-${index}`}>Link</label>
+                          <label htmlFor={`link-${index + 3}`}>Link</label>
                           <input
-                            id={`link-${index}`}
+                            id={`link-${index + 3}`}
                             type="text"
                             defaultValue={image.link}
-                            {...register(`link-${index}`)}
+                            {...register(`link-${index + 3}`)}
                           />
                         </div>
                         <button type="submit" className="primary-button">
@@ -205,48 +228,52 @@ const AdminIndexFeatured = () => {
                   .filter((_, index) => [5, 6, 7].includes(index))
                   .map((image, index) => (
                     <div
-                      key={index}
+                      key={index + 5}
                       className="image-section bg-gray-200 p-4 rounded-md mb-4"
                     >
                       <form
-                        onSubmit={handleSubmit((data) => onSubmit(data, index))}
+                        onSubmit={handleSubmit((data) =>
+                          onSubmit(data, index + 5)
+                        )}
                       >
                         <div className="mb-4">
-                          <label htmlFor={`image-${index}`}>Update Image</label>
+                          <label htmlFor={`image-${index + 5}`}>
+                            Update Image
+                          </label>
                           <input
-                            id={`image-${index}`}
+                            id={`image-${index + 5}`}
                             type="file"
                             accept="image/*"
-                            onChange={(e) => uploadHandler(e, index)}
+                            onChange={(e) => uploadHandler(e, index + 5)}
                           />
                         </div>
                         <div className="mb-4">
-                          <label htmlFor={`imageURL-${index}`}>Image</label>
+                          <label htmlFor={`imageURL-${index + 5}`}>Image</label>
                           <img
-                            id={`imageURL-${index}`}
+                            id={`imageURL-${index + 5}`}
                             src={image.image}
                             alt={image.alt}
                             className="object-cover rounded-md border border-gray-300"
                           />
                         </div>
                         <div className="mb-4">
-                          <label htmlFor={`altText-${index}`}>
+                          <label htmlFor={`altText-${index + 5}`}>
                             Image Alt Text
                           </label>
                           <input
-                            id={`altText-${index}`}
+                            id={`altText-${index + 5}`}
                             type="text"
                             defaultValue={image.alt}
-                            {...register(`altText-${index}`)}
+                            {...register(`altText-${index + 5}`)}
                           />
                         </div>
                         <div className="mb-4">
-                          <label htmlFor={`link-${index}`}>Link</label>
+                          <label htmlFor={`link-${index + 5}`}>Link</label>
                           <input
-                            id={`link-${index}`}
+                            id={`link-${index + 5}`}
                             type="text"
                             defaultValue={image.link}
-                            {...register(`link-${index}`)}
+                            {...register(`link-${index + 5}`)}
                           />
                         </div>
                         <button type="submit" className="primary-button">

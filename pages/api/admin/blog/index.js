@@ -25,7 +25,6 @@ const getHandler = async (req, res) => {
 };
 
 const putHandler = async (req, res) => {
-  console.log('metadesc', req.body)
   await db.connect();
   const blog = await Blog.findById('641b7f313c20b64cd274b04b');
   if (blog) {

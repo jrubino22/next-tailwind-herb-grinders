@@ -27,7 +27,6 @@ const postHandler = async (req, res) => {
 
   await db.connect();
 
-  console.log('server-newvar-0', newVariants[0]);
   const createdSubProducts = await SubProduct.insertMany(
     newVariants.map((variant) => ({
       variant: variant.variant,
@@ -77,7 +76,6 @@ const postHandler = async (req, res) => {
 };
 
 const getHandler = async (req, res) => {
-  console.log('pid', req.query.params);
   await db.connect();
 
   const product = await Product.findById(req.query._id);
@@ -105,7 +103,6 @@ const putHandler = async (req, res) => {
 
       const variant = selectedOptions.map((option) => option.value).join(', ');
 
-      console.log('selectopsserver', selectedOptions);
       return await SubProduct.findByIdAndUpdate(
         _id,
         {

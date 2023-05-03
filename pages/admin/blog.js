@@ -130,7 +130,6 @@ export default function AdminBlogScreen() {
       try {
         const { data: blogP } = await axios.get('/api/admin/blog');
         dispatch({ type: 'FETCH_BLOG_PAGE_SUCCESS', payload: blogP });
-        console.log('bp', blogP)
         setImageURL(blogP.image.url);
         setValue('title', blogP.title);
         setValue('description', blogP.description);

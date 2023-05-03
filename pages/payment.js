@@ -38,7 +38,6 @@ export default function PaymentScreen() {
     if (!shippingAddress.addressLine1 ) {
       return router.push('/shipping');
     }
-    console.log('shippingAddress', shippingAddress)
     setSelectedPaymentMethod(paymentMethod || '');
   }, [paymentMethod, router, shippingAddress]);
 

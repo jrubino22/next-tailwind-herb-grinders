@@ -14,7 +14,6 @@ export default async function handler(req, res) {
   }
 
   try {
-    console.log('register-path', firstName, req.body )
     await db.connect();
     const existingUser = await User.findOne({ email });
     if (existingUser) {

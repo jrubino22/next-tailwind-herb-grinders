@@ -1,18 +1,36 @@
-import IndexFeatured from '../../../../../models/IndexFeatured';
+import IndexFeatured from '../../../../models/IndexFeatured';
 import { getSession } from 'next-auth/react';
-import db from '../../../../../utils/db';
+import db from '../../../../utils/db';
 
 const handler = async (req, res) => {
+  console.log(`Received request: Method - ${req.method}, ID - ${req.query.id}`);
   const session = await getSession({ req });
-  if (!session || (session && !session.user.isAdmin)) {
+  if (!session || !session.user.isAdmin) {
     return res.status(401).send('signin required');
   }
-
-  if (req.method === 'PUT') {
+  if (req.method === 'GET') {
+    return getHandler(req, res);
+  } else if (req.method === 'PUT') {
+    console.log('made it');
     return putHandler(req, res);
   } else {
     return res.status(400).send({ message: 'Method not allowed' });
   }
+};
+
+const getHandler = async (req, res) => {
+  const blogId = req.query.id;
+  await db.connect();
+  const blogPost = await IndexFeatured.findById(blogId);
+
+  if (!blogPost) {
+    await db.disconnect();
+    res.status(404).send('Blog post not found');
+    return;
+  }
+
+  await db.disconnect();
+  res.send(blogPost);
 };
 
 const putHandler = async (req, res) => {

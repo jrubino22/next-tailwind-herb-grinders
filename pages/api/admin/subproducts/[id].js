@@ -20,7 +20,6 @@ const handler = async (req, res) => {
 };
 
 const postHandler = async (req, res) => {
-  console.log('pid', req.body.productId);
   await db.connect();
 
   const newProduct = new SubProduct({
@@ -53,7 +52,6 @@ const postHandler = async (req, res) => {
 };
 
 const getHandler = async (req, res) => {
-  console.log('pid', req.query.id);
   await db.connect();
 
   const product = await Product.findById(req.query.id);

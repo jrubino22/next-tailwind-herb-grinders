@@ -102,12 +102,9 @@ export default function AdminSubproductEditScreen() {
             payload: parentData.images,
           });
         }
-        console.log('imageurl', data.image.url);
-        console.log('parentImg', images);
         const preSelectedImage = images.find(
           (productImage) => productImage.url === data.image.url
         );
-        console.log('selected', preSelectedImage.url);
         setSelectedImage(preSelectedImage.url);
       } catch (err) {
         dispatch({ type: 'FETCH_FAIL', payload: getError(err) });

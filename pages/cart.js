@@ -17,13 +17,12 @@ function CartScreen() {
     cart: { cartItems },
   } = state;
 
-  console.log('cart', state)
+
 
   const removeItemHandler = (item) => {
     dispatch({ type: 'CART_REMOVE_ITEM', payload: item });
   };
   const updateCartHandler = async (item, qty) => {
-    console.log('item', item)
     const quantity = Number(qty);
     const {data} = await axios.get(`/api/products/${item._id}`)
     if (data.countInStock < quantity) {

@@ -45,7 +45,6 @@ async function handler(req, res) {
     await sgMail.send(content);
     res.status(200).send('Order confirmation email sent successfully.');
   } catch (error) {
-    console.log('ERROR', error);
     res.status(400).send('Order confirmation email not sent.');
   }
 }

@@ -8,7 +8,6 @@ export default function signature(req, res) {
     },
     process.env.CLOUDINARY_SECRET
   );
-console.log("res", res)
   res.statusCode = 200;
   res.json({ signature, timestamp });
 }

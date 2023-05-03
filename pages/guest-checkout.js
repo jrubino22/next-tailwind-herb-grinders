@@ -42,7 +42,7 @@ export default function ShippingScreen() {
     postalCode,
     country,
   }) => {
-    console.log(phone);
+
     if (!phone || !isValidPhoneNumber(phone)) {
       setPhoneError('Please enter a valid phone number');
       return;
@@ -78,7 +78,6 @@ export default function ShippingScreen() {
         },
       })
     );
-    console.log(Cookies);
     router.push('/payment');
   };
 
@@ -91,7 +90,6 @@ export default function ShippingScreen() {
       {}
     );
 
-    console.log('addycomps', addressComponents);
 
     setValue('city', addressComponents.locality);
     setValue('state', addressComponents.administrative_area_level_1);

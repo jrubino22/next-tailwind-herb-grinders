@@ -40,11 +40,10 @@ export default function Home({ products, banners, indexFeatured }) {
   const sortedBanners = liveBanners.sort((a, b) =>
     a.order > b.order ? 1 : -1
   );
-
+  console.log(sortedBanners, HomeCarousel)
   return (
     <Layout title="HerbGrinders" applyMarginPadding={false}>
-      {console.log('ifd', indexFeatured)}
-      <HomeCarousel banners={sortedBanners} />
+      {/* <HomeCarousel banners={sortedBanners} /> */}
       
       <div className="my-6 px-4 lg:px-40">
       <IndexFeaturedComponent images={indexFeatured} />

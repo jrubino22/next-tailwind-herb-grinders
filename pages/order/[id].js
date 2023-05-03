@@ -83,7 +83,6 @@ function OrderScreen() {
       const { data } = await axios.put(`/api/admin/orders/${order._id}/deliver`, {});
       dispatch({ type: 'DELIVER_SUCCESS', payload: data });
       toast.success('Order has been delivered');
-      console.log("order", data)
     } catch (err) {
       dispatch({ type: 'DELIVER_FAIL', payload: getError(err) });
       toast.error(getError(err));

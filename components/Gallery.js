@@ -28,9 +28,6 @@ export default function Gallery({ images, selectedSubProductImage }) {
 
   useEffect(() => {
     handleImageChange(selectedSubProductImage);
-    console.log('images', images)
-    console.log('sspi',selectedSubProductImage)
-    console.log('inex', selectedImageIndex)
   }, [handleImageChange, selectedSubProductImage]);
 
   return (

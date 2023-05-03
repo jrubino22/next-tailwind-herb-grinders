@@ -115,7 +115,6 @@ export default function Search(props) {
               onChange={categoryHandler}
             >
               <option value="all">All</option>
-              {console.log('cat', categories)}
               {categories &&
                 categories.map((category) => (
                   <option key={category.title} value={category._id}>
@@ -443,7 +442,6 @@ export async function getServerSideProps({ query }) {
     { $limit: pageSize },
   ]);
 
-  console.log('productdocs', productDocs);
 
   const countProducts = await Product.countDocuments({
     ...queryFilter,
@@ -453,7 +451,6 @@ export async function getServerSideProps({ query }) {
     ...ratingFilter,
   });
 
-  console.log('productdocs2', productDocs);
 
   const totalPages = Math.ceil(countProducts / pageSize);
 
@@ -497,10 +494,6 @@ export async function getServerSideProps({ query }) {
   const cleanedProducts = products.map((product) =>
     removeUndefinedProperties(product)
   );
-
-  console.log('cleaned', cleanedProducts);
-
-  console.log(countProducts, categories, brands);
 
   return {
     props: {

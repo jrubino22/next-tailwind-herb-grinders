@@ -20,7 +20,6 @@ const handler = async (req, res) => {
     const order = await newOrder.save();
     res.status(201).send(order);
   } else if (guestSessionId) {
-    console.log('guestId', guestSessionId)
     await db.connect();
     const newOrder = new Order({
       ...req.body,

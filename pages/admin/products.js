@@ -59,7 +59,6 @@ export default function AdminProductsScreen() {
 
     const formData = new FormData();
     formData.append('file', file);
-    console.log('fd', file);
 
     try {
       await axios.post(

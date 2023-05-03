@@ -5,9 +5,7 @@ import Product from '../models/Product';
 import SubProduct from '../models/SubProduct';
 
 export const importProducts = async (buffer) => {
-  console.log('received-buffer', buffer);
   const rows = await parseCSV(buffer);
-  console.log('Parsed CSV rows:', rows);
 
   const { groupedProducts, optionNamesMap } = groupBy(rows, 'Handle');
   // const optionNames = extractOptionNames(rows);
@@ -76,7 +74,6 @@ export const importProducts = async (buffer) => {
 };
 
 function removeLeadingQuote(sku) {
-  console.log('sku', sku);
   return sku && sku.startsWith("'") ? sku.slice(1) : sku;
 }
 
@@ -163,7 +160,6 @@ async function createProduct(row) {
 
   const product = new Product(productData);
   await product.save();
-  console.log('Created product:', product);
   return product;
 }
 
@@ -209,16 +205,8 @@ async function createSubProduct(row, product, optionNamesMap, mainProductRow) {
     onlyImported: true,
   };
 
-  console.log(
-    'subproduct-variant',
-    `${row['Option1 Value']}${
-      row['Option2 Value'] ? `, ${row['Option2 Value']}` : ''
-    }${row['Option3 Value'] ? `, ${row['Option3 Value']}` : ''}`
-  );
-
   const subProduct = new SubProduct(subProductData);
   await subProduct.save();
-  console.log('Created subproduct:', subProduct);
   return subProduct;
 }
 

@@ -214,7 +214,6 @@ export default function AdminProductEditScreen() {
   const generateVariants = useCallback(
     (recentAddedOptionValue) => {
       const newVariants = [];
-      console.log('ran-generate-variants');
       const generateCombinations = (current, rest) => {
         if (!rest.length) {
           newVariants.push(current);
@@ -260,7 +259,6 @@ export default function AdminProductEditScreen() {
       } else {
         updatedVariants.push(...variants);
       }
-      console.log('uv', updatedVariants);
 
       // Add new variants
       newVariants.forEach((newVariant) => {
@@ -330,7 +328,6 @@ export default function AdminProductEditScreen() {
         )
       );
     }
-    console.log('delete-function-vars', variants);
     // Update the optionValues state
     setOptionValues(updatedOptionValues);
   };
@@ -360,7 +357,6 @@ export default function AdminProductEditScreen() {
   });
 
   const updateVariants = async () => {
-    console.log('updatevarsvars', variants);
     const existingVariants = variants
       .filter((variant) => variant._id)
       .map((variant) => {
@@ -373,7 +369,6 @@ export default function AdminProductEditScreen() {
 
         return { _id: variant._id, selectedOptions };
       });
-    console.log('existingvars', existingVariants);
     await axios.put(`/api/admin/subproducts`, {
       subproducts: existingVariants,
     });
@@ -385,7 +380,6 @@ export default function AdminProductEditScreen() {
         const imageUrl = images[0].url ? images[0].url : '';
         const imageAlt = images[0].altText ? images[0].altText : '';
         const parentName = name;
-        console.log('varimgurl', images[0].url)
         // Generate selectedOptions for new and existing products
         const selectedOptions = optionValues.map((option) => {
           const value = variant.options.find(
@@ -413,9 +407,7 @@ export default function AdminProductEditScreen() {
           )
           .map((subproduct) => subproduct._id)
       : [];
-    console.log('deletedvars', deletedVariantIds);
     try {
-      console.log('newvars', newVariants);
       const { data } = await axios.post('/api/admin/subproducts', {
         productId,
         newVariants,
@@ -478,7 +470,6 @@ export default function AdminProductEditScreen() {
           }
         );
         dispatch({ type: 'FETCH_SUCCESS2', payload: data });
-        console.log('sp', data);
 
         const initialVariants = data.map((subproduct) => {
           const variantOptions = subproduct.selectedOptions.map((option) => ({
@@ -509,26 +500,10 @@ export default function AdminProductEditScreen() {
     fetchData();
   }, [productId, setValue, description]);
 
-  // const deleteHandler = async (subproductId) => {
-  //   console.log('subid', subproductId);
-  //   if (!window.confirm('Are you sure?')) {
-  //     return;
-  //   }
-  //   try {
-  //     dispatch({ type: 'DELETE_REQUEST' });
-  //     await axios.delete(`/api/admin/subproduct/${subproductId}`);
-  //     dispatch({ type: 'DELETE_SUCCESS' });
-  //     toast.success('Product deleted successfully');
-  //   } catch (err) {
-  //     dispatch({ type: 'DELETE_FAIL' });
-  //     toast.error(getError(err));
-  //   }
-  // };
 
   const removeImage = (i) => {
     try {
       dispatch({ type: 'REMOVE_IMAGE', payload: i });
-      console.log('remove img func', images);
       toast.success('Image Removed');
     } catch {
       toast.error('Unable to remove image');
@@ -540,7 +515,6 @@ export default function AdminProductEditScreen() {
   };
 
   const uploadHandler = async (e, imageField = 'image') => {
-    console.log('uploadhandler0', e);
     const url = `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/upload`;
     try {
       dispatch({ type: 'UPLOAD_REQUEST' });
@@ -563,8 +537,6 @@ export default function AdminProductEditScreen() {
         altText: '',
         displayOrder: (await images.length) + 1,
       };
-
-      console.log('newImage:', newImage);
       dispatch({ type: 'ADD_IMAGE', image: newImage });
 
       setValue(imageField, data.secure_url);
@@ -588,7 +560,6 @@ export default function AdminProductEditScreen() {
     productTags,
   }) => {
     try {
-      console.log('put images2', images[0].altText);
       dispatch({ type: 'UPDATE_REQUEST' });
       await axios.put(`/api/admin/products/${productId}`, {
         isActive,

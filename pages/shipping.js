@@ -129,7 +129,6 @@ export default function ShippingScreen() {
     { fullName, addressLine1, addressLine2, state, city, postalCode, country },
     e
   ) => {
-    console.log('e', e.target.saveAddress);
     e.preventDefault();
     dispatch({
       type: 'SAVE_SHIPPING_ADDRESS',
@@ -197,7 +196,6 @@ export default function ShippingScreen() {
       {}
     );
 
-    console.log('addycomps', addressComponents);
 
     setValue('city', addressComponents.locality);
     setValue('state', addressComponents.administrative_area_level_1);

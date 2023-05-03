@@ -115,7 +115,6 @@ const findMatchingSubProduct = useCallback(() => {
       : parseInt(quantityToAdd);
     const { data } = await axios.get(`/api/subproducts/${selectedSubProduct}`);
 
-    console.log('variant cart', data, quantity, quantityToAdd);
 
     if (data.countInStock < quantity) {
       return toast.error('Sorry. Product is out of stock');

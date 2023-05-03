@@ -66,10 +66,8 @@ const putHandler = async (req, res) => {
     }
 
     const nonDeletedImage = req.body.images.length > 0 ? req.body.images[0] : { url: '' };
-    console.log('ndi', nonDeletedImage);
 
     for (const deletedImageUrl of deletedImageUrls) {
-      console.log('deletedimg', deletedImageUrl);
       await SubProduct.updateMany(
         { parentId: req.query.id, 'image.url': deletedImageUrl },
         { $set: { 'image.url': nonDeletedImage.url } }

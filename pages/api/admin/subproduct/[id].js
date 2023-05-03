@@ -58,7 +58,6 @@ const deleteHandler = async (req, res) => {
   if (subproduct) {
     const product = await Product.findById(subproduct.parentId);
     if (product) {
-      console.log(product, 'product');
       await Product.updateOne(
         { _id: product._id },
         { $pull: { variants: subproduct._id } }

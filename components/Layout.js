@@ -72,7 +72,7 @@ export default function Layout({
 
       <div className="flex min-h-screen flex-col bg-white">
         <header className="header-bg shadow-md">
-          <nav className="container mx-auto flex h-16 px-4 justify-between items-center">
+          <nav className="container mx-auto flex h-16 px-6 py-10 justify-between items-center">
             {/* Hamburger menu */}
             <button
               className="md:hidden"
@@ -82,14 +82,14 @@ export default function Layout({
               <FontAwesomeIcon icon={faBars} className="w-6 h-6 text-white" />
             </button>
             <Link href="/">
-              <a className="text-2xl font-bold header-text-color ml-5">
-                HerbGrinders.com
+              <a className="text-3xl header-text-color ml-5">
+                <h1>HerbGrinders.com</h1>
                 {/* <Image src="https://res.cloudinary.com/ddsp9kgde/image/upload/v1679710428/zodiac_oasis_logo_blue_horizontal_emoedp.png" alt="" height="90" width="280" /> */}
               </a>
             </Link>
             <form
               onSubmit={submitHandler}
-              className="mx-auto hidden w-1/2 justify-center md:flex flex-grow search-bar-bg rounded mx-5"
+              className="mx-auto hidden w-1/2 justify-center md:flex flex-grow rounded mx-5"
             >
               <input
                 onChange={(e) => setQuery(e.target.value)}
@@ -98,7 +98,7 @@ export default function Layout({
                 placeholder="Search"
               />
               <button
-                className="rounded-r bg-green-500 p-2 text-sm text-white border border-green-600"
+                className="rounded-r p-2 text-sm button-color text-white border border-green-600"
                 type="submit"
                 id="button-addon2"
               >
@@ -116,7 +116,7 @@ export default function Layout({
                     )}
                     <FontAwesomeIcon
                       icon={faShoppingCart}
-                      className="w-6 h-6 text-white"
+                      className="w-6 h-6 header-text-color"
                     />
                   </a>
                 </Link>
@@ -201,10 +201,10 @@ export default function Layout({
           isOpen={mobileMenuOpen}
           setMobileMenuOpen={setMobileMenuOpen}
         />
-        <div className="hidden md:block">
+        <div className="hidden md:block navbar-style">
           <NavigationMenu />
         </div>
-        <main className={`container${applyMarginPadding ? ' my-4 px-4' : ''}`}>
+        <main className={`container${applyMarginPadding ? ' px-4 md:px-8 lg:px-64' : ''}`}>
           {children}
         </main>
         <footer className="flex justify-center items-center shadow-inner mt-4 py-4 bg-white">

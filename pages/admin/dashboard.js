@@ -1,6 +1,6 @@
 import axios from 'axios';
 import Link from 'next/link';
-import { Bar } from 'react-chartjs-2'
+import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJs,
   CategoryScale,
@@ -79,7 +79,7 @@ function AdminDashboardScreen() {
 
   const round2 = (num) => Math.round(num * 100 + Number.EPSILON) / 100;
 
-  const roundedPrice = round2(summary.ordersPrice)
+  const roundedPrice = round2(summary.ordersPrice);
 
   return (
     <Layout title="Admin Dashboard">
@@ -98,15 +98,16 @@ function AdminDashboardScreen() {
               <Link href="/admin/products">Products</Link>
             </li>
             <li>
-              <Link href="/admin/categories">
-               Categories
-              </Link>
+              <Link href="/admin/categories">Categories</Link>
             </li>
             <li>
               <Link href="/admin/users">Users</Link>
             </li>
             <li>
               <Link href="/admin/media">Media</Link>
+            </li>
+            <li>
+              <Link href="/admin/pages">Pages</Link>
             </li>
             <li>
               <Link href="/admin/blog">Blog</Link>

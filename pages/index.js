@@ -7,8 +7,6 @@ import Product from '../models/Product';
 import SubProduct from '../models/SubProduct';
 import db from '../utils/db';
 import { Store } from '../utils/Store';
-// import { Carousel } from 'react-responsive-carousel';
-// import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import HomeCarousel from '../components/HomeCarousel';
 import Banner from '../models/Banner';
 import IndexFeatured from '../models/IndexFeatured';
@@ -45,7 +43,7 @@ export default function Home({ products, banners, indexFeatured }) {
     <Layout title="HerbGrinders" applyMarginPadding={false}>
       {/* <HomeCarousel banners={sortedBanners} /> */}
       
-      <div className="my-6 px-4 lg:px-40">
+      <div className="my-6 px-4 md:px-8 lg:px-64">
       <IndexFeaturedComponent images={indexFeatured} />
         <h2 className="h2 my-4 font-bold text-xl ml-5">New Grinders</h2>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-4">
@@ -69,6 +67,8 @@ export async function getServerSideProps() {
   const banners = await Banner.find().lean();
   const indexFeatured = await IndexFeatured.find().lean();
 
+  const sortedIndexFeatured = indexFeatured.sort((a, b) => a.order - b.order);
+
   for (let i = 0; i < products.length; i++) {
     if (products[i].variants && products[i].variants.length > 0) {
       const productVariants = [];
@@ -88,7 +88,7 @@ export async function getServerSideProps() {
     props: {
       products: JSON.parse(JSON.stringify(products.map(db.convertDocToObj))),
       banners: banners.map(db.convertDocToObj),
-      indexFeatured: indexFeatured.map(db.convertDocToObj),
+      indexFeatured: sortedIndexFeatured.map(db.convertDocToObj),
     },
   };
 }

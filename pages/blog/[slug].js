@@ -2,12 +2,20 @@ import Image from 'next/image';
 import Layout from '../../components/Layout';
 import BlogPost from '../../models/BlogPost';
 import db from '../../utils/db';
-import MarkdownIt from 'markdown-it';
-
-const md = new MarkdownIt();
+import ReactMarkdown from 'react-markdown';
+import React from 'react';
+import rehypeRaw from 'rehype-raw';
+import { decodeEntitiesPlugin } from '../../utils/utils';
 
 export default function BlogPostPage({ post }) {
-  const contentHtml = md.render(post.content);
+  // const contentHtml = md.render(post.content);
+  const components = {
+    html: ({ node, ...props }) => {
+      return <div dangerouslySetInnerHTML={{ __html: node.data }} {...props} />;
+    },
+  };
+
+  // const decodedContent = decodeHtmlEntities(post.content)
 
   return (
     <Layout title={post.title}>
@@ -21,10 +29,20 @@ export default function BlogPostPage({ post }) {
       </div>
       <div className="container mx-auto px-4 md:px-8 lg:px-32">
         <h1 className="text-3xl font-bold mb-3">{post.title}</h1>
-        {post.subtitle && <h2 className="text-xl font-semibold mb-5">{post.subtitle}</h2>}
-        {post.author.length > 4 && <p className="text-gray-500 mb-5">By {post.author}</p>}
+        {post.subtitle && (
+          <h2 className="text-xl font-semibold mb-5">{post.subtitle}</h2>
+        )}
+        {post.author.length > 4 && (
+          <p className="text-gray-500 mb-5">By {post.author}</p>
+        )}
         <div className="post-content prose prose-lg text-gray-800">
-          <div dangerouslySetInnerHTML={{ __html: contentHtml }} />
+          <ReactMarkdown
+            components={components}
+            rehypePlugins={[rehypeRaw, decodeEntitiesPlugin]}
+          >
+            {post.content}
+          </ReactMarkdown>
+          {/* <div dangerouslySetInnerHTML={{ __html: contentHtml }} /> */}
         </div>
       </div>
     </Layout>

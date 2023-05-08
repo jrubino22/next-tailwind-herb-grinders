@@ -10,10 +10,13 @@ import SubProduct from '../../models/SubProduct';
 import db from '../../utils/db';
 import { Store } from '../../utils/Store';
 import Gallery from '../../components/Gallery';
-import MarkdownIt from 'markdown-it';
+// import MarkdownIt from 'markdown-it';
 import { Disclosure } from '@headlessui/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
+import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
+import { decodeEntitiesPlugin } from '../../utils/utils';
 
 export default function ProductScreen(props) {
   const { product } = props;
@@ -27,34 +30,44 @@ export default function ProductScreen(props) {
       </Layout>
     );
   }
-// eslint-disable-next-line react-hooks/rules-of-hooks
-const [selectedOptions, setSelectedOptions] = useState(
-  subproducts.length > 0
-    ? product.options.reduce((options, option) => {
-        return { ...options, [option.name]: option.values[0] };
-      }, {})
-    : {}
-);
 
-// eslint-disable-next-line react-hooks/rules-of-hooks
-const findMatchingSubProduct = useCallback(() => {
-  if (subproducts.length === 0) {
-    return null;
-  }
+  const components = {
+    html: ({ node, ...props }) => {
+      return <div dangerouslySetInnerHTML={{ __html: node.data }} {...props} />;
+    },
+  };
 
-  const matchingSubProduct = subproducts.find((subproduct) => {
-    const selectedOptionsObj = subproduct.selectedOptions.reduce((options, option) => {
-      return { ...options, [option.name]: option.value };
-    }, {});
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const [selectedOptions, setSelectedOptions] = useState(
+    subproducts.length > 0
+      ? product.options.reduce((options, option) => {
+          return { ...options, [option.name]: option.values[0] };
+        }, {})
+      : {}
+  );
 
-    return Object.entries(selectedOptions).every(
-      ([key, value]) => selectedOptionsObj[key] === value
-    );
-  });
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const findMatchingSubProduct = useCallback(() => {
+    if (subproducts.length === 0) {
+      return null;
+    }
 
-  return matchingSubProduct || subproducts[0];
-}, [subproducts, selectedOptions]);
-  
+    const matchingSubProduct = subproducts.find((subproduct) => {
+      const selectedOptionsObj = subproduct.selectedOptions.reduce(
+        (options, option) => {
+          return { ...options, [option.name]: option.value };
+        },
+        {}
+      );
+
+      return Object.entries(selectedOptions).every(
+        ([key, value]) => selectedOptionsObj[key] === value
+      );
+    });
+
+    return matchingSubProduct || subproducts[0];
+  }, [subproducts, selectedOptions]);
+
   const matchingSubProduct = findMatchingSubProduct();
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [selectedSubProduct, setSelectedSubProduct] = useState(
@@ -68,8 +81,8 @@ const findMatchingSubProduct = useCallback(() => {
   const [selectedSubProductPrice, setSelectedSubProductPrice] = useState(
     matchingSubProduct ? matchingSubProduct.price : null
   );
- // eslint-disable-next-line react-hooks/rules-of-hooks
- const [selectedSubProductImage, setSelectedSubProductImage] = useState(null);
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const [selectedSubProductImage, setSelectedSubProductImage] = useState(null);
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [quantityToAdd, setQuantityToAdd] = useState(1);
 
@@ -78,25 +91,27 @@ const findMatchingSubProduct = useCallback(() => {
       ? selectedSubProductStock
       : product.countInStock;
 
-      // const handleOptionChange = (optionName, value) => {
-      //   setSelectedOptions((prevSelectedOptions) => ({
-      //     ...prevSelectedOptions,
-      //     [optionName]: value,
-      //   }));
-      // };
+  // const handleOptionChange = (optionName, value) => {
+  //   setSelectedOptions((prevSelectedOptions) => ({
+  //     ...prevSelectedOptions,
+  //     [optionName]: value,
+  //   }));
+  // };
 
-      const changeOption = (optionName, optionValue) => {
-        setSelectedOptions({ ...selectedOptions, [optionName]: optionValue });
-      };
+  const changeOption = (optionName, optionValue) => {
+    setSelectedOptions({ ...selectedOptions, [optionName]: optionValue });
+  };
 
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      useEffect(() => {
-        const updatedMatchingSubProduct = findMatchingSubProduct();
-        setSelectedSubProduct(updatedMatchingSubProduct._id);
-        setSelectedSubProductStock(updatedMatchingSubProduct.countInStock);
-        setSelectedSubProductPrice(updatedMatchingSubProduct.price);
-        setSelectedSubProductImage(updatedMatchingSubProduct.image);
-      }, [findMatchingSubProduct, selectedOptions]);
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    if (subproducts.length > 0) {
+      const updatedMatchingSubProduct = findMatchingSubProduct();
+      setSelectedSubProduct(updatedMatchingSubProduct._id);
+      setSelectedSubProductStock(updatedMatchingSubProduct.countInStock);
+      setSelectedSubProductPrice(updatedMatchingSubProduct.price);
+      setSelectedSubProductImage(updatedMatchingSubProduct.image);
+    }
+  }, [findMatchingSubProduct, selectedOptions, subproducts]);
 
   // const changeVariant = (id, price, image, stock) => {
   //   setSelectedSubProduct(id);
@@ -114,7 +129,6 @@ const findMatchingSubProduct = useCallback(() => {
       ? parseInt(existItem.quantity) + parseInt(quantityToAdd)
       : parseInt(quantityToAdd);
     const { data } = await axios.get(`/api/subproducts/${selectedSubProduct}`);
-
 
     if (data.countInStock < quantity) {
       return toast.error('Sorry. Product is out of stock');
@@ -139,10 +153,10 @@ const findMatchingSubProduct = useCallback(() => {
     router.push('/cart');
   };
 
-  const md = new MarkdownIt();
+  // const md = new MarkdownIt();
 
-  const features = md.render(product.features);
-  const descrip = md.render(product.description);
+  // const features = md.render(product.features);
+  // const descrip = md.render(product.description);
 
   return (
     <Layout title={product.name} metaDesc={product.metaDesc}>
@@ -162,34 +176,38 @@ const findMatchingSubProduct = useCallback(() => {
           <ul>
             <div className="mb-5">
               <li>
-                <h1 className="text-2xl font-bold mb-5">{product.name}</h1>
+                <h1 className="text-2xl mb-5">{product.name}</h1>
               </li>
 
               <li className="text-md">
                 <span className="font-bold">Brand:</span> {product.brand}
               </li>
             </div>
-            {product.options && product.options.length > 0 && product.options.map((option, index) => (
-                  <div key={index}>
-                    <h3 className="font-bold">{option.name}</h3>
-                    <select
-  value={selectedOptions[option.name] || ''}
-  onChange={(e) => changeOption(option.name, e.target.value)}
->
-  {option.values.map((value, idx) => (
-    <option key={idx} value={value}>
-      {value}
-    </option>
-  ))}
-</select>
-                  </div>
-                ))}
+            {product.options &&
+              product.options.length > 0 &&
+              product.options.map((option, index) => (
+                <div key={index}>
+                  <h3 className="font-bold">{option.name}</h3>
+                  <select
+                    value={selectedOptions[option.name] || ''}
+                    onChange={(e) => changeOption(option.name, e.target.value)}
+                  >
+                    {option.values.map((value, idx) => (
+                      <option key={idx} value={value}>
+                        {value}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ))}
             <hr></hr>
             <div className="my-5 hidden md:block">
-              <div
-                className="my-5 prod-description"
-                dangerouslySetInnerHTML={{ __html: features }}
-              ></div>
+              <ReactMarkdown
+                components={components}
+                rehypePlugins={[rehypeRaw, decodeEntitiesPlugin]}
+              >
+                {product.features}
+              </ReactMarkdown>
             </div>
           </ul>
         </div>
@@ -272,10 +290,12 @@ const findMatchingSubProduct = useCallback(() => {
                   />
                 </Disclosure.Button>
                 <Disclosure.Panel className="px-4 pt-4 pb-2 text-gray-700">
-                  <div
-                    className="prose prod-description"
-                    dangerouslySetInnerHTML={{ __html: features }}
-                  ></div>
+                  <ReactMarkdown
+                    components={components}
+                    rehypePlugins={[rehypeRaw, decodeEntitiesPlugin]}
+                  >
+                    {product.features}
+                  </ReactMarkdown>
                 </Disclosure.Panel>
               </>
             )}
@@ -293,10 +313,12 @@ const findMatchingSubProduct = useCallback(() => {
                   />
                 </Disclosure.Button>
                 <Disclosure.Panel className="px-4 pt-4 pb-2 text-gray-700">
-                  <div
-                    className="prose prod-description"
-                    dangerouslySetInnerHTML={{ __html: descrip }}
-                  ></div>
+                  <ReactMarkdown
+                    components={components}
+                    rehypePlugins={[rehypeRaw, decodeEntitiesPlugin]}
+                  >
+                    {product.description}
+                  </ReactMarkdown>
                 </Disclosure.Panel>
               </>
             )}
@@ -307,10 +329,12 @@ const findMatchingSubProduct = useCallback(() => {
           <hr className="my-10 border-t border-gray-300" />
           <div className="mt-10">
             <h2 className="text-xl font-semibold mb-3">Product Description</h2>
-            <div
-              className="prod-description prose md:prose-lg lg:prose-xl text-gray-700"
-              dangerouslySetInnerHTML={{ __html: descrip }}
-            ></div>
+            <ReactMarkdown
+              components={components}
+              rehypePlugins={[rehypeRaw, decodeEntitiesPlugin]}
+            >
+              {product.description}
+            </ReactMarkdown>
           </div>
         </div>
       </div>

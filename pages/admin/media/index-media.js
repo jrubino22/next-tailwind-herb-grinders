@@ -16,7 +16,8 @@ const AdminIndexFeatured = () => {
   useEffect(() => {
     const fetchImages = async () => {
       const { data } = await axios.get('/api/admin/index-featured');
-      setImages(data);
+      const sortedData = data.sort((a, b) => a.order - b.order);
+      setImages(sortedData);
     };
     fetchImages();
   }, []);

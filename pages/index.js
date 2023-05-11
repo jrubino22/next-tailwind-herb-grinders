@@ -40,10 +40,10 @@ export default function Home({ products, banners, indexFeatured }) {
   );
   console.log(sortedBanners, HomeCarousel)
   return (
-    <Layout title="HerbGrinders" applyMarginPadding={false}>
+    <Layout title="HerbGrinders">
       {/* <HomeCarousel banners={sortedBanners} /> */}
       
-      <div className="my-6 px-4 md:px-8 lg:px-64">
+      <div className="my-6">
       <IndexFeaturedComponent images={indexFeatured} />
         <h2 className="h2 my-4 font-bold text-xl ml-5">New Grinders</h2>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-4">

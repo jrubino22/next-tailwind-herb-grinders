@@ -65,8 +65,44 @@ a {
   background-color: #ffffff;
 }
 
-.header-text-color {
-  color: #09600F;
+.color-pal-1 {
+  color: #09600F
+}
+
+.color-pal-2 {
+  color: #0F0962;
+}
+
+.color-pal-3 {
+  color: #1C6681;
+}
+
+.color-pal-4 {
+  color: #BFBF7A
+}
+
+.color-pal-5 {
+  color: #F99B1D
+}
+
+.color-pal-1-bg {
+  background-color: #09600F
+}
+
+.color-pal-2-bg {
+  background-color: #0F0962;
+}
+
+.color-pal-3-bg {
+  background-color: #1C6681;
+}
+
+.color-pal-4-bg {
+  background-color: #BFBF7A
+}
+
+.color-pal-5-bg {
+  background-color: #F99B1D
 }
 
 .navbar-style {
@@ -75,7 +111,10 @@ a {
   color: #ffffff !important;
 }
 
-
+.csticky {
+  position: sticky;
+  top: 0;
+}
 
 .search-input {
   flex-grow: 1;

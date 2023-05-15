@@ -16,9 +16,6 @@ export default function PlaceOrderScreen() {
   const { cart } = state;
   const { cartItems, shippingAddress, paymentMethod } = cart;
   const guestSessionId = Cookies.get('guestSessionId');
-  const BIGCOMMERCE_STORE_HASH = process.env.BIGCOMMERCE_STORE_HASH;
-  const BIGCOMMERCE_CLIENT_ID = process.env.BIGCOMMERCE_CLIENT_ID;
-  const BIGCOMMERCE_ACCESS_TOKEN = process.env.BIGCOMMERCE_ACCESS_TOKEN;
 
   const { data: session } = useSession();
 
@@ -133,14 +130,11 @@ export default function PlaceOrderScreen() {
         ]
       };
   
-      const bigCommerceOrderResponse = await axios.post(`https://api.bigcommerce.com/stores/${BIGCOMMERCE_STORE_HASH}/v2/orders`, bigCommerceOrderData, {
-        headers: {
-          'X-Auth-Client': BIGCOMMERCE_CLIENT_ID,
-          'X-Auth-Token': BIGCOMMERCE_ACCESS_TOKEN,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
-      });
+      const bigCommerceOrderResponse = await axios.post('/api/bigcommerce/orders', bigCommerceOrderData);
+
+      if (!bigCommerceOrderResponse.data) {
+        throw new Error('Order could not be completed');
+      }
   
       if (!bigCommerceOrderResponse.data) {
         throw new Error('Order could not be completed');

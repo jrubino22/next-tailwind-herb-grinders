@@ -80,7 +80,10 @@ function OrderScreen() {
   async function deliverOrderHandler() {
     try {
       dispatch({ type: 'DELIVER_REQUEST' });
-      const { data } = await axios.put(`/api/admin/orders/${order._id}/deliver`, {});
+      const { data } = await axios.put(
+        `/api/admin/orders/${order._id}/deliver`,
+        {}
+      );
       dispatch({ type: 'DELIVER_SUCCESS', payload: data });
       toast.success('Order has been delivered');
     } catch (err) {
@@ -102,9 +105,9 @@ function OrderScreen() {
             <div className="card p-5">
               <h2 className="mb-2 text-lg">Shipping Address</h2>
               <div>
-                {shippingAddress.fullName}, {shippingAddress.address},{' '}
-                {shippingAddress.city}, {shippingAddress.postalCode},{' '}
-                {shippingAddress.country}
+                {shippingAddress.firstName}, {shippingAddress.lastName}{' '}
+                {shippingAddress.address}, {shippingAddress.city},{' '}
+                {shippingAddress.postalCode}, {shippingAddress.country}
               </div>
               {isDelivered ? (
                 <div className="alert-success">Delivered at {deliveredAt}</div>
@@ -189,17 +192,19 @@ function OrderScreen() {
                     <div>${totalPrice}</div>
                   </div>
                 </li>
-                {session?.user?.isAdmin && order.isPaid && !order.isDelivered && (
-                  <li>
-                    {loadingDeliver && <div>Loading...</div>}
-                    <button
-                      className="primary-button w-full"
-                      onClick={deliverOrderHandler}
-                    >
-                      Order Delivered
-                    </button>
-                  </li>
-                )}
+                {session?.user?.isAdmin &&
+                  order.isPaid &&
+                  !order.isDelivered && (
+                    <li>
+                      {loadingDeliver && <div>Loading...</div>}
+                      <button
+                        className="primary-button w-full"
+                        onClick={deliverOrderHandler}
+                      >
+                        Order Delivered
+                      </button>
+                    </li>
+                  )}
               </ul>
             </div>
           </div>
@@ -208,6 +213,5 @@ function OrderScreen() {
     </Layout>
   );
 }
-
 
 export default OrderScreen;

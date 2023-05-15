@@ -75,36 +75,37 @@ export default function PlaceOrderScreen() {
       if (!session) {
         const guestSessionId = Cookies.get('guestSessionId');
         orderData = { ...orderData, guestSessionId };
+        console.log(orderData)
       }
 
       const bigCommerceOrderData = {
         customer_id: 0,
         billing_address: {
-          first_name: 'John',
-          last_name: 'Doe',
-          street_1: '123 Elm St',
-          street_2: '',
-          city: 'Austin',
-          state: 'Texas',
-          zip: '78758',
-          country: 'United States',
+          first_name: shippingAddress.firstName,
+          last_name: shippingAddress.lastName,
+          street_1: shippingAddress.addressLine1,
+          street_2: shippingAddress.addressLine2 ? shippingAddress.addressLine2 : '',
+          city: shippingAddress.city,
+          state: shippingAddress.state,
+          zip: shippingAddress.postalCode,
+          country: shippingAddress.country,
           country_iso2: 'US',
-          phone: '',
-          email: 'john.doe@example.com',
+          phone: shippingAddress.phoneNum,
+          email: shippingAddress.email,
         },
         shipping_addresses: [
           {
-            first_name: 'John',
-            last_name: 'Doe',
-            street_1: '123 Elm St',
-            street_2: '',
-            city: 'Austin',
-            state: 'Texas',
-            zip: '78758',
-            country: 'United States',
+            first_name: shippingAddress.firstName,
+            last_name: shippingAddress.lastName,
+            street_1: shippingAddress.addressLine1,
+            street_2: shippingAddress.addressLine2 ? shippingAddress.addressLine2 : '',
+            city: shippingAddress.city,
+            state: shippingAddress.state,
+            zip: shippingAddress.postalCode,
+            country: shippingAddress.country,
             country_iso2: 'US',
-            phone: '',
-            email: 'john.doe@example.com',
+            phone: shippingAddress.phoneNum,
+            email: shippingAddress.email,
           },
         ],
         products: [
@@ -132,7 +133,7 @@ export default function PlaceOrderScreen() {
 
       const custName = session
         ? session.user.firstName
-        : shippingAddress.fullName;
+        : shippingAddress.firstName;
       const custEmail = session ? session.user.email : shippingAddress.email;
       const emailData = {
         order: data._id,
@@ -174,7 +175,8 @@ export default function PlaceOrderScreen() {
             <div className="card p-5">
               <h2 className="mb-2 text-lg">Shipping Address</h2>
               <div>
-                {shippingAddress.fullName}, {shippingAddress.addressLine1},{' '}
+                {shippingAddress.firstName} {shippingAddress.lastName},{' '}
+                {shippingAddress.addressLine1},{' '}
                 {shippingAddress.addressLine2
                   ? `${shippingAddress.addressLine2}, `
                   : ''}{' '}

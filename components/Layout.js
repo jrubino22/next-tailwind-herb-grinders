@@ -77,7 +77,7 @@ export default function Layout({
         </div>
        <div className="flex flex-col bg-white csticky z-10">
           <header className="header-bg shadow-md">
-            <nav className="container mx-auto flex h-16 px-6 py-10 justify-between items-center">
+            <nav className="container mx-auto flex h-16 px-6 py-2 justify-between items-center">
               {/* Hamburger menu */}
               <button
                 className="md:hidden"

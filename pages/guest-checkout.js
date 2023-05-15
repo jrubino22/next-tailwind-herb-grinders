@@ -33,7 +33,8 @@ export default function ShippingScreen() {
   }
 
   const submitHandler = ({
-    fullName,
+    firstName,
+    lastName,
     email,
     addressLine1,
     addressLine2,
@@ -50,7 +51,8 @@ export default function ShippingScreen() {
     dispatch({
       type: 'SAVE_SHIPPING_ADDRESS',
       payload: {
-        fullName,
+        firstName,
+        lastName,
         email,
         addressLine1,
         addressLine2,
@@ -66,7 +68,8 @@ export default function ShippingScreen() {
       JSON.stringify({
         ...cart,
         shippingAddress: {
-          fullName,
+          firstName,
+          lastName,
           email,
           phoneNum: phone,
           addressLine1,
@@ -113,17 +116,31 @@ export default function ShippingScreen() {
       >
         <h1 className="mb-4 text-xl">Guest Checkout</h1>
         <div className="mb-4">
-          <label htmlFor="fullName">Full Name</label>
+          <label htmlFor="firstName">First Name</label>
           <input
             className="w-full"
-            id="fullName"
+            id="firstName"
             autoFocus
-            {...register('fullName', {
+            {...register('firstName', {
               required: 'Please enter first name',
             })}
           />
-          {errors.fullName && (
-            <div className="text-red-500">{errors.fullName.message}</div>
+          {errors.firstName && (
+            <div className="text-red-500">{errors.firstName.message}</div>
+          )}
+        </div>
+        <div className="mb-4">
+          <label htmlFor="lastName">Last Name</label>
+          <input
+            className="w-full"
+            id="lastName"
+            autoFocus
+            {...register('lastName', {
+              required: 'Please enter last name',
+            })}
+          />
+          {errors.lastName && (
+            <div className="text-red-500">{errors.lastName.message}</div>
           )}
         </div>
         <div className="mb-4">

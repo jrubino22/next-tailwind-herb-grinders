@@ -28,15 +28,6 @@ export default function ShippingScreen() {
   // const { shippingAddress } = cart;
   const router = useRouter();
 
-  // useEffect(() => {
-  //   setValue('fullName', shippingAddress.fullName);
-  //   setValue('addressLine1', shippingAddress.addressLine1);
-  //   setValue('addressLine2', shippingAddress.addressLine2);
-  //   setValue('city', shippingAddress.city);
-  //   setValue('state', shippingAddress.state);
-  //   setValue('postalCode', shippingAddress.postalCode);
-  //   setValue('country', shippingAddress.country);
-  // }, [setValue, shippingAddress]);
 
   useEffect(() => {
     const fetchUserAddresses = async () => {
@@ -88,7 +79,7 @@ export default function ShippingScreen() {
                 setShowForm(false);
               }}
             >
-              <div className="address-name">{address.fullName}</div>
+              <div className="address-name">{address.firstName} {' '} {address.lastName}</div>
               <div className="address-line">
                 {address.addressLine1}
                 {address.addressLine2 && `, ${address.addressLine2}`}
@@ -126,14 +117,15 @@ export default function ShippingScreen() {
   };
 
   const submitHandler = async (
-    { fullName, addressLine1, addressLine2, state, city, postalCode, country },
+    { firstName, lastName, addressLine1, addressLine2, state, city, postalCode, country },
     e
   ) => {
     e.preventDefault();
     dispatch({
       type: 'SAVE_SHIPPING_ADDRESS',
       payload: {
-        fullName,
+        firstName,
+        lastName,
         email: session.user.email,
         phoneNum: session.user.phoneNum,
         addressLine1,
@@ -149,7 +141,8 @@ export default function ShippingScreen() {
       JSON.stringify({
         ...cart,
         shippingAddress: {
-          fullName,
+          firstName,
+          lastName,
           email: session.user.email,
           phoneNum: session.user.phoneNum,
           addressLine1,
@@ -163,7 +156,8 @@ export default function ShippingScreen() {
     );
     if (e.target.saveAddress.checked) {
       const addressData = {
-        fullName,
+        firstName,
+        lastName,
         addressLine1,
         addressLine2,
         state,
@@ -235,17 +229,31 @@ export default function ShippingScreen() {
         >
           <h2 className="mb-4 text-xl">Enter Shipping Address</h2>
           <div className="mb-4">
-            <label htmlFor="fullName">Full Name</label>
+            <label htmlFor="firstName">First Name</label>
             <input
               className="w-full"
-              id="fullName"
+              id="firstName"
               autoFocus
-              {...register('fullName', {
+              {...register('firstName', {
                 required: 'Please enter full name',
               })}
             />
-            {errors.fullName && (
-              <div className="text-red-500">{errors.fullName.message}</div>
+            {errors.firstName && (
+              <div className="text-red-500">{errors.firstName.message}</div>
+            )}
+          </div>
+          <div className="mb-4">
+            <label htmlFor="lastName">Last Name</label>
+            <input
+              className="w-full"
+              id="lastName"
+              autoFocus
+              {...register('lastName', {
+                required: 'Please enter full name',
+              })}
+            />
+            {errors.lastName && (
+              <div className="text-red-500">{errors.lastName.message}</div>
             )}
           </div>
           <div className="mb-4">

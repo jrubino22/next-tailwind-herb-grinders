@@ -31,7 +31,8 @@ const postHandler = async (req, res) => {
     await db.connect();
     const user = await User.findById(req.query.id); 
     const newAddress = {
-      fullName: req.body.fullName,
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
       addressLine1: req.body.addressLine1,
       addressLine2: req.body.addressLine2,
       city: req.body.city,

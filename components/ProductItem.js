@@ -36,13 +36,11 @@ export default function ProductItem({ product, addToCartHandler, fullVars }) {
             : `$${product.price}`}
         </p>
         {fullVariants && fullVariants.length > 0 ? (
-          <a
-            type="button"
-            href={`product/${product.slug}`}
-            className="primary-button view-options-btn"
-          >
-            View Options
-          </a>
+          <Link href={`product/${product.slug}`}>
+            <a type="button" className="primary-button view-options-btn">
+              View Options
+            </a>
+          </Link>
         ) : (
           <button
             className="primary-button"

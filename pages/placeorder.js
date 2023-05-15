@@ -124,8 +124,6 @@ export default function PlaceOrderScreen() {
           {
             "product_id": 112,
             "quantity": 1,
-            "price_inc_tax": 100.0,
-            "name": 'grinder-5'
           }
         ]
       };

@@ -9,22 +9,26 @@ export default async function handler(req, res) {
 
   if (method === 'POST') {
     try {
-      const response = await axios.post(`https://api.bigcommerce.com/stores/${BIGCOMMERCE_STORE_HASH}/v2/orders`, bigCommerceOrderData, {
-        headers: {
-          'X-Auth-Client': BIGCOMMERCE_CLIENT_ID,
-          'X-Auth-Token': BIGCOMMERCE_ACCESS_TOKEN,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-      });
-  
+      const response = await axios.post(
+        `https://api.bigcommerce.com/stores/${BIGCOMMERCE_STORE_HASH}/v2/orders`,
+        bigCommerceOrderData,
+        {
+          headers: {
+            'X-Auth-Client': BIGCOMMERCE_CLIENT_ID,
+            'X-Auth-Token': BIGCOMMERCE_ACCESS_TOKEN,
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+        }
+      );
+
       if (!response.data) {
         throw new Error('Order could not be completed');
       }
 
       return res.status(200).json(response.data);
-
     } catch (error) {
+      console.log(BIGCOMMERCE_STORE_HASH, error.message, bigCommerceOrderData);
       return res.status(500).json({ error: error.message });
     }
   } else {

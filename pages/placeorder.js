@@ -77,6 +77,57 @@ export default function PlaceOrderScreen() {
         orderData = { ...orderData, guestSessionId };
       }
 
+      const bigCommerceOrderData = {
+        customer_id: 0,
+        billing_address: {
+          first_name: 'John',
+          last_name: 'Doe',
+          street_1: '123 Elm St',
+          street_2: '',
+          city: 'Austin',
+          state: 'Texas',
+          zip: '78758',
+          country: 'United States',
+          country_iso2: 'US',
+          phone: '',
+          email: 'john.doe@example.com',
+        },
+        shipping_addresses: [
+          {
+            first_name: 'John',
+            last_name: 'Doe',
+            street_1: '123 Elm St',
+            street_2: '',
+            city: 'Austin',
+            state: 'Texas',
+            zip: '78758',
+            country: 'United States',
+            country_iso2: 'US',
+            phone: '',
+            email: 'john.doe@example.com',
+          },
+        ],
+        products: [
+          {
+            product_id: 112,
+            quantity: 1,
+          },
+        ],
+      };
+
+      const bigCommerceOrderResponse = await axios.post(
+        '/api/bigcommerce/orders',
+        bigCommerceOrderData
+      );
+
+      if (!bigCommerceOrderResponse.data) {
+        throw new Error('Order could not be completed');
+      }
+
+      if (!bigCommerceOrderResponse.data) {
+        throw new Error('Order could not be completed');
+      }
+
       const { data } = await axios.post('/api/orders', orderData);
 
       const custName = session
@@ -89,54 +140,6 @@ export default function PlaceOrderScreen() {
         name: custName,
         orderItems: modifiedCartItems,
       };
-
-      const bigCommerceOrderData = {
-        "customer_id": 0,
-        "billing_address": {
-          "first_name": "John",
-          "last_name": "Doe",
-          "street_1": "123 Elm St",
-          "street_2": "",
-          "city": "Austin",
-          "state": "Texas",
-          "zip": "78758",
-          "country": "United States",
-          "country_iso2": "US",
-          "phone": "",
-          "email": "john.doe@example.com"
-        },
-        "shipping_addresses": [
-          {
-            "first_name": "John",
-            "last_name": "Doe",
-            "street_1": "123 Elm St",
-            "street_2": "",
-            "city": "Austin",
-            "state": "Texas",
-            "zip": "78758",
-            "country": "United States",
-            "country_iso2": "US",
-            "phone": "",
-            "email": "john.doe@example.com"
-          }
-        ],
-        "products": [
-          {
-            "product_id": 112,
-            "quantity": 1,
-          }
-        ]
-      };
-  
-      const bigCommerceOrderResponse = await axios.post('/api/bigcommerce/orders', bigCommerceOrderData);
-
-      if (!bigCommerceOrderResponse.data) {
-        throw new Error('Order could not be completed');
-      }
-  
-      if (!bigCommerceOrderResponse.data) {
-        throw new Error('Order could not be completed');
-      }
 
       await axios.post('api/email/confirm-order', emailData);
 

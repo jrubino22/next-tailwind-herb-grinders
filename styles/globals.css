@@ -6,7 +6,7 @@ html,
 body {
   padding: 0;
   margin: 0;
-  font-family: 'Noto_Serif', Georgia, 'Times New Roman', serif;
+  font-family: 'ProzaLibre', Georgia, 'Times New Roman', serif;
   /* Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue,  sans-serif, Oxygen, -apple-system, BlinkMacSystemFont, Segoe UI, ; */
 }
 
@@ -288,6 +288,10 @@ textarea {
 
 .description-prod p {
   margin-bottom: 1.1em
+}
+
+.blog-p p {
+  margin-bottom: 1rem
 }
 
 input[type="text"],

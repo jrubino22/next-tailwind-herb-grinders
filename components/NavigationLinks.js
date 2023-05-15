@@ -17,14 +17,14 @@ const rightMenuItems = [
 
 const NavigationMenu = () => {
   return (
-    <div className="navbar-style">
-      <nav className="container mx-auto px-4 py-2">
-        <div className="flex justify-between">
+    <div >
+      <nav className="container mx-auto px-4 py-1">
+        <div className="flex justify-between text-sm">
           <ul className="flex items-center space-x-4 ml-5">
             {leftMenuItems.map((item, index) => (
               <li key={index}>
                 <Link href={item.link}>
-                  <a className="font-weight-600 hover:text-blue-600">
+                  <a className="hover:text-blue-600">
                     {item.title}
                   </a>
                 </Link>
@@ -35,7 +35,7 @@ const NavigationMenu = () => {
             {rightMenuItems.map((item, index) => (
               <li key={index}>
                 <Link href={item.link}>
-                  <a className="font-weight-600 hover:text-blue-600">
+                  <a className="hover:text-blue-600">
                     {item.title}
                   </a>
                 </Link>

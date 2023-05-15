@@ -68,7 +68,7 @@ const MobileNavigationMenu = ({ isOpen, setMobileMenuOpen }) => {
                 <li key={index}>
                   <Link href={item.link}>
                     <a
-                      className="block w-full p-4 text-xl font-semibold text-gray-700 hover:bg-gray-100"
+                      className="block w-full p-4 text-gray-700 hover:bg-gray-100"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       {item.title}

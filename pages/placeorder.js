@@ -15,9 +15,12 @@ export default function PlaceOrderScreen() {
   const { state, dispatch } = useContext(Store);
   const { cart } = state;
   const { cartItems, shippingAddress, paymentMethod } = cart;
-  const guestSessionId = Cookies.get('guestSessionId')
+  const guestSessionId = Cookies.get('guestSessionId');
+  const BIGCOMMERCE_STORE_HASH = process.env.BIGCOMMERCE_STORE_HASH;
+  const BIGCOMMERCE_CLIENT_ID = process.env.BIGCOMMERCE_CLIENT_ID;
+  const BIGCOMMERCE_ACCESS_TOKEN = process.env.BIGCOMMERCE_ACCESS_TOKEN;
 
-  const { data: session } = useSession()
+  const { data: session } = useSession();
 
   const round2 = (num) => Math.round(num * 100 + Number.EPSILON) / 100;
 
@@ -39,15 +42,20 @@ export default function PlaceOrderScreen() {
 
   const [loading, setLoading] = useState(false);
 
-
-
   const placeOrderHandler = async () => {
     try {
       setLoading(true);
-        
-      const modifiedCartItems = cartItems.map(item => {
-        const imageUrl = item.images && item.images.length > 0 ? item.images[0].url : (item.image.url);
-        const itemName = item.name ? item.name : (item.parentName && item.variant) ? `${item.parentName} (${item.variant})` : 'Unknown';
+
+      const modifiedCartItems = cartItems.map((item) => {
+        const imageUrl =
+          item.images && item.images.length > 0
+            ? item.images[0].url
+            : item.image.url;
+        const itemName = item.name
+          ? item.name
+          : item.parentName && item.variant
+          ? `${item.parentName} (${item.variant})`
+          : 'Unknown';
 
         return {
           ...item,
@@ -64,8 +72,8 @@ export default function PlaceOrderScreen() {
         shippingPrice,
         taxPrice,
         totalPrice,
-        guestSessionId
-      }
+        guestSessionId,
+      };
 
       if (!session) {
         const guestSessionId = Cookies.get('guestSessionId');
@@ -74,16 +82,71 @@ export default function PlaceOrderScreen() {
 
       const { data } = await axios.post('/api/orders', orderData);
 
-      const custName = session ? session.user.firstName : shippingAddress.fullName;
+      const custName = session
+        ? session.user.firstName
+        : shippingAddress.fullName;
       const custEmail = session ? session.user.email : shippingAddress.email;
       const emailData = {
         order: data._id,
         email: custEmail,
         name: custName,
-        orderItems: modifiedCartItems
+        orderItems: modifiedCartItems,
+      };
+
+      const bigCommerceOrderData = {
+        "customer_id": 0,
+        "billing_address": {
+          "first_name": "John",
+          "last_name": "Doe",
+          "street_1": "123 Elm St",
+          "street_2": "",
+          "city": "Austin",
+          "state": "Texas",
+          "zip": "78758",
+          "country": "United States",
+          "country_iso2": "US",
+          "phone": "",
+          "email": "john.doe@example.com"
+        },
+        "shipping_addresses": [
+          {
+            "first_name": "John",
+            "last_name": "Doe",
+            "street_1": "123 Elm St",
+            "street_2": "",
+            "city": "Austin",
+            "state": "Texas",
+            "zip": "78758",
+            "country": "United States",
+            "country_iso2": "US",
+            "phone": "",
+            "email": "john.doe@example.com"
+          }
+        ],
+        "products": [
+          {
+            "product_id": 112,
+            "quantity": 1,
+            "price_inc_tax": 100.0,
+            "name": "Product Name"
+          }
+        ]
+      };
+  
+      const bigCommerceOrderResponse = await axios.post(`https://api.bigcommerce.com/stores/${BIGCOMMERCE_STORE_HASH}/v2/orders`, bigCommerceOrderData, {
+        headers: {
+          'X-Auth-Client': BIGCOMMERCE_CLIENT_ID,
+          'X-Auth-Token': BIGCOMMERCE_ACCESS_TOKEN,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+  
+      if (!bigCommerceOrderResponse.data) {
+        throw new Error('Order could not be completed');
       }
 
-      await axios.post('api/email/confirm-order', emailData)
+      await axios.post('api/email/confirm-order', emailData);
 
       setLoading(false);
       dispatch({ type: 'CART_CLEAR_ITEMS' });
@@ -116,10 +179,12 @@ export default function PlaceOrderScreen() {
             <div className="card p-5">
               <h2 className="mb-2 text-lg">Shipping Address</h2>
               <div>
-                {shippingAddress.fullName}, {shippingAddress.addressLine1},{' '} 
-                {shippingAddress.addressLine2 ? `${shippingAddress.addressLine2}, `: ''} {shippingAddress.city},
-                {shippingAddress.state}, {' '} {shippingAddress.postalCode},{' '}
-                {shippingAddress.country}
+                {shippingAddress.fullName}, {shippingAddress.addressLine1},{' '}
+                {shippingAddress.addressLine2
+                  ? `${shippingAddress.addressLine2}, `
+                  : ''}{' '}
+                {shippingAddress.city},{shippingAddress.state},{' '}
+                {shippingAddress.postalCode}, {shippingAddress.country}
               </div>
               <div>
                 <Link href="/shipping">Edit</Link>
@@ -150,13 +215,23 @@ export default function PlaceOrderScreen() {
                         <Link href={`/product/${item.slug}`}>
                           <a className="flex items-center">
                             <Image
-                              src={item.images ? item.images[0].url : item.image.url}
-                              alt={item.images ? item.images[0].altText : item.image.altText}
+                              src={
+                                item.images
+                                  ? item.images[0].url
+                                  : item.image.url
+                              }
+                              alt={
+                                item.images
+                                  ? item.images[0].altText
+                                  : item.image.altText
+                              }
                               width={50}
                               height={50}
                             ></Image>
                             &nbsp;
-                            {item.name ? item.name : `${item.parentName} (${item.variant})` }
+                            {item.name
+                              ? item.name
+                              : `${item.parentName} (${item.variant})`}
                           </a>
                         </Link>
                       </td>

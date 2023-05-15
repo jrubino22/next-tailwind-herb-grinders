@@ -70,7 +70,7 @@ export default function Layout({
 
       <ToastContainer position="bottom-center" limit={1} />
 
-        <div className="color-pal-5-bg text-center py-1">
+        <div className="color-pal-5-bg text-center ">
           <span className="color-pal-2 text-sm">
             Grand Opening Sale! 20% off will be applied at checkout
           </span>
@@ -87,7 +87,7 @@ export default function Layout({
                 <FontAwesomeIcon icon={faBars} className="w-6 h-6 text-white" />
               </button>
               <Link href="/">
-                <a className="text-3xl color-pal-2 ml-5">
+                <a className="text-3xl color-pal-1 ml-5">
                   <h1>HerbGrinders.com</h1>
                   {/* <Image src="https://res.cloudinary.com/ddsp9kgde/image/upload/v1679710428/zodiac_oasis_logo_blue_horizontal_emoedp.png" alt="" height="90" width="280" /> */}
                 </a>
@@ -115,7 +115,7 @@ export default function Layout({
                   <Link href="/cart">
                     <a className="p-2 md:mr-2">
                       {cartItemsCount > 0 && (
-                        <span className="ml-1 rounded-full bg-green-500 px-2 py-1 text-xs font-bold text-black">
+                        <span className="ml-1 rounded-full bg-green-500 px-2 py-1 text-xs text-black">
                           {cartItemsCount}
                         </span>
                       )}
@@ -212,7 +212,7 @@ export default function Layout({
             isOpen={mobileMenuOpen}
             setMobileMenuOpen={setMobileMenuOpen}
           />
-          <div className="hidden md:block navbar-style">
+          <div className="hidden md:block border-b text-white color-pal-2-bg">
             <NavigationMenu />
           </div>
         </div>
@@ -228,7 +228,7 @@ export default function Layout({
           <div className="container mx-auto px-4 md:px-8 lg:px-32 2xl:px-64">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start  justify-items-center">
               <div>
-                <h4 className="text-lg font-bold color-pal-1 mb-2">Products</h4>
+                <h4 className="text-lg color-pal-1 mb-2">Products</h4>
                 <ul className="text-sm">
                   <li>
                     <Link href="/category/rotary-grinders">
@@ -255,7 +255,7 @@ export default function Layout({
                 </Link>
               </div>
               <div>
-                <h4 className="text-lg font-bold mb-2 color-pal-1">
+                <h4 className="text-lg mb-2 color-pal-1">
                   Information
                 </h4>
                 <ul className="text-sm">

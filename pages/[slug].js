@@ -32,7 +32,7 @@ export default function PagePage({ page }) {
       <div className="container mx-auto px-4 md:px-8 lg:px-80">
         <h1 className="text-3xl mb-3">{page.title}</h1>
         {page.subtitle && (
-          <h2 className="text-xl font-semibold mb-5">{page.subtitle}</h2>
+          <h2 className="text-xl mb-5">{page.subtitle}</h2>
         )}
         <div className="page-content prose prose-lg text-gray-800 page-content">
           <ReactMarkdown

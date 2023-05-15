@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 import Layout from '../../../components/Layout';
 import { getError } from '../../../utils/errors';
 import WeightInputComponent from '../../../components/WeightInputComponent';
-
+/* eslint-disable react-hooks/exhaustive-deps */
 function reducer(state, action) {
   switch (action.type) {
     case 'FETCH_REQUEST':

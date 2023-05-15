@@ -84,7 +84,7 @@ export default function Layout({
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
                 {/* Hamburger icon */}
-                <FontAwesomeIcon icon={faBars} className="w-6 h-6 text-white" />
+                <FontAwesomeIcon icon={faBars} className="w-6 h-6 color-pal-2" />
               </button>
               <Link href="/">
                 <a className="text-3xl color-pal-1 ml-5">
@@ -178,7 +178,7 @@ export default function Layout({
                       <a className="p-2">
                         <FontAwesomeIcon
                           icon={faUser}
-                          className="w-6 h-6 text-white"
+                          className="w-6 h-6 color-pal-2"
                         />
                       </a>
                     </Link>

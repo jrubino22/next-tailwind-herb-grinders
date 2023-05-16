@@ -41,8 +41,7 @@ export default function Home({ products, banners, indexFeatured }) {
   console.log(sortedBanners, HomeCarousel)
   return (
     <Layout title="HerbGrinders">
-      {/* <HomeCarousel banners={sortedBanners} /> */}
-      
+      {/* <HomeCarousel banners={sortedBanners} /> */}      
       <div className="my-6">
       <IndexFeaturedComponent images={indexFeatured} />
         <h2 className="h2 my-4 font-bold text-xl ml-5">New Grinders</h2>

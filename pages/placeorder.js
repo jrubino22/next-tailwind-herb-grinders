@@ -75,7 +75,6 @@ export default function PlaceOrderScreen() {
       if (!session) {
         const guestSessionId = Cookies.get('guestSessionId');
         orderData = { ...orderData, guestSessionId };
-        console.log(orderData)
       }
 
       const bigCommerceOrderData = {

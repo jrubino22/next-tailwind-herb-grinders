@@ -342,8 +342,19 @@ export default function ProductScreen(props) {
   );
 }
 
-export async function getServerSideProps(context) {
-  const { params } = context;
+export async function getStaticPaths() {
+  await db.connect();
+  const products = await Product.find({}, { slug: 1 }).lean();
+  await db.disconnect();
+
+  const paths = products.map((product) => ({
+    params: { slug: product.slug },
+  }));
+
+  return { paths, fallback: 'blocking' };
+}
+
+export async function getStaticProps({ params }) {
   const { slug } = params;
 
   await db.connect();
@@ -358,6 +369,14 @@ export async function getServerSideProps(context) {
   }
 
   await db.disconnect();
+
+  if (!product) {
+    return {
+      notFound: true,
+      revalidate: 28800,
+    };
+  }
+
   return {
     props: {
       product: product
@@ -365,5 +384,6 @@ export async function getServerSideProps(context) {
         : null,
       subproducts: JSON.parse(JSON.stringify(productVariants)),
     },
+    revalidate: 28800,
   };
 }

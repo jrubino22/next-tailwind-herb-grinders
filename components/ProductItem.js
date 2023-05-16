@@ -11,14 +11,13 @@ export default function ProductItem({ product, addToCartHandler, fullVars }) {
         <a>
           <div
             className="rounded shadow relative overflow-hidden"
-            style={{ paddingTop: '75%' }}
           >
             <Image
               src={product.images[0].url}
               alt={product.images[0].altText}
-              layout="fill"
-              objectFit="cover"
-              className="absolute top-0 left-0"
+              layout="responsive"
+              height="600"
+              width="600"             
             />
           </div>
         </a>

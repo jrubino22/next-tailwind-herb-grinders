@@ -49,24 +49,18 @@ export default function BlogPostPage({ post }) {
   );
 }
 
-// This function runs at build time in production and 
-// generates the paths for all of your blog posts
 export async function getStaticPaths() {
   await db.connect();
   const posts = await BlogPost.find({}).lean();
   await db.disconnect();
 
-  // Generate the paths for getStaticProps
   const paths = posts.map((post) => ({
     params: { slug: post.slug },
   }));
 
-  // If a page is not generated at build time, it will result in a 404 page
   return { paths, fallback: false };
 }
 
-// This function runs at build time in production, and
-// whenever a request is made to a blog post path in development
 export async function getStaticProps({ params }) {
   await db.connect();
   const post = await BlogPost.findOne({ slug: params.slug }).lean();
@@ -82,9 +76,7 @@ export async function getStaticProps({ params }) {
     props: {
       post: db.convertDocToObj(post),
     },
-    // Next.js will attempt to re-generate the page:
-    // - When a request comes in
-    // - At most once every second (you can adjust this value)
-    revalidate: 1,
+
+    revalidate: 28800,
   };
 }

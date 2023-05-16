@@ -61,7 +61,8 @@ export default function Home({ products, banners, indexFeatured }) {
   );
 }
 
-export async function getServerSideProps() {
+
+export async function getStaticProps() {
   await db.connect();
   const products = await Product.find({ isActive: true }).lean();
   const banners = await Banner.find().lean();
@@ -83,12 +84,46 @@ export async function getServerSideProps() {
       products[i].fullVariants = null;
     }
   }
-
+  await db.disconnect()
   return {
     props: {
       products: JSON.parse(JSON.stringify(products.map(db.convertDocToObj))),
       banners: banners.map(db.convertDocToObj),
       indexFeatured: sortedIndexFeatured.map(db.convertDocToObj),
     },
+     revalidate: 28800,
   };
 }
+
+
+// export async function getServerSideProps() {
+//   await db.connect();
+//   const products = await Product.find({ isActive: true }).lean();
+//   const banners = await Banner.find().lean();
+//   const indexFeatured = await IndexFeatured.find().lean();
+
+//   const sortedIndexFeatured = indexFeatured.sort((a, b) => a.order - b.order);
+
+//   for (let i = 0; i < products.length; i++) {
+//     if (products[i].variants && products[i].variants.length > 0) {
+//       const productVariants = [];
+//       for (let j = 0; j < products[i].variants.length; j++) {
+//         const singleVariant = await SubProduct.findById(
+//           products[i].variants[j]
+//         ).lean();
+//         productVariants.push(singleVariant);
+//       }
+//       products[i].fullVariants = productVariants;
+//     } else {
+//       products[i].fullVariants = null;
+//     }
+//   }
+
+//   return {
+//     props: {
+//       products: JSON.parse(JSON.stringify(products.map(db.convertDocToObj))),
+//       banners: banners.map(db.convertDocToObj),
+//       indexFeatured: sortedIndexFeatured.map(db.convertDocToObj),
+//     },
+//   };
+// }

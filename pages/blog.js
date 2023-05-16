@@ -56,7 +56,7 @@ export default function BlogPage({ blogPosts, blogInfo }) {
   );
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   await db.connect();
   const blogPosts = await BlogPost.find().lean();
   const blogInfo = await Blog.findById('641b7f313c20b64cd274b04b').lean();
@@ -66,5 +66,6 @@ export async function getServerSideProps() {
       blogPosts: JSON.parse(JSON.stringify(blogPosts.map(db.convertDocToObj))),
       blogInfo: JSON.parse(JSON.stringify(db.convertDocToObj(blogInfo))),
     },
+    revalidate: 28800,
   };
 }

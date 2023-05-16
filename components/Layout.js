@@ -212,7 +212,7 @@ export default function Layout({
             isOpen={mobileMenuOpen}
             setMobileMenuOpen={setMobileMenuOpen}
           />
-          <div className="hidden md:block border-b text-white color-pal-2-bg">
+          <div className="hidden md:block  text-white color-pal-2-bg">
             <NavigationMenu />
           </div>
         </div>

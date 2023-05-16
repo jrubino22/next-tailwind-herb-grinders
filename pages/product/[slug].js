@@ -359,8 +359,17 @@ export async function getStaticProps({ params }) {
 
   await db.connect();
   const product = await Product.findOne({ slug }).lean();
+  
+  // Check for product existence before trying to access its properties
+  if (!product) {
+    await db.disconnect();
+    return {
+      notFound: true,
+      revalidate: 28800,
+    };
+  }
 
-  const productVariants = (await product.variants) ? [] : null;
+  let productVariants = [];
   if (product.variants) {
     for (let i = 0; i < product.variants.length; i++) {
       const singleVariant = await SubProduct.findById(product.variants[i]);
@@ -370,18 +379,9 @@ export async function getStaticProps({ params }) {
 
   await db.disconnect();
 
-  if (!product) {
-    return {
-      notFound: true,
-      revalidate: 28800,
-    };
-  }
-
   return {
     props: {
-      product: product
-        ? JSON.parse(JSON.stringify(db.convertDocToObj(product)))
-        : null,
+      product: JSON.parse(JSON.stringify(db.convertDocToObj(product))),
       subproducts: JSON.parse(JSON.stringify(productVariants)),
     },
     revalidate: 28800,

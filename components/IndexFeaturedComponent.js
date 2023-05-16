@@ -15,6 +15,7 @@ const IndexFeatured = ({ images }) => {
                 width="500"
                 alt={images[0].alt}
                 priority
+                fill
                 className="rounded-lg"
               />
             </Link>
@@ -28,6 +29,7 @@ const IndexFeatured = ({ images }) => {
                 width="500"
                 alt={images[1].alt}
                 priority
+                fill
                 className="rounded-lg"
               />
             </Link>
@@ -39,6 +41,7 @@ const IndexFeatured = ({ images }) => {
                 layout="responsive"
                 height="330"
                 width="500"
+                fill
                 alt={images[2].alt}
                 className="rounded-lg"
               />
@@ -55,6 +58,7 @@ const IndexFeatured = ({ images }) => {
                 width="500"
                 alt={images[3].alt}
                 priority
+                fill
                 className="rounded-lg"
               />
             </Link>
@@ -68,6 +72,7 @@ const IndexFeatured = ({ images }) => {
                 width="500"
                 alt={images[4].alt}
                 priority
+                fill
                 className="rounded-lg"
               />
             </Link>
@@ -83,6 +88,7 @@ const IndexFeatured = ({ images }) => {
                 width="500"
                 alt={images[5].alt}
                 priority
+                fill
                 className="rounded-lg"
               />
             </Link>
@@ -96,6 +102,7 @@ const IndexFeatured = ({ images }) => {
                 width="500"
                 alt={images[6].alt}
                 priority
+                fill
                 className="rounded-lg"
               />
             </Link>
@@ -107,6 +114,7 @@ const IndexFeatured = ({ images }) => {
                 layout="responsive"
                 height="688"
                 width="500"
+                fill
                 alt={images[7].alt}
                 className="rounded-lg"
               />

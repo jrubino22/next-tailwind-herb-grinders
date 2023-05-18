@@ -25,8 +25,8 @@ const ProductSchema = new mongoose.Schema(
     isActive: { type: Boolean, required: true, default: false },
     brand: { type: String, required: false, default: '' },
     sku: { type: String, required: false, default: '' },
-    rating: { type: Number, required: false, default: 0 },
-    numReviews: { type: Number, required: false, default: 0 },
+    rating: { type: Number, default: 0 },
+    numReviews: { type: Number, default: 0 },
     keepTrackInventory: { type: Boolean, required: false, default: false },
     countInStock: { type: Number, required: false, default: 0 },
     features: {

@@ -12,11 +12,13 @@ import { Store } from '../../utils/Store';
 import Gallery from '../../components/Gallery';
 // import MarkdownIt from 'markdown-it';
 import { Disclosure } from '@headlessui/react';
+import Reviews from '../../components/Reviews';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import { decodeEntitiesPlugin } from '../../utils/utils';
+import ReactStars from 'react-rating-stars-component';
 
 export default function ProductScreen(props) {
   const { product } = props;
@@ -153,11 +155,6 @@ export default function ProductScreen(props) {
     router.push('/cart');
   };
 
-  // const md = new MarkdownIt();
-
-  // const features = md.render(product.features);
-  // const descrip = md.render(product.description);
-
   return (
     <Layout title={product.name} metaDesc={product.metaDesc}>
       <div className="py-2">
@@ -179,9 +176,46 @@ export default function ProductScreen(props) {
                 <h1 className="text-2xl mb-5">{product.name}</h1>
               </li>
 
-              <li className="text-md">
-                <span className="font-bold">Brand:</span> {product.brand}
+              <li className="text-md mb-5 flex space-x-1">
+                <h2>Brand:</h2> <span>{product.brand}</span>
               </li>
+              <a href="#review-container">
+                {product.numReviews > 0 ?
+                <li className="text-lg">
+                  <div className="flex items-left space-x-2">
+                    <span className="color-pal-1">
+                      {product.rating.toFixed(1)}
+                    </span>
+                    <ReactStars
+                      isHalf={true}
+                      size={24}
+                      value={product.rating}
+                      edit={false}
+                      activeColor="#F99B1D"
+                    />
+                    <span className="color-pal-1">{`(${product.numReviews})`}</span>
+                  </div>
+                </li>
+                :
+
+                <li className="text-lg">
+                  <div className="flex items-left space-x-2">
+                    <span className="color-pal-1">
+                      {product.rating.toFixed(1)}
+                    </span>
+                    <ReactStars
+                      isHalf={true}
+                      size={24}
+                      value={product.rating}
+                      edit={false}
+                      activeColor="#F99B1D"
+                    />
+                    <span className="color-pal-1">No reviews yet</span>
+                  </div>
+                </li>
+                
+                }
+              </a>
             </div>
             {product.options &&
               product.options.length > 0 &&
@@ -218,8 +252,8 @@ export default function ProductScreen(props) {
               <div className="text-lg text-blue">
                 $
                 {subproducts.length > 0
-                  ? selectedSubProductPrice
-                  : product.price}
+                  ? selectedSubProductPrice.toFixed(2)
+                  : product.price.toFixed(2)}
               </div>
             </div>
             <div className="mb-4 flex justify-between">
@@ -228,10 +262,10 @@ export default function ProductScreen(props) {
                 className={
                   subproducts.length > 0
                     ? selectedSubProductStock > 0
-                      ? 'text-green-600'
+                      ? 'color-pal-1'
                       : 'text-red-500'
                     : product.countInStock > 0
-                    ? 'text-green-600'
+                    ? 'color-pal-1'
                     : 'text-red-500'
                 }
               >
@@ -337,6 +371,9 @@ export default function ProductScreen(props) {
             </ReactMarkdown>
           </div>
         </div>
+        <div id="review-container" className="md:col-start-2 md:col-span-8">
+          <Reviews productId={product._id} />
+        </div>
       </div>
     </Layout>
   );
@@ -359,7 +396,7 @@ export async function getStaticProps({ params }) {
 
   await db.connect();
   const product = await Product.findOne({ slug }).lean();
-  
+
   // Check for product existence before trying to access its properties
   if (!product) {
     await db.disconnect();

@@ -10,7 +10,7 @@ export default function ProductItem({ product, fullVars }) {
     <div className="card bg-slate-100">
       <div className="bg-slate-50">
         <Link href={`/product/${product.slug}`}>
-          <a>
+          <a aria-label={product.name}>
             <div className="rounded shadow relative overflow-hidden">
               <Image
                 src={product.images[0].url}
@@ -25,7 +25,7 @@ export default function ProductItem({ product, fullVars }) {
       </div>
       <div className="flex flex-col items-center justify-center p-5 bg-slate-100">
         <Link href={`/product/${product.slug}`}>
-          <a>
+          <a aria-label={product.name}>
             <h2 className="text-md mb-2">{product.name}</h2>
           </a>
         </Link>

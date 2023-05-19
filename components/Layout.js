@@ -80,7 +80,7 @@ export default function Layout({
             <nav className="container mx-auto flex h-16 px-6 py-2 justify-between items-center">
               {/* Hamburger menu */}
               <button
-                ari-label="mobile menu"
+                aria-label="mobile menu"
                 className="md:hidden"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
@@ -88,7 +88,7 @@ export default function Layout({
                 <FontAwesomeIcon icon={faBars} className="w-6 h-6 color-pal-2" />
               </button>
               <Link href="/">
-                <a className="text-lg sm:text-3xl color-pal-1 ml-5">
+                <a className="text-lg sm:text-3xl color-pal-1 ml-5" aria-label="home">
                   <h1>HerbGrinders.com</h1>
                   {/* <Image src="https://res.cloudinary.com/ddsp9kgde/image/upload/v1679710428/zodiac_oasis_logo_blue_horizontal_emoedp.png" alt="" height="90" width="280" /> */}
                 </a>
@@ -115,7 +115,7 @@ export default function Layout({
               <div>
                 <div className="flex items-center md:mr-5">
                   <Link href="/cart">
-                    <a className="pl-2 md:pr-2 md:mr-2">
+                    <a className="pl-2 md:pr-2 md:mr-2" aria-label="cart">
                       {cartItemsCount > 0 && (
                         <span className="ml-1 rounded-full bg-green-500 px-2 py-1 text-xs text-black">
                           {cartItemsCount}
@@ -178,7 +178,7 @@ export default function Layout({
                     </Menu>
                   ) : (
                     <Link href="/login">
-                      <a className="p-2">
+                      <a className="p-2" aria-label="login">
                         <FontAwesomeIcon
                           icon={faUser}
                           className="w-6 h-6 color-pal-2"
@@ -235,20 +235,20 @@ export default function Layout({
 
         <footer className="bg-gray-200 text-black py-8 mt-12">
           <div className="container mx-auto px-4 md:px-8 lg:px-32 2xl:px-64">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start  justify-items-center">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start md:justify-items-center">
               <div>
                 <h3 className="text-lg color-pal-1 mb-2">Products</h3>
                 <ul className="text-md">
-                  <li>
+                  <li className="py-1">
                     <Link href="/category/rotary-grinders">
-                      <a className="hover:text-orange-500 transition duration-200">
+                      <a className="hover:text-orange-500 transition duration-200" aria-label="rotary">
                         Rotary Grinders
                       </a>
                     </Link>
                   </li>
-                  <li>
+                  <li className="py-1">
                     <Link href="/category/grinder/cards">
-                      <a className="hover:text-orange-500 transition duration-200">
+                      <a className="hover:text-orange-500 transition duration-200" aria-label="cards">
                         Grinder Cards
                       </a>
                     </Link>
@@ -258,8 +258,8 @@ export default function Layout({
               </div>
               <div className="order-last md:order-first flex justify-center items-center">
                 <Link href="/">
-                  <a className="text-3xl color-pal-1 ml-5">
-                    <h1>HerbGrinders.com</h1>
+                  <a className="text-2xl md:text-3xl color-pal-1 ml-5" aria-label="home">
+                    <h2>HerbGrinders.com</h2>
                   </a>
                 </Link>
               </div>
@@ -268,23 +268,23 @@ export default function Layout({
                   Information
                 </h3>
                 <ul className="text-md">
-                  <li>
+                  <li className="py-1">
                     <Link href="/about-us">
-                      <a className="hover:text-orange-500 transition duration-200">
+                      <a className="hover:text-orange-500 transition duration-200" aria-label="about-us">
                         About Us
                       </a>
                     </Link>
                   </li>
-                  <li>
+                  <li className="py-1">
                     <Link href="/terms-and-conditions">
-                      <a className="hover:text-orange-500 transition duration-200">
+                      <a className="hover:text-orange-500 transition duration-200" aria-label="terms">
                         Terms & Conditions
                       </a>
                     </Link>
                   </li>
-                  <li>
+                  <li className="py-1">
                     <Link href="/privacy-policy">
-                      <a className="hover:text-orange-500 transition duration-200">
+                      <a className="hover:text-orange-500 transition duration-200" aria-label="privacy">
                         Privacy Policy
                       </a>
                     </Link>

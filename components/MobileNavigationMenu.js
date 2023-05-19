@@ -54,7 +54,7 @@ const MobileNavigationMenu = ({
             className="absolute top-0 left-0 w-3/4 max-w-sm h-full bg-white shadow-lg flex flex-col py-5 px-4"
           >
             <div className="flex items-center justify-between">
-              <h1 className="text-2xl color-pal-1 text-gray-900">
+              <h1 className="text-xl color-pal-1 text-gray-900">
                 HerbGrinders.com
               </h1>
               <button

@@ -43,7 +43,6 @@ export default function ShippingScreen() {
     postalCode,
     country,
   }) => {
-
     if (!phone || !isValidPhoneNumber(phone)) {
       setPhoneError('Please enter a valid phone number');
       return;
@@ -92,7 +91,6 @@ export default function ShippingScreen() {
       }),
       {}
     );
-
 
     setValue('city', addressComponents.locality);
     setValue('state', addressComponents.administrative_area_level_1);
@@ -258,10 +256,11 @@ export default function ShippingScreen() {
             type="button"
             onClick={() => router.push('/cart')}
             className="border-primary border-2 text-primary px-4 py-2 transition-colors duration-300 ease-in-out hover:bg-primary hover:text-white"
+            aria-label="back"
           >
             Back to Cart
           </button>
-          <button className="primary-button">Next</button>
+          <button className="primary-button" aria-label="continue">Next</button>
         </div>
       </form>
     </Layout>

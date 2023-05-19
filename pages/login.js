@@ -11,11 +11,9 @@ import Cookies from 'js-cookie';
 
 export default function LoginScreen() {
   const { data: session } = useSession();
-  
 
   const router = useRouter();
   const { redirect } = router.query;
- 
 
   useEffect(() => {
     if (session?.user) {
@@ -45,8 +43,8 @@ export default function LoginScreen() {
   const guestCheckout = () => {
     const guestSessionId = uuidv4();
     Cookies.set('guestSessionId', guestSessionId, { expires: 1 });
-    router.push('/guest-checkout')
-  }
+    router.push('/guest-checkout');
+  };
 
   return (
     <Layout title="login">
@@ -94,24 +92,36 @@ export default function LoginScreen() {
           )}
         </div>
         <div className="mb-4">
-          <button className="primary-button">Login</button>
+          <button className="primary-button" aria-label="login">
+            Login
+          </button>
         </div>
         <div className="mb-4 ">
           Don&apos;t have an account? &nbsp;
-          <Link href={router.query.checkout ? "/register?checkout=true" : "/register"}>Register</Link>
+          <Link
+            href={
+              router.query.checkout ? '/register?checkout=true' : '/register'
+            }
+          >
+            Register
+          </Link>
         </div>
       </form>
       {router.query.checkout && (
-          <>
-            <hr></hr>
-            <div className="mt-4 mb-4 text-center">
-              <p className="text-bold text-center">Or</p>
-              <button onClick={() => guestCheckout()} className="primary-button guest-button w-full md:w-2/5 mx-auto">
-                Continue as Guest
-              </button>
-            </div>
-          </>
-        )}
+        <>
+          <hr></hr>
+          <div className="mt-4 mb-4 text-center">
+            <p className="text-bold text-center">Or</p>
+            <button
+              onClick={() => guestCheckout()}
+              className="primary-button guest-button w-full md:w-2/5 mx-auto"
+              aria-label="continue-as-guest"
+            >
+              Continue as Guest
+            </button>
+          </div>
+        </>
+      )}
     </Layout>
   );
 }

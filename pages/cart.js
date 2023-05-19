@@ -83,7 +83,7 @@ function CartScreen() {
                     </td>
                     <td className="p-5 text-right">${item.price}</td>
                     <td className="p-5 text-center">
-                      <button onClick={() => removeItemHandler(item)}>
+                      <button aria-label="remove-item" onClick={() => removeItemHandler(item)}>
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           fill="none"
@@ -117,6 +117,7 @@ function CartScreen() {
                 <button
                   onClick={() => router.push('login?redirect=/shipping&checkout=true')}
                   className="primary-button w-full"
+                  aria-label="checkout"
                 >
                   Checkout
                 </button>

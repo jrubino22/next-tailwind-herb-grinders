@@ -1,0 +1,4 @@
+# Allow all bots complete access
+User-agent: *
+Disallow: /admin/
+Disallow: /api/

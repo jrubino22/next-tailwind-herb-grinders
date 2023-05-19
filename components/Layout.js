@@ -80,6 +80,7 @@ export default function Layout({
             <nav className="container mx-auto flex h-16 px-6 py-2 justify-between items-center">
               {/* Hamburger menu */}
               <button
+                ari-label="mobile menu"
                 className="md:hidden"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
@@ -87,7 +88,7 @@ export default function Layout({
                 <FontAwesomeIcon icon={faBars} className="w-6 h-6 color-pal-2" />
               </button>
               <Link href="/">
-                <a className="text-3xl color-pal-1 ml-5">
+                <a className="text-lg sm:text-3xl color-pal-1 ml-5">
                   <h1>HerbGrinders.com</h1>
                   {/* <Image src="https://res.cloudinary.com/ddsp9kgde/image/upload/v1679710428/zodiac_oasis_logo_blue_horizontal_emoedp.png" alt="" height="90" width="280" /> */}
                 </a>
@@ -106,6 +107,7 @@ export default function Layout({
                   className="rounded-r p-2 text-sm color-pal-2-bg text-white border border-green-600"
                   type="submit"
                   id="button-addon2"
+                  aria-label="search-submit"
                 >
                   <FontAwesomeIcon icon={faSearch} className="w-6 h-6" />
                 </button>
@@ -113,7 +115,7 @@ export default function Layout({
               <div>
                 <div className="flex items-center md:mr-5">
                   <Link href="/cart">
-                    <a className="p-2 md:mr-2">
+                    <a className="pl-2 md:pr-2 md:mr-2">
                       {cartItemsCount > 0 && (
                         <span className="ml-1 rounded-full bg-green-500 px-2 py-1 text-xs text-black">
                           {cartItemsCount}
@@ -125,6 +127,7 @@ export default function Layout({
                       />
                     </a>
                   </Link>
+                  <div className="hidden md:block">
                   {status === 'loading' ? (
                     'Loading'
                   ) : session?.user ? (
@@ -183,6 +186,7 @@ export default function Layout({
                       </a>
                     </Link>
                   )}
+                  </div>
                 </div>
               </div>
             </nav>
@@ -199,9 +203,10 @@ export default function Layout({
                   placeholder="Search"
                 />
                 <button
-                  className="rounded-r bg-blue-600 p-2 text-sm text-white border border-blue-600"
+                  className="rounded-r color-pal-2-bg p-2 text-sm text-white border border-blue-600"
                   type="submit"
-                  id="button-addon2"
+                  id="button-addon2-mobile"
+                  aria-label="mobile-search-submit"
                 >
                   <FontAwesomeIcon icon={faSearch} className="w-6 h-6" />
                 </button>
@@ -211,6 +216,10 @@ export default function Layout({
           <MobileNavigationMenu
             isOpen={mobileMenuOpen}
             setMobileMenuOpen={setMobileMenuOpen}
+            Menu={Menu}
+            session={session}
+            logoutClickHandler={logoutClickHandler}
+            DropdownLink={DropdownLink}
           />
           <div className="hidden md:block  text-white color-pal-2-bg">
             <NavigationMenu />
@@ -228,8 +237,8 @@ export default function Layout({
           <div className="container mx-auto px-4 md:px-8 lg:px-32 2xl:px-64">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start  justify-items-center">
               <div>
-                <h4 className="text-lg color-pal-1 mb-2">Products</h4>
-                <ul className="text-sm">
+                <h3 className="text-lg color-pal-1 mb-2">Products</h3>
+                <ul className="text-md">
                   <li>
                     <Link href="/category/rotary-grinders">
                       <a className="hover:text-orange-500 transition duration-200">
@@ -255,10 +264,10 @@ export default function Layout({
                 </Link>
               </div>
               <div>
-                <h4 className="text-lg mb-2 color-pal-1">
+                <h3 className="text-lg mb-2 color-pal-1">
                   Information
-                </h4>
-                <ul className="text-sm">
+                </h3>
+                <ul className="text-md">
                   <li>
                     <Link href="/about-us">
                       <a className="hover:text-orange-500 transition duration-200">

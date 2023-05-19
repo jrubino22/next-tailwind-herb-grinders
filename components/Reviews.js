@@ -35,6 +35,7 @@ const Reviews = ({ productId }) => {
         <button
           className="mt-4 md:mt-0 button-color hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
           onClick={toggleForm}
+          aria-label="post-review"
         >
           {showForm ? 'Close Form' : 'Add a review'}
         </button>

@@ -13,6 +13,7 @@ export default function Pagination({ postsPerPage, totalPosts, paginate }) {
               <button
                 onClick={() => paginate(number)}
                 className="primary-button"
+                aria-label={`page ${number}`}
               >
                 {number}
               </button>

@@ -6,6 +6,8 @@ const menuItems = [
   { id: 2, title: 'All Products', link: '/search' },
   { id: 3, title: 'Rotary Grinders', link: '/category/rotary-grinders' },
   { id: 4, title: 'Grinder Cards', link: '/category/grinder-cards' },
+  { id: 5, title: 'Crank Grinders', link: '/category/crank-top-grinders' },
+  { id: 6, title: 'Grind & Stash', link: '/category/grind-stash' },
 ];
 
 const MobileNavigationMenu = ({

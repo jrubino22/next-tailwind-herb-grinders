@@ -84,7 +84,10 @@ export async function getServerSideProps({ params }) {
   let products;
   if (category.isTags) {
     products = await Product.find({
-      tags: { $in: category.productTags },
+      $or: [
+        { tags: { $in: category.productTags } },
+        { category: category._id },
+      ],
     }).lean();
   } else {
     products = await Product.find({ category: category._id }).lean();

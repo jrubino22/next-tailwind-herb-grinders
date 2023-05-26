@@ -14,9 +14,8 @@ export default function Gallery({ images, selectedSubProductImage }) {
         setSelectedImageIndex(0);
         return;
       }
-  
-      const matchingImage = images.findIndex((image) => image.url === newImage);
-  
+
+      const matchingImage = images.findIndex((image) => image.url === newImage.url);
       if (matchingImage >= 0 && matchingImage < images.length) {
         setSelectedImageIndex(matchingImage);
       } else {
@@ -38,7 +37,9 @@ export default function Gallery({ images, selectedSubProductImage }) {
             src={images[selectedImageIndex].url}
             alt={images[selectedImageIndex].altText}
             className="mx-auto max-w-full h-auto absolute inset-0 object-cover"
-            layout="fill"
+            
+            height="1280"
+            width="1280"
             priority
           />
         </div>

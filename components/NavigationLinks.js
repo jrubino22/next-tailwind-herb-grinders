@@ -5,8 +5,9 @@ const leftMenuItems = [
   { id: 1, title: 'Rotary Grinders', link: '/category/rotary-grinders' },
   { id: 2, title: 'Grinder Cards', link: '/category/grinder-cards' },
   { id: 3, title: 'Electric Grinders', link: '/#' },
-  { id: 4, title: 'Disposable Grinders', link: '/#' },
-  { id: 5, title: 'All Products', link: '/search' },
+  { id: 4, title: 'Crank Grinders', link: '/category/crank-top-grinders' },
+  { id: 5, title: 'Grind & Stash', link: '/category/grind-stash' },
+  { id: 6, title: 'All Products', link: '/search' },
 ];
 
 const rightMenuItems = [
@@ -17,16 +18,14 @@ const rightMenuItems = [
 
 const NavigationMenu = () => {
   return (
-    <div >
+    <div>
       <nav className="container mx-auto px-4 py-1">
         <div className="flex justify-between text-sm">
           <ul className="flex items-center space-x-4 ml-5">
             {leftMenuItems.map((item, index) => (
               <li key={index}>
                 <Link href={item.link}>
-                  <a className="hover:text-blue-600">
-                    {item.title}
-                  </a>
+                  <a className="hover:text-blue-600">{item.title}</a>
                 </Link>
               </li>
             ))}
@@ -35,9 +34,7 @@ const NavigationMenu = () => {
             {rightMenuItems.map((item, index) => (
               <li key={index}>
                 <Link href={item.link}>
-                  <a className="hover:text-blue-600">
-                    {item.title}
-                  </a>
+                  <a className="hover:text-blue-600">{item.title}</a>
                 </Link>
               </li>
             ))}

@@ -16,8 +16,9 @@ export default function ProductItem({ product, fullVars }) {
                 src={product.images[0].url}
                 alt={product.images[0].altText}
                 layout="responsive"
-                height="600"
-                width="600"
+                className="mx-auto max-w-full h-auto absolute inset-0 object-cover"
+                height="1280"
+                width="1280"
               />
             </div>
           </a>
@@ -39,7 +40,7 @@ export default function ProductItem({ product, fullVars }) {
               edit={false}
               activeColor="#F99B1D"
             />
-            <span >{`(${product.numReviews})`}</span>
+            <span>{`(${product.numReviews})`}</span>
           </div>
         )}
         <p className="text-md subhead-text text-red-700">

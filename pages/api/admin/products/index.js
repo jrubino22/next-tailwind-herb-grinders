@@ -45,9 +45,36 @@ const postHandler = async (req, res) => {
 
 const getHandler = async (req, res) => {
   await db.connect();
-  const products = await Product.find({});
+  const search = req.query.search || '';
+  const filter = req.query.filter || '';
+  const sort = req.query.sort || '';
+
+  let filterQuery;
+  if (filter === 'active') {
+    filterQuery = { isActive: true };
+  } else if (filter === 'inactive') {
+    filterQuery = { isActive: false };
+  } else {
+    filterQuery = {};
+  }
+
+  let sortQuery;
+  if (sort === 'newest') {
+    sortQuery = { createdAt: -1 };
+  } else if (sort === 'oldest') {
+    sortQuery = { createdAt: 1 };
+  } else {
+    sortQuery = {};
+  }
+
+  const products = await Product.find({
+    name: { $regex: search, $options: 'i' },
+    ...filterQuery,
+  }).sort(sortQuery);
+
   await db.disconnect();
   res.send(products);
 };
+
 
 export default handler;

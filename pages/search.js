@@ -281,6 +281,7 @@ export async function getServerSideProps({ query }) {
       ? { createdAt: -1 }
       : { _id: -1 };
 
+
   await db.connect();
 
   // Updated logic to fetch categories
@@ -311,6 +312,8 @@ export async function getServerSideProps({ query }) {
 
   const brands = await Product.find().distinct('brand');
 
+  const isActiveFilter = { isActive: true };
+
   const productDocs = await Product.aggregate([
     {
       $match: {
@@ -318,6 +321,7 @@ export async function getServerSideProps({ query }) {
         ...categoryFilter,
         ...brandFilter,
         ...ratingFilter,
+        ...isActiveFilter
       },
     },
     {
@@ -449,6 +453,7 @@ export async function getServerSideProps({ query }) {
     ...priceFilter,
     ...brandFilter,
     ...ratingFilter,
+    ...isActiveFilter
   });
 
 

@@ -5,6 +5,8 @@ const SubProductSchema = new mongoose.Schema(
     variant: { type: String, required: true },
     parentName: { type: String, required: true },
     parentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+    parentBigComId: { type: Number },
+    bigComId: { type: Number },
     slug: { type: String, required: true },
     sku: { type: String, required: false },
     image: {

@@ -153,8 +153,8 @@ export default function AdminCategoryScreen() {
                   <tr>
                     <th className="px-5 text-left">ID</th>
                     <th className="px-5 text-left">Title</th>
-                    <th className="px-5 text-left">Description</th>
-                    <th className="px-5 text-left">Image</th>
+                    <th className="px-5 text-left">Slug</th>
+                    <th className="px-5 text-left">Tags</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -162,8 +162,8 @@ export default function AdminCategoryScreen() {
                     <tr key={category._id} className="border-b">
                       <td className="p-5">{category._id.substring(20, 24)}</td>
                       <td className="p-5">{category.title}</td>
-                      <td className="p-5">{category.description}</td>
-                      <td className="p-5">{category.image.url}</td>
+                      <td className="p-5">{category.slug}</td>
+                      <td className="p-5">{category.productTags}</td>
                       <td className="p-5">
                         <Link href={`/admin/categories/${category._id}`}>
                           <a type="button" className="default-button">

@@ -1,10 +1,11 @@
 import axios from 'axios';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import React, { useEffect, useReducer, useRef } from 'react';
+import React, { useEffect, useState, useReducer, useRef } from 'react';
 import { toast } from 'react-toastify';
 import Layout from '../../components/Layout';
 import { getError } from '../../utils/errors';
+import { debounce } from 'lodash';
 
 function reducer(state, action) {
   switch (action.type) {
@@ -44,6 +45,10 @@ export default function AdminProductsScreen() {
     products: [],
     error: '',
   });
+
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filter, setFilter] = useState(''); // 'active', 'inactive', or ''
+  const [sort, setSort] = useState(''); // 'newest', 'oldest', or ''
 
   const fileInputRef = useRef(null);
 
@@ -92,23 +97,38 @@ export default function AdminProductsScreen() {
     }
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        dispatch({ type: 'FETCH_REQUEST' });
-        const { data } = await axios.get(`/api/admin/products`);
-        dispatch({ type: 'FETCH_SUCCESS', payload: data });
-      } catch (err) {
-        dispatch({ type: 'FETCH_FAIL', payload: getError(err) });
-      }
-    };
+  const fetchData = async (currentSearchTerm, currentFilter, currentSort) => {
+    try {
+      dispatch({ type: 'FETCH_REQUEST' });
+      const { data } = await axios.get(
+        `/api/admin/products?search=${currentSearchTerm}&filter=${currentFilter}&sort=${currentSort}`
+      );
+      dispatch({ type: 'FETCH_SUCCESS', payload: data });
+    } catch (err) {
+      dispatch({ type: 'FETCH_FAIL', payload: getError(err) });
+    }
+  };
 
+  const debouncedFetchData = debounce(fetchData, 300);
+
+  useEffect(() => {
     if (successDelete) {
       dispatch({ type: 'DELETE_RESET' });
     } else {
-      fetchData();
+      debouncedFetchData(searchTerm, filter, sort);
     }
-  }, [successDelete]);
+
+    // Cleanup function
+    return () => {
+      debouncedFetchData.cancel();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchTerm, successDelete, filter, sort]);
+
+  // Fetch all products when the component is first mounted
+  useEffect(() => {
+    fetchData('', '', '');
+  }, []);
 
   const deleteHandler = async (productId) => {
     if (!window.confirm('Are you sure?')) {
@@ -173,6 +193,31 @@ export default function AdminProductsScreen() {
               hidden
               accept=".csv"
             />
+            <select
+            className="ml-5"
+              value={filter}
+              onChange={(event) => setFilter(event.target.value)}
+            >
+              <option value="">All</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+            <select
+              className="ml-5"
+              value={sort}
+              onChange={(event) => setSort(event.target.value)}
+            >
+              <option value="">Sort by...</option>
+              <option value="newest">Newest</option>
+              <option value="oldest">Oldest</option>
+            </select>
+            <input
+              type="text"
+              className="mt-2"
+              placeholder="Search..."
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+            />
           </div>
           {loading ? (
             <div>Loading...</div>
@@ -197,7 +242,9 @@ export default function AdminProductsScreen() {
                     <tr key={product._id} className="border-b">
                       <td className="p-5">{product._id.substring(20, 24)}</td>
                       <td className="p-5">{product.name}</td>
-                      <td className="p-5">{product.isActive ? 'Active' : 'Inactive'}</td>
+                      <td className="p-5">
+                        {product.isActive ? 'Active' : 'Inactive'}
+                      </td>
                       {/* <td className="p-5">{product.category}</td> */}
                       <td className="p-5">{product.brand}</td>
                       {/* <td className="p-5">{product.rating}</td> */}

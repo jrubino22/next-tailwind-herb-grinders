@@ -442,9 +442,14 @@ img[src$='#half-width'] {
 }
 
 .prod-description p {
-  margin-bottom:.5rem
+  margin-top:.5rem
 }
 
 .page-content p {
   margin-bottom: 1.5rem
+}
+
+.prod-features li {
+  list-style-type: disc;
+  margin-bottom: .5rem
 }

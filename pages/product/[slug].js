@@ -62,10 +62,13 @@ export default function ProductScreen(props) {
         {}
       );
 
+
       return Object.entries(selectedOptions).every(
         ([key, value]) => selectedOptionsObj[key] === value
       );
     });
+
+    
 
     return matchingSubProduct || subproducts[0];
   }, [subproducts, selectedOptions]);
@@ -169,7 +172,7 @@ export default function ProductScreen(props) {
             selectedSubProductImage={selectedSubProductImage}
           />
         </div>
-        <div className="col-span-2 lg:col-span-3">
+        <div className="col-span-2 lg:col-span-3 ">
           <ul>
             <div className="mb-5">
               <li>
@@ -234,8 +237,8 @@ export default function ProductScreen(props) {
                   </select>
                 </div>
               ))}
-            <hr></hr>
-            <div className="my-5 hidden md:block">
+            <hr className="mt-3"></hr>
+            <div className="my-5 hidden md:block prod-features">
               <ReactMarkdown
                 components={components}
                 rehypePlugins={[rehypeRaw, decodeEntitiesPlugin]}
@@ -314,7 +317,7 @@ export default function ProductScreen(props) {
           <Disclosure>
             {({ open }) => (
               <>
-                <Disclosure.Button className="mb-1 flex justify-between w-full px-4 py-2 text-lg font-semibold text-left  bg-white rounded-lg hover:bg-gray-100 focus:outline-none focus-visible:ring focus-visible:ring-blue-500 focus-visible:ring-opacity-75">
+                <Disclosure.Button className="mb-1 prod-features flex justify-between w-full px-4 py-2 text-lg font-semibold text-left  bg-white rounded-lg hover:bg-gray-100 focus:outline-none focus-visible:ring focus-visible:ring-blue-500 focus-visible:ring-opacity-75">
                   <span>Product Features</span>
                   <FontAwesomeIcon
                     icon={faChevronDown}
@@ -323,7 +326,7 @@ export default function ProductScreen(props) {
                     } w-5 h-5 text-white-500`}
                   />
                 </Disclosure.Button>
-                <Disclosure.Panel className="px-4 pt-4 pb-2 text-gray-700">
+                <Disclosure.Panel className="prod-description px-4 pt-4 pb-2 text-gray-700">
                   <ReactMarkdown
                     components={components}
                     rehypePlugins={[rehypeRaw, decodeEntitiesPlugin]}
@@ -346,7 +349,7 @@ export default function ProductScreen(props) {
                     } w-5 h-5 text-white-500`}
                   />
                 </Disclosure.Button>
-                <Disclosure.Panel className="px-4 pt-4 pb-2 text-gray-700">
+                <Disclosure.Panel className="px-4 pt-4 pb-2 text-gray-700 prod-description">
                   <ReactMarkdown
                     components={components}
                     rehypePlugins={[rehypeRaw, decodeEntitiesPlugin]}
@@ -361,8 +364,8 @@ export default function ProductScreen(props) {
         {/* Product description on desktop */}
         <div className="hidden md:block md:col-start-2 md:col-span-8">
           <hr className="my-10 border-t border-gray-300" />
-          <div className="mt-10">
-            <h2 className="text-xl font-semibold mb-3">Product Description</h2>
+          <div className="mt-10 prod-description">
+            <h2 className="text-xl font-semibold">Product Description</h2>
             <ReactMarkdown
               components={components}
               rehypePlugins={[rehypeRaw, decodeEntitiesPlugin]}

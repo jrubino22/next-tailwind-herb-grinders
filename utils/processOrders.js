@@ -57,7 +57,7 @@ export async function processBigCommerceOrders(shippingAddress, items) {
         email: shippingAddress.email,
       },
     ],
-    products: [products],
+    products: products,
   };
 
   const bigCommerceOrderResponse = await axios.post(

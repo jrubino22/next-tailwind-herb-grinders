@@ -1,5 +1,5 @@
-import db from '../../utils/db';
-import SubProduct from '../../models/SubProduct';
+import db from '../../../utils/db';
+import SubProduct from '../../../models/SubProduct';
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {

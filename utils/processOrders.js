@@ -12,7 +12,7 @@ export async function processBigCommerceOrders(shippingAddress, items) {
       product = {
         product_id: item.parentBigComId,
         quantity: item.quantity,
-        variant_id: item.bigComId,
+        variant_id: 114,
       };
     }
     console.log('product', product);

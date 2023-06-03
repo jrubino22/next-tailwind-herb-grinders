@@ -29,7 +29,9 @@ const getHandler = async (req, res) => {
 const postHandler = async (req, res) => {
   try {
     await db.connect();
-    const user = await User.findById(req.query.id); 
+    const user = await User.findById(req.query.id);
+    console.log('first', req.body.firstName);
+    console.log('last', req.body.lastName); 
     const newAddress = {
       firstName: req.body.firstName,
       lastName: req.body.lastName,

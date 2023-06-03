@@ -8,8 +8,10 @@ import React, { useContext, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import CheckoutWizard from '../components/CheckoutWizard';
 import Layout from '../components/Layout';
+import { processBigCommerceOrders } from '../utils/processOrders';
 import { getError } from '../utils/errors';
 import { Store } from '../utils/Store';
+
 
 export default function PlaceOrderScreen() {
   const { state, dispatch } = useContext(Store);
@@ -61,6 +63,8 @@ export default function PlaceOrderScreen() {
         };
       });
 
+      processBigCommerceOrders(shippingAddress, modifiedCartItems)
+
       let orderData = {
         orderItems: modifiedCartItems,
         shippingAddress,
@@ -77,56 +81,6 @@ export default function PlaceOrderScreen() {
         orderData = { ...orderData, guestSessionId };
       }
 
-      const bigCommerceOrderData = {
-        customer_id: 0,
-        billing_address: {
-          first_name: shippingAddress.firstName,
-          last_name: shippingAddress.lastName,
-          street_1: shippingAddress.addressLine1,
-          street_2: shippingAddress.addressLine2 ? shippingAddress.addressLine2 : '',
-          city: shippingAddress.city,
-          state: shippingAddress.state,
-          zip: shippingAddress.postalCode,
-          country: shippingAddress.country,
-          country_iso2: 'US',
-          phone: shippingAddress.phoneNum,
-          email: shippingAddress.email,
-        },
-        shipping_addresses: [
-          {
-            first_name: shippingAddress.firstName,
-            last_name: shippingAddress.lastName,
-            street_1: shippingAddress.addressLine1,
-            street_2: shippingAddress.addressLine2 ? shippingAddress.addressLine2 : '',
-            city: shippingAddress.city,
-            state: shippingAddress.state,
-            zip: shippingAddress.postalCode,
-            country: shippingAddress.country,
-            country_iso2: 'US',
-            phone: shippingAddress.phoneNum,
-            email: shippingAddress.email,
-          },
-        ],
-        products: [
-          {
-            product_id: 112,
-            quantity: 1,
-          },
-        ],
-      };
-
-      const bigCommerceOrderResponse = await axios.post(
-        '/api/bigcommerce/orders',
-        bigCommerceOrderData
-      );
-
-      if (!bigCommerceOrderResponse.data) {
-        throw new Error('Order could not be completed');
-      }
-
-      if (!bigCommerceOrderResponse.data) {
-        throw new Error('Order could not be completed');
-      }
 
       const { data } = await axios.post('/api/orders', orderData);
 

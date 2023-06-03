@@ -166,7 +166,7 @@ export default function ShippingScreen() {
         country,
       };
       try {
-        console.log('useridsession', session.user._id);
+        console.log('useridsession', addressData);
         await fetch(`/api/auth/address/${session.user._id}`, {
           method: 'POST',
           headers: {
@@ -235,7 +235,7 @@ export default function ShippingScreen() {
               id="firstName"
               autoFocus
               {...register('firstName', {
-                required: 'Please enter full name',
+                required: 'Please enter first name',
               })}
             />
             {errors.firstName && (
@@ -249,7 +249,7 @@ export default function ShippingScreen() {
               id="lastName"
               autoFocus
               {...register('lastName', {
-                required: 'Please enter full name',
+                required: 'Please enter last name',
               })}
             />
             {errors.lastName && (

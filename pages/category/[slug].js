@@ -55,11 +55,11 @@ export default function CategoryPage({ category, products }) {
             className="absolute bottom-0 left-0 w-full p-5 text-white"
             style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
           >
-            <h1 className="text-4xl font-bold mb-2">{category.title}</h1>
+            <h1 className="text-4xl ml-48 mb-2">{category.title}</h1>
           </div>
         </div>
       )}
-      <div className="my-4 px-4">
+      <div className="mt-8 px-4 md:px-8 lg:px-32 2xl:px-56">
         {!category.useBanner && (
           <h2 className="h2 my-4 font-bold text-xl ml-5">{category.title}</h2>
         )}

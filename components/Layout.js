@@ -263,6 +263,16 @@ export default function Layout({
                   </Link>
                 </li>
                 <li className="py-1">
+                  <Link href="/category/electric-grinders">
+                    <a
+                      className="hover:text-orange-500 transition duration-200"
+                      aria-label="cards"
+                    >
+                      Electric Grinders
+                    </a>
+                  </Link>
+                </li>
+                <li className="py-1">
                   <Link href="/category/crank-top-grinders">
                     <a
                       className="hover:text-orange-500 transition duration-200"

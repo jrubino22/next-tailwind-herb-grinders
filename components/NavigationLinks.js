@@ -4,7 +4,7 @@ import Link from 'next/link';
 const leftMenuItems = [
   { id: 1, title: 'Rotary Grinders', link: '/category/rotary-grinders' },
   { id: 2, title: 'Grinder Cards', link: '/category/grinder-cards' },
-  { id: 3, title: 'Electric Grinders', link: '/#' },
+  { id: 3, title: 'Electric Grinders', link: '/category/electric-grinders' },
   { id: 4, title: 'Crank Grinders', link: '/category/crank-top-grinders' },
   { id: 5, title: 'Grind & Stash', link: '/category/grind-stash' },
   { id: 6, title: 'All Products', link: '/search' },

@@ -62,13 +62,10 @@ export default function ProductScreen(props) {
         {}
       );
 
-
       return Object.entries(selectedOptions).every(
         ([key, value]) => selectedOptionsObj[key] === value
       );
     });
-
-    
 
     return matchingSubProduct || subproducts[0];
   }, [subproducts, selectedOptions]);
@@ -90,6 +87,17 @@ export default function ProductScreen(props) {
   const [selectedSubProductImage, setSelectedSubProductImage] = useState(null);
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [quantityToAdd, setQuantityToAdd] = useState(1);
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const [topMargin, setTopMargin] = useState(0);
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    const element = document.querySelector('.prod-card');
+    if (element) {
+      const computedStyle = element.getBoundingClientRect();
+      setTopMargin(parseFloat(computedStyle.top));
+      console.log('rm', topMargin)
+    }
+  }, [topMargin]);
 
   const maxQuantity =
     subproducts.length > 0 && selectedSubProduct
@@ -183,41 +191,39 @@ export default function ProductScreen(props) {
                 <h2>Brand:</h2> <span>{product.brand}</span>
               </li>
               <a href="#review-container">
-                {product.numReviews > 0 ?
-                <li className="text-lg">
-                  <div className="flex items-left space-x-2">
-                    <span className="color-pal-1">
-                      {product.rating.toFixed(1)}
-                    </span>
-                    <ReactStars
-                      isHalf={true}
-                      size={24}
-                      value={product.rating}
-                      edit={false}
-                      activeColor="#F99B1D"
-                    />
-                    <span className="color-pal-1">{`(${product.numReviews})`}</span>
-                  </div>
-                </li>
-                :
-
-                <li className="text-lg">
-                  <div className="flex items-left space-x-2">
-                    <span className="color-pal-1">
-                      {product.rating.toFixed(1)}
-                    </span>
-                    <ReactStars
-                      isHalf={true}
-                      size={24}
-                      value={product.rating}
-                      edit={false}
-                      activeColor="#F99B1D"
-                    />
-                    <span className="color-pal-1">No reviews yet</span>
-                  </div>
-                </li>
-                
-                }
+                {product.numReviews > 0 ? (
+                  <li className="text-lg">
+                    <div className="flex items-left space-x-2">
+                      <span className="color-pal-1">
+                        {product.rating.toFixed(1)}
+                      </span>
+                      <ReactStars
+                        isHalf={true}
+                        size={24}
+                        value={product.rating}
+                        edit={false}
+                        activeColor="#F99B1D"
+                      />
+                      <span className="color-pal-1">{`(${product.numReviews})`}</span>
+                    </div>
+                  </li>
+                ) : (
+                  <li className="text-lg">
+                    <div className="flex items-left space-x-2">
+                      <span className="color-pal-1">
+                        {product.rating.toFixed(1)}
+                      </span>
+                      <ReactStars
+                        isHalf={true}
+                        size={24}
+                        value={product.rating}
+                        edit={false}
+                        activeColor="#F99B1D"
+                      />
+                      <span className="color-pal-1">No reviews yet</span>
+                    </div>
+                  </li>
+                )}
               </a>
             </div>
             {product.options &&
@@ -248,8 +254,11 @@ export default function ProductScreen(props) {
             </div>
           </ul>
         </div>
-        <div className="col-span-2">
-          <div className="card p-5">
+        <div className="col-span-2" style={{ position: 'relative' }}>
+          <div
+            className="card prod-card p-5"
+            style={{ position: 'sticky', top: `${topMargin}px` }}
+          >
             <div className="mb-2 flex justify-between">
               <div className="text-lg">Price</div>
               <div className="text-lg text-blue">

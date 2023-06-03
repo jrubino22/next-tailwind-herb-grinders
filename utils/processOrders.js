@@ -12,7 +12,7 @@ export async function processBigCommerceOrders(shippingAddress, items) {
       product = {
         product_id: item.parentBigComId,
         quantity: item.quantity,
-        variant_id: 29,
+        variant_id: item.bigComId,
       };
     }
     console.log('product', product);
@@ -55,6 +55,9 @@ export async function processBigCommerceOrders(shippingAddress, items) {
     ],
     products: products,
   };
+  const bigCommerceproductvar = await axios.get('/api/bigcommerce/orders');
+
+  console.log('bigcomvar', bigCommerceproductvar);
 
   const bigCommerceOrderResponse = await axios.post(
     '/api/bigcommerce/orders',

@@ -31,9 +31,10 @@ export default async function handler(req, res) {
       console.log(BIGCOMMERCE_STORE_HASH, error.message, bigCommerceOrderData);
       return res.status(500).json({ error: error.message });
     }
-  } else if (method === 'GET') {
+  } 
+  else if (method === 'GET') {
     let url =
-      'https://api.bigcommerce.com/stores/BIGCOMMERCE_STORE_HASH/v3/catalog/products/117/variants';
+      `https://api.bigcommerce.com/stores/${BIGCOMMERCE_STORE_HASH}/v3/catalog/products/117/variants`;
 
     let options = {
       method: 'GET',

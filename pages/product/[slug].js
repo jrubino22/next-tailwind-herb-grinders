@@ -171,7 +171,7 @@ export default function ProductScreen(props) {
       <div className="py-2">
         <Link href="/">back to products</Link>
       </div>
-      <div className="grid md:grid-cols-10 md:gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-10 md:gap-5">
         <div className="col-span-2 md:col-span-4">
           <Gallery
             images={product.images}

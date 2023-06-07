@@ -229,7 +229,7 @@ export default function Layout({
         </div>
       </div>
       <main
-        className={`container${
+        className={`container ${
           applyMarginPadding ? 'px-4 md:px-8 lg:px-32 2xl:px-64' : ''
         }`}
       >

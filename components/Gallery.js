@@ -32,11 +32,11 @@ export default function Gallery({ images, selectedSubProductImage }) {
   return (
     <div className="overflow-hidden">
       <div>
-        <div className="large-img-prod mx-auto relative h-64 w-full">
+        <div className="large-img-prod  relative h-64 ">
           <Image
             src={images[selectedImageIndex].url}
             alt={images[selectedImageIndex].altText}
-            className="mx-auto max-w-full h-auto absolute inset-0 object-cover"
+            className="mx-auto  absolute "
             
             height="1280"
             width="1280"
@@ -45,7 +45,7 @@ export default function Gallery({ images, selectedSubProductImage }) {
         </div>
       </div>
       <div className="w-full">
-        <div className="flex items-center justify-center thumbnails p-2">
+        <div className="flex items-center justify-center thumbnails p-2 overflow-x-scroll whitespace-nowrap">
           {images.map((image, index) => (
             <div
               key={image.url}

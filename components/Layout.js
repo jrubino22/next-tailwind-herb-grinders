@@ -319,7 +319,7 @@ export default function Layout({
                   </Link>
                 </li>
                 <li className="py-1">
-                  <Link href="/terms-and-conditions">
+                  <Link href="/terms-conditions">
                     <a
                       className="hover:text-orange-500 transition duration-200"
                       aria-label="terms"
@@ -329,12 +329,32 @@ export default function Layout({
                   </Link>
                 </li>
                 <li className="py-1">
-                  <Link href="/privacy-policy">
+                  <Link href="/privacy">
                     <a
                       className="hover:text-orange-500 transition duration-200"
                       aria-label="privacy"
                     >
                       Privacy Policy
+                    </a>
+                  </Link>
+                </li>
+                <li className="py-1">
+                  <Link href="/shipping">
+                    <a
+                      className="hover:text-orange-500 transition duration-200"
+                      aria-label="shipping"
+                    >
+                      Shipping Info
+                    </a>
+                  </Link>
+                </li>
+                <li className="py-1">
+                  <Link href="/returns">
+                    <a
+                      className="hover:text-orange-500 transition duration-200"
+                      aria-label="returns"
+                    >
+                      Returns & Refunds
                     </a>
                   </Link>
                 </li>

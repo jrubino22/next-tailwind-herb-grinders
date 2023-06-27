@@ -339,7 +339,7 @@ export default function Layout({
                   </Link>
                 </li>
                 <li className="py-1">
-                  <Link href="/shipping">
+                  <Link href="/shipping-info">
                     <a
                       className="hover:text-orange-500 transition duration-200"
                       aria-label="shipping"
@@ -355,6 +355,16 @@ export default function Layout({
                       aria-label="returns"
                     >
                       Returns & Refunds
+                    </a>
+                  </Link>
+                </li>
+                <li className="py-1">
+                  <Link href="/contact-us">
+                    <a
+                      className="hover:text-orange-500 transition duration-200"
+                      aria-label="contact"
+                    >
+                      Contact Us
                     </a>
                   </Link>
                 </li>

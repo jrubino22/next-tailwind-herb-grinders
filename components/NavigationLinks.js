@@ -19,7 +19,7 @@ const rightMenuItems = [
 const NavigationMenu = () => {
   return (
     <div>
-      <nav className="container mx-auto px-4 py-1">
+      <nav className="container mx-auto py-1">
         <div className="flex justify-between text-sm">
           <ul className="flex items-center space-x-4 ml-5">
             {leftMenuItems.map((item, index) => (

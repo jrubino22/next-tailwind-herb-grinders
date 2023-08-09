@@ -70,14 +70,14 @@ export default function Layout({
 
       <ToastContainer position="bottom-center" limit={1} />
 
-      <div className="color-pal-5-bg text-center ">
+      <div className="bg-yellow-400 text-center ">
         <span className="color-pal-2 text-sm">
           Grand Opening Sale! 20% off will be applied at checkout
         </span>
       </div>
       <div className="flex flex-col bg-white csticky z-10">
         <header className="header-bg shadow-md">
-          <nav className="container mx-auto flex h-16 px-6 py-2 justify-between items-center">
+          <nav className="container mx-auto flex h-16 px-4 md:px-8 lg:px-32 2xl:px-64 bg-gray-900 justify-between items-center">
             {/* Hamburger menu */}
             <button
               aria-label="mobile menu"
@@ -85,15 +85,17 @@ export default function Layout({
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               {/* Hamburger icon */}
-              <FontAwesomeIcon icon={faBars} className="w-6 h-6 color-pal-2" />
+              <FontAwesomeIcon
+                icon={faBars}
+                className="w-5 h-5 text-white hover:text-gray-400 transition-colors"
+              />
             </button>
             <Link href="/">
               <a
-                className="text-lg sm:text-3xl color-pal-1 ml-5"
+                className="text-lg sm:text-3xl color-pal-1 ml-5 hover:text-gray-400 transition-colors"
                 aria-label="home"
               >
                 <h1>HerbGrinders.com</h1>
-                {/* <Image src="https://res.cloudinary.com/ddsp9kgde/image/upload/v1679710428/zodiac_oasis_logo_blue_horizontal_emoedp.png" alt="" height="90" width="280" /> */}
               </a>
             </Link>
             <form
@@ -107,18 +109,21 @@ export default function Layout({
                 placeholder="Search"
               />
               <button
-                className="rounded-r p-2 text-sm color-pal-2-bg text-white border border-green-600"
+                className="rounded-r p-2 text-sm bg-gray-800 text-white border border-green-600"
                 type="submit"
                 id="button-addon2"
                 aria-label="search-submit"
               >
-                <FontAwesomeIcon icon={faSearch} className="w-6 h-6" />
+                <FontAwesomeIcon icon={faSearch} className="w-5 h-5" />
               </button>
             </form>
             <div>
               <div className="flex items-center md:mr-5">
                 <Link href="/cart">
-                  <a className="pl-2 md:pr-2 md:mr-2" aria-label="cart">
+                  <a
+                    className="pl-2 md:pr-2 md:mr-2 hover:text-gray-400 transition-colors"
+                    aria-label="cart"
+                  >
                     {cartItemsCount > 0 && (
                       <span className="ml-1 rounded-full bg-green-500 px-2 py-1 text-xs text-black">
                         {cartItemsCount}
@@ -126,7 +131,7 @@ export default function Layout({
                     )}
                     <FontAwesomeIcon
                       icon={faShoppingCart}
-                      className="w-6 h-6 color-pal-2"
+                      className="w-5 h-5 text-white hover:text-gray-400 transition-colors"
                     />
                   </a>
                 </Link>
@@ -138,13 +143,13 @@ export default function Layout({
                       as="div"
                       className="relative profile-menu inline-block"
                     >
-                      <Menu.Button className="color-pal-2">
+                      <Menu.Button className="text-white hover:text-gray-400 transition-colors">
                         {session.user.firstName}
                       </Menu.Button>
                       <Menu.Items className="absolute right-0 w-56 origin-top-right bg-white shadow-lg rounded">
                         <Menu.Item>
                           <DropdownLink
-                            className="dropdown-link"
+                            className="dropdown-link hover:bg-gray-200 transition-colors"
                             href="/profile"
                           >
                             Profile
@@ -152,7 +157,7 @@ export default function Layout({
                         </Menu.Item>
                         <Menu.Item>
                           <DropdownLink
-                            className="dropdown-link"
+                            className="dropdown-link hover:bg-gray-200 transition-colors"
                             href="/order-history"
                           >
                             Order History
@@ -161,7 +166,7 @@ export default function Layout({
                         {session.user.isAdmin && (
                           <Menu.Item>
                             <DropdownLink
-                              className="dropdown-link"
+                              className="dropdown-link hover:bg-gray-200 transition-colors"
                               href="/admin/dashboard"
                             >
                               Admin Dashboard
@@ -170,7 +175,7 @@ export default function Layout({
                         )}
                         <Menu.Item>
                           <DropdownLink
-                            className="dropdown-link"
+                            className="dropdown-link hover:bg-gray-200 transition-colors"
                             href="/order-history"
                             onClick={logoutClickHandler}
                           >
@@ -181,10 +186,13 @@ export default function Layout({
                     </Menu>
                   ) : (
                     <Link href="/login">
-                      <a className="p-2" aria-label="login">
+                      <a
+                        className="p-2 hover:text-gray-400 transition-colors"
+                        aria-label="login"
+                      >
                         <FontAwesomeIcon
                           icon={faUser}
-                          className="w-6 h-6 color-pal-2"
+                          className="w-5 h-5 text-white hover:text-gray-400 transition-colors"
                         />
                       </a>
                     </Link>
@@ -193,29 +201,8 @@ export default function Layout({
               </div>
             </div>
           </nav>
-          {/* Mobile search bar */}
-          <form
-            onSubmit={submitHandler}
-            className="mx-auto px-4 mb-4  mr-5 w-full justify-center  md:hidden"
-          >
-            <div className="flex">
-              <input
-                onChange={(e) => setQuery(e.target.value)}
-                type="search"
-                className="rounded-l p-2 w-full text-sm focus:ring0 border border-gray-300"
-                placeholder="Search"
-              />
-              <button
-                className="rounded-r color-pal-2-bg p-2 text-sm text-white border border-blue-600"
-                type="submit"
-                id="button-addon2-mobile"
-                aria-label="mobile-search-submit"
-              >
-                <FontAwesomeIcon icon={faSearch} className="w-6 h-6" />
-              </button>
-            </div>
-          </form>
         </header>
+
         <MobileNavigationMenu
           isOpen={mobileMenuOpen}
           setMobileMenuOpen={setMobileMenuOpen}
@@ -224,7 +211,7 @@ export default function Layout({
           logoutClickHandler={logoutClickHandler}
           DropdownLink={DropdownLink}
         />
-        <div className="hidden md:block  text-white color-pal-2-bg">
+        <div className="px-4 md:px-8 lg:px-32 2xl:px-64 hidden md:block  text-white bg-gray-800">
           <NavigationMenu />
         </div>
       </div>

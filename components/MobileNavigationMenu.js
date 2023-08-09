@@ -51,10 +51,10 @@ const MobileNavigationMenu = ({
   return (
     <>
       {isOpen && (
-        <div className="fixed inset-0 z-20 bg-gray-900 bg-opacity-50 flex items-stretch">
+        <div className="fixed inset-0 z-20 bg-gray-900 bg-opacity-50 flex items-center justify-center">
           <nav
             ref={menuRef}
-            className="absolute top-0 left-0 w-3/4 max-w-sm h-full bg-white shadow-lg flex flex-col py-5 px-4"
+            className="transform top-0 translate-x-[-100%] w-3/4 max-w-sm h-full bg-white shadow-lg flex flex-col py-5 px-4 transition-transform duration-300 ease-in-out" style={{transform: isOpen ? 'translateX(0)' : ''}}
           >
             <div className="flex items-center justify-between">
               <h1 className="text-xl color-pal-1 text-gray-900">

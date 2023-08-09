@@ -29,7 +29,6 @@ a {
   /* @apply text-blue-600 hover:text-blue-800; */
 }
 
-
 .profile-menu {
   z-index: 2;
 }
@@ -58,7 +57,7 @@ a {
 
 .primary-button {
   @apply rounded text-white py-2 px-4 shadow outline-none hover:bg-green-400 active:bg-green-500;
-  background-color: #09600F;
+  background-color: #09600f;
 }
 
 .default-button {
@@ -70,47 +69,47 @@ a {
 }
 
 .color-pal-1 {
-  color: #09600F
+  color: #087710;
 }
 
 .color-pal-2 {
-  color: #0F0962;
+  color: #0f0962;
 }
 
 .color-pal-3 {
-  color: #1C6681;
+  color: #1c6681;
 }
 
 .color-pal-4 {
-  color: #BFBF7A
+  color: #bfbf7a;
 }
 
 .color-pal-5 {
-  color: #F99B1D
+  color: #f99b1d;
 }
 
 .color-pal-1-bg {
-  background-color: #09600F
+  background-color: #087710;
 }
 
 .color-pal-2-bg {
-  background-color: #0F0962;
+  background-color: #0f0962;
 }
 
 .color-pal-3-bg {
-  background-color: #1C6681;
+  background-color: #1c6681;
 }
 
 .color-pal-4-bg {
-  background-color: #BFBF7A
+  background-color: #bfbf7a;
 }
 
 .color-pal-5-bg {
-  background-color: #F99B1D
+  background-color: #f99b1d;
 }
 
 .navbar-style {
-  background-color: #09600F;
+  background-color: #09600f;
   border-top: solid white 1px;
   color: #ffffff !important;
 }
@@ -155,7 +154,7 @@ a {
   width: 100%;
   /* padding-bottom: 10%; */
   border-radius: 0.5rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
   transition: box-shadow 0.3s ease;
 }
 
@@ -180,7 +179,7 @@ a {
 }
 
 .selected-variant-image {
-  box-shadow: 0 0 0 3px rgba(252,211,77,0.7);
+  box-shadow: 0 0 0 3px rgba(252, 211, 77, 0.7);
 }
 
 .selected-variant-image img {
@@ -188,7 +187,7 @@ a {
 }
 
 .variant-select:checked ~ .variant-image {
-  box-shadow: 0 0 0 3px rgba(252,211,77,0.5);
+  box-shadow: 0 0 0 3px rgba(252, 211, 77, 0.5);
 }
 
 .variant-select:checked ~ .variant-image img {
@@ -231,7 +230,7 @@ textarea {
   position: relative;
 }
 
-.variant-admin-img-wrapper input[type="radio"] {
+.variant-admin-img-wrapper input[type='radio'] {
   position: absolute;
   opacity: 0;
   cursor: pointer;
@@ -247,7 +246,7 @@ textarea {
 }
 
 .variant-admin-img-wrapper label::before {
-  content: "";
+  content: '';
   display: block;
   position: absolute;
   top: 0;
@@ -258,11 +257,11 @@ textarea {
   border: 2px solid transparent;
 }
 
-.variant-admin-img-wrapper input[type="radio"]:checked + label::before {
+.variant-admin-img-wrapper input[type='radio']:checked + label::before {
   border-color: blue;
 }
 
-.variant-admin-img-wrapper input[type="radio"]:checked + label img {
+.variant-admin-img-wrapper input[type='radio']:checked + label img {
   transform: scale(1.3);
 }
 
@@ -287,20 +286,20 @@ textarea {
 }
 
 .selected-thumbnail {
-  transform: scale(1.2)
+  transform: scale(1.2);
 }
 
 .description-prod p {
-  margin-bottom: 1.1em
+  margin-bottom: 1.1em;
 }
 
 .blog-p p {
-  margin-bottom: 1rem
+  margin-bottom: 1rem;
 }
 
-input[type="text"],
-input[type="email"],
-input[type="password"] {
+input[type='text'],
+input[type='email'],
+input[type='password'] {
   border: 2px solid #ccc;
   border-radius: 4px;
   box-sizing: border-box;
@@ -327,7 +326,7 @@ input[type="password"] {
   transition: background-color 0.2s;
 }
 
-button[type="submit"]:hover {
+button[type='submit']:hover {
   background-color: #0061d1;
 }
 
@@ -344,7 +343,7 @@ button[type="submit"]:hover {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   grid-gap: 1rem;
-  margin-bottom: 1rem
+  margin-bottom: 1rem;
 }
 
 .address-option {
@@ -388,7 +387,7 @@ button[type="submit"]:hover {
 }
 
 .button-color {
-  background-color: #09600F
+  background-color: #09600f;
 }
 
 .continue-button-container {
@@ -408,12 +407,12 @@ button[type="submit"]:hover {
   margin-left: 10px; /* Add some margin to the left of the icon */
 }
 
-img[src$='#half-width'] { 
-  max-width:50% !important;
+img[src$='#half-width'] {
+  max-width: 50% !important;
 }
 
 .post-content img {
-  max-width: 50%
+  max-width: 50%;
 }
 
 .navigation-menu-container {
@@ -442,14 +441,14 @@ img[src$='#half-width'] {
 }
 
 .prod-description p {
-  margin-top:.5rem
+  margin-top: 0.5rem;
 }
 
 .page-content p {
-  margin-bottom: 1.5rem
+  margin-bottom: 1.5rem;
 }
 
 .prod-features li {
   list-style-type: disc;
-  margin-bottom: .5rem
+  margin-bottom: 0.5rem;
 }

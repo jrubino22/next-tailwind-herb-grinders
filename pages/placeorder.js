@@ -4,7 +4,7 @@ import Cookies from 'js-cookie';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { toast } from 'react-toastify';
 import CheckoutWizard from '../components/CheckoutWizard';
 import Layout from '../components/Layout';
@@ -33,11 +33,11 @@ export default function PlaceOrderScreen() {
 
   const router = useRouter();
 
-  useEffect(() => {
-    if (!paymentMethod) {
-      router.push('/payment');
-    }
-  }, [paymentMethod, router]);
+  // useEffect(() => {
+  //   if (!paymentMethod) {
+  //     router.push('/payment');
+  //   }
+  // }, [paymentMethod, router]);
 
   const [loading, setLoading] = useState(false);
 

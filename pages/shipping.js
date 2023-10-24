@@ -178,7 +178,7 @@ export default function ShippingScreen() {
         console.log(error);
       }
     }
-    router.push('/payment');
+    router.push('/placeorder');
   };
 
   const handlePlaceSelect = (place) => {
